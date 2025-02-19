@@ -17,14 +17,14 @@ import Button from "../../../components/Button";
 import { SERVER_URL } from "..";
 
 const MATRIX_CATEGORY_DESCRIPTIONS: Record<CategoryType, string> = {
-  PersonXIdea: "Who is the application for?",
-  PersonXGrounding:
+  AgentsXIdea: "Who is the application for?",
+  AgentsXGrounding:
     "What is the users goal? What are problems with existing approaches?",
-  ApproachXIdea:
+  ActionsXIdea:
     "What is the concept, theory, or strategy that guides the solution?",
-  ApproachXGrounding: "How do we translate this approach to reality?",
-  InteractionXIdea: "What is the core interaction paradigm?",
-  InteractionXGrounding: "What are the core features for this interaction?",
+  ActionsXGrounding: "How do we translate this approach to reality?",
+  WorldXIdea: "What is the core interaction paradigm?",
+  WorldXGrounding: "What are the core features for this interaction?",
 };
 
 const Matrix = () => {
@@ -38,12 +38,12 @@ const Matrix = () => {
   const [prototypeName, setPrototypeName] = useState("");
   const [expand, setExpand] = useState(true);
 
-  const [PersonXIdea, setPersonXIdea] = useState("");
-  const [ApproachXIdea, setApproachXIdea] = useState("");
-  const [InteractionXIdea, setInteractionXIdea] = useState("");
-  const [PersonXGrounding, setPersonXGrounding] = useState("");
-  const [ApproachXGrounding, setApproachXGrounding] = useState("");
-  const [InteractionXGrounding, setInteractionXGrounding] = useState("");
+  const [AgentsXIdea, setAgentsXIdea] = useState("");
+  const [ActionsXIdea, setActionsXIdea] = useState("");
+  const [WorldXIdea, setWorldXIdea] = useState("");
+  const [AgentsXGrounding, setAgentsXGrounding] = useState("");
+  const [ActionsXGrounding, setActionsXGrounding] = useState("");
+  const [WorldXGrounding, setWorldXGrounding] = useState("");
 
   const getProblem = () => {
     updateIsLoading(true);
@@ -111,18 +111,18 @@ const Matrix = () => {
     const fetchInput = async () => {
       updateIsLoading(true);
       try {
-        const personXIdea = await getInput("PersonXIdea");
-        setPersonXIdea(personXIdea);
-        const approachXIdea = await getInput("ApproachXIdea");
-        setApproachXIdea(approachXIdea);
-        const interactionXIdea = await getInput("InteractionXIdea");
-        setInteractionXIdea(interactionXIdea);
-        const personXGrounding = await getInput("PersonXGrounding");
-        setPersonXGrounding(personXGrounding);
-        const approachXGrounding = await getInput("ApproachXGrounding");
-        setApproachXGrounding(approachXGrounding);
-        const interactionXGrounding = await getInput("InteractionXGrounding");
-        setInteractionXGrounding(interactionXGrounding);
+        const agentsXIdea = await getInput("AgentsXIdea");
+        setAgentsXIdea(agentsXIdea);
+        const actionsXIdea = await getInput("ActionsXIdea");
+        setActionsXIdea(actionsXIdea);
+        const worldXIdea = await getInput("WorldXIdea");
+        setWorldXIdea(worldXIdea);
+        const agentsXGrounding = await getInput("AgentsXGrounding");
+        setAgentsXGrounding(agentsXGrounding);
+        const actionsXGrounding = await getInput("ActionsXGrounding");
+        setActionsXGrounding(actionsXGrounding);
+        const worldXGrounding = await getInput("WorldXGrounding");
+        setWorldXGrounding(worldXGrounding);
       } catch (error) {
         console.error("Failed to fetch input:", error);
       } finally {
@@ -216,7 +216,7 @@ const Matrix = () => {
                       //fontFamily: "monospace",
                     }}
                   >
-                    PERSON
+                    AGENTS
                   </Typography>
                 </TableCell>
                 <TableCell
@@ -233,7 +233,7 @@ const Matrix = () => {
                       // fontFamily: "monospace",
                     }}
                   >
-                    APPROACH
+                    ACTIONS
                   </Typography>
                 </TableCell>
                 <TableCell
@@ -250,7 +250,7 @@ const Matrix = () => {
                       // fontFamily: "monospace",
                     }}
                   >
-                    INTERACTION
+                    WORLD
                   </Typography>
                 </TableCell>
               </TableRow>
@@ -286,9 +286,9 @@ const Matrix = () => {
                       fontWeight: "bold",
                     }}
                   >
-                    {MATRIX_CATEGORY_DESCRIPTIONS["PersonXIdea"]}
+                    {MATRIX_CATEGORY_DESCRIPTIONS["AgentsXIdea"]}
                   </Typography>
-                  <Typography variant="body2">{PersonXIdea}</Typography>
+                  <Typography variant="body2">{AgentsXIdea}</Typography>
                 </TableCell>
                 <TableCell
                   sx={{
@@ -302,9 +302,9 @@ const Matrix = () => {
                       fontWeight: "bold",
                     }}
                   >
-                    {MATRIX_CATEGORY_DESCRIPTIONS["ApproachXIdea"]}
+                    {MATRIX_CATEGORY_DESCRIPTIONS["ActionsXIdea"]}
                   </Typography>
-                  <Typography variant="body2">{ApproachXIdea}</Typography>
+                  <Typography variant="body2">{ActionsXIdea}</Typography>
                 </TableCell>
                 <TableCell
                   sx={{
@@ -318,9 +318,9 @@ const Matrix = () => {
                       fontWeight: "bold",
                     }}
                   >
-                    {MATRIX_CATEGORY_DESCRIPTIONS["InteractionXIdea"]}
+                    {MATRIX_CATEGORY_DESCRIPTIONS["WorldXIdea"]}
                   </Typography>
-                  <Typography variant="body2">{InteractionXIdea}</Typography>
+                  <Typography variant="body2">{WorldXIdea}</Typography>
                 </TableCell>
               </TableRow>
               <TableRow>
@@ -353,9 +353,9 @@ const Matrix = () => {
                       fontWeight: "bold",
                     }}
                   >
-                    {MATRIX_CATEGORY_DESCRIPTIONS["PersonXGrounding"]}
+                    {MATRIX_CATEGORY_DESCRIPTIONS["AgentsXGrounding"]}
                   </Typography>
-                  <Typography variant="body2">{PersonXGrounding}</Typography>
+                  <Typography variant="body2">{AgentsXGrounding}</Typography>
                 </TableCell>
                 <TableCell
                   sx={{
@@ -369,9 +369,9 @@ const Matrix = () => {
                       fontWeight: "bold",
                     }}
                   >
-                    {MATRIX_CATEGORY_DESCRIPTIONS["ApproachXGrounding"]}
+                    {MATRIX_CATEGORY_DESCRIPTIONS["ActionsXGrounding"]}
                   </Typography>
-                  <Typography variant="body2">{ApproachXGrounding}</Typography>
+                  <Typography variant="body2">{ActionsXGrounding}</Typography>
                 </TableCell>
                 <TableCell
                   sx={{
@@ -385,11 +385,9 @@ const Matrix = () => {
                       fontWeight: "bold",
                     }}
                   >
-                    {MATRIX_CATEGORY_DESCRIPTIONS["InteractionXGrounding"]}
+                    {MATRIX_CATEGORY_DESCRIPTIONS["WorldXGrounding"]}
                   </Typography>
-                  <Typography variant="body2">
-                    {InteractionXGrounding}
-                  </Typography>
+                  <Typography variant="body2">{WorldXGrounding}</Typography>
                 </TableCell>
               </TableRow>
             </TableBody>

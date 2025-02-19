@@ -17,14 +17,15 @@ import { CategoryType, useMatrixContext } from "../../hooks/matrix-context";
 import { SERVER_URL } from "../..";
 
 const MATRIX_CATEGORY_DESCRIPTIONS: Record<CategoryType, string> = {
-  PersonXIdea: "Who is the application for?",
-  PersonXGrounding:
-    "What is the users goal? What are problems with existing approaches?",
-  ApproachXIdea:
-    "What is the concept, theory, or strategy that guides the solution?",
-  ApproachXGrounding: "How do we translate this approach to reality?",
-  InteractionXIdea: "What is the core interaction paradigm?",
-  InteractionXGrounding: "What are the core features for this interaction?",
+  AgentsXIdea: "Who are the agent types?",
+  AgentsXGrounding:
+    "What are the agent's personalities? What is their role in the simulation?",
+  ActionsXIdea: "What actions will the agents do?",
+  ActionsXGrounding:
+    "How can we translate these actions to work in a simulation? What mechanisms are necessary?",
+  WorldXIdea: "What is the world the agents interact in?",
+  WorldXGrounding:
+    "How should we define each room? What do agents do in each room?",
 };
 
 const getDependencies = (
@@ -187,42 +188,6 @@ const ProjectSpecification = () => {
         paddingX: "40px",
       }}
     >
-      {/* <Typography
-          variant="h4"
-          sx={{
-            fontWeight: "bold",
-            alignSelf: "center",
-            fontFamily: "monospace",
-          }}
-        >
-          Problem Specification
-        </Typography> */}
-      {/* <Stack
-          direction="row"
-          spacing="10px"
-          sx={{
-            alignItems: "flex-start",
-            alignContent: "flex-end",
-            justifyContent: "flex-start",
-          }}
-        >
-          <img
-            src={require("../../../../assets/franky-icon.ico")}
-            alt="franky"
-            width="50x"
-          />
-          <Typography
-            variant="h4"
-            sx={{
-              // alignSelf: "center",
-              color: "#9a4e4e",
-              fontWeight: "bold",
-              fontFamily: "Courier New",
-            }}
-          >
-            dynex
-          </Typography>
-        </Stack> */}
       <InputWithButton
         className="problem"
         label="Problem"
@@ -254,10 +219,9 @@ const ProjectSpecification = () => {
                       variant="h6"
                       sx={{
                         fontWeight: "bold",
-                        //fontFamily: "monospace",
                       }}
                     >
-                      PERSON
+                      AGENTS
                     </Typography>
                   </TableCell>
                   <TableCell
@@ -271,10 +235,9 @@ const ProjectSpecification = () => {
                       variant="h6"
                       sx={{
                         fontWeight: "bold",
-                        // fontFamily: "monospace",
                       }}
                     >
-                      APPROACH
+                      ACTIONS
                     </Typography>
                   </TableCell>
                   <TableCell
@@ -288,10 +251,9 @@ const ProjectSpecification = () => {
                       variant="h6"
                       sx={{
                         fontWeight: "bold",
-                        // fontFamily: "monospace",
                       }}
                     >
-                      INTERACTION
+                      WORLD
                     </Typography>
                   </TableCell>
                 </TableRow>
@@ -309,7 +271,6 @@ const ProjectSpecification = () => {
                       variant="h6"
                       sx={{
                         fontWeight: "bold",
-                        // fontFamily: "monospace",
                       }}
                     >
                       IDEA
@@ -322,9 +283,9 @@ const ProjectSpecification = () => {
                     }}
                   >
                     <Category
-                      category={"PersonXIdea"}
-                      description={MATRIX_CATEGORY_DESCRIPTIONS["PersonXIdea"]}
-                      isDependency={dependencies?.includes("PersonXIdea")}
+                      category={"AgentsXIdea"}
+                      description={MATRIX_CATEGORY_DESCRIPTIONS["AgentsXIdea"]}
+                      isDependency={dependencies?.includes("AgentsXIdea")}
                     />
                   </TableCell>
                   <TableCell
@@ -334,11 +295,9 @@ const ProjectSpecification = () => {
                     }}
                   >
                     <Category
-                      category={"ApproachXIdea"}
-                      description={
-                        MATRIX_CATEGORY_DESCRIPTIONS["ApproachXIdea"]
-                      }
-                      isDependency={dependencies?.includes("ApproachXIdea")}
+                      category={"ActionsXIdea"}
+                      description={MATRIX_CATEGORY_DESCRIPTIONS["ActionsXIdea"]}
+                      isDependency={dependencies?.includes("ActionsXIdea")}
                     />
                   </TableCell>
                   <TableCell
@@ -348,11 +307,9 @@ const ProjectSpecification = () => {
                     }}
                   >
                     <Category
-                      category={"InteractionXIdea"}
-                      description={
-                        MATRIX_CATEGORY_DESCRIPTIONS["InteractionXIdea"]
-                      }
-                      isDependency={dependencies?.includes("InteractionXIdea")}
+                      category={"WorldXIdea"}
+                      description={MATRIX_CATEGORY_DESCRIPTIONS["WorldXIdea"]}
+                      isDependency={dependencies?.includes("WorldXIdea")}
                     />
                   </TableCell>
                 </TableRow>
@@ -368,7 +325,6 @@ const ProjectSpecification = () => {
                       variant="h6"
                       sx={{
                         fontWeight: "bold",
-                        // fontFamily: "monospace",
                       }}
                     >
                       GROUNDING
@@ -381,11 +337,11 @@ const ProjectSpecification = () => {
                     }}
                   >
                     <Category
-                      category="PersonXGrounding"
+                      category="AgentsXGrounding"
                       description={
-                        MATRIX_CATEGORY_DESCRIPTIONS["PersonXGrounding"]
+                        MATRIX_CATEGORY_DESCRIPTIONS["AgentsXGrounding"]
                       }
-                      isDependency={dependencies?.includes("PersonXGrounding")}
+                      isDependency={dependencies?.includes("AgentsXGrounding")}
                     />
                   </TableCell>
                   <TableCell
@@ -395,13 +351,11 @@ const ProjectSpecification = () => {
                     }}
                   >
                     <Category
-                      category="ApproachXGrounding"
+                      category="ActionsXGrounding"
                       description={
-                        MATRIX_CATEGORY_DESCRIPTIONS["ApproachXGrounding"]
+                        MATRIX_CATEGORY_DESCRIPTIONS["ActionsXGrounding"]
                       }
-                      isDependency={dependencies?.includes(
-                        "ApproachXGrounding",
-                      )}
+                      isDependency={dependencies?.includes("ActionsXGrounding")}
                     />
                   </TableCell>
                   <TableCell
@@ -411,13 +365,11 @@ const ProjectSpecification = () => {
                     }}
                   >
                     <Category
-                      category="InteractionXGrounding"
+                      category="WorldXGrounding"
                       description={
-                        MATRIX_CATEGORY_DESCRIPTIONS["InteractionXGrounding"]
+                        MATRIX_CATEGORY_DESCRIPTIONS["WorldXGrounding"]
                       }
-                      isDependency={dependencies?.includes(
-                        "InteractionXGrounding",
-                      )}
+                      isDependency={dependencies?.includes("WorldXGrounding")}
                     />
                   </TableCell>
                 </TableRow>

@@ -7,12 +7,12 @@ import React, {
 } from "react";
 
 export type CategoryType =
-  | "PersonXIdea"
-  | "PersonXGrounding"
-  | "ApproachXIdea"
-  | "ApproachXGrounding"
-  | "InteractionXIdea"
-  | "InteractionXGrounding";
+  | "AgentsXIdea"
+  | "AgentsXGrounding"
+  | "ActionsXIdea"
+  | "ActionsXGrounding"
+  | "WorldXIdea"
+  | "WorldXGrounding";
 
 export interface MatrixState {
   matrixCategoryInfo: Record<CategoryType, string>;
@@ -39,12 +39,12 @@ export const MatrixProvider = ({ children }) => {
   const [matrixCategoryInfo, setUpdateMatrixCategoryInfo] = useState<
     Record<CategoryType, string>
   >({
-    PersonXIdea: "",
-    PersonXGrounding: "",
-    ApproachXIdea: "",
-    ApproachXGrounding: "",
-    InteractionXIdea: "",
-    InteractionXGrounding: "",
+    AgentsXIdea: "",
+    AgentsXGrounding: "",
+    ActionsXIdea: "",
+    ActionsXGrounding: "",
+    WorldXIdea: "",
+    WorldXGrounding: "",
   });
 
   const updateMatrixCategoryInfo = (

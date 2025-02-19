@@ -12,7 +12,7 @@ const Box = ({ children, border, sx, ...props }: BoxProps): ReactElement => {
       sx={{
         padding: "10px",
         border: border ?? 10,
-        borderColor: "#9a4e4e",
+        borderColor: "#9d5ba3ff",
         backgroundColor: "white",
         ...sx,
       }}

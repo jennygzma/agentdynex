@@ -32,7 +32,7 @@ const Header = () => {
   return (
     <Box
       sx={{
-        backgroundColor: "#9a4e4e",
+        backgroundColor: "#9d5ba3ff",
         position: "fixed",
         top: 0,
         left: 0,
@@ -66,10 +66,9 @@ const Header = () => {
           <DrawerHeader
             sx={{
               paddingTop: "100px",
-              backgroundColor: "#F8F3CA",
             }}
           >
-            <Button onClick={toggleDrawer(false)} colorVariant="red">
+            <Button onClick={toggleDrawer(false)}>
               <ChevronLeft />
             </Button>
           </DrawerHeader>
@@ -82,7 +81,7 @@ const Header = () => {
           }}
         >
           <img
-            src={require("../../../assets/franky.ico")}
+            src={require("../../../assets/robin.ico")}
             alt="franky"
             width="50x"
           />
@@ -90,13 +89,13 @@ const Header = () => {
             variant="h4"
             sx={{
               // alignSelf: "center",
-              color: "#5BB9C2",
+              color: "white",
               fontWeight: "bold",
               fontFamily: "Courier New",
               textAlign: "center",
             }}
           >
-            dynex
+            AGENTDYNEX
           </Typography>
         </Stack>
         {prototypes?.length !== 0 ? (
@@ -111,7 +110,7 @@ const Header = () => {
             </Button>
           </Tooltip>
         ) : (
-          <Box sx={{ backgroundColor: "#9a4e4e" }}> </Box>
+          <Box sx={{ backgroundColor: "#9d5ba3ff" }}> </Box>
         )}
       </Stack>
     </Box>

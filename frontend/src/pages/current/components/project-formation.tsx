@@ -47,48 +47,7 @@ const ProjectFormation = () => {
     getFakedData();
     getSpec();
     getToolsRequirement();
-    // getPrompt();
   }, [currentPrototype]);
-
-  // const getPrompt = () => {
-  //   updateIsLoading(true);
-  //   axios({
-  //     method: "GET",
-  //     url: `${SERVER_URL}/get_prompt`,
-  //   })
-  //     .then((response) => {
-  //       console.log("/get_prompt request successful:", response.data);
-  //       setUIPrompt(response.data.prompt);
-  //     })
-  //     .catch((error) => {
-  //       console.error("Error calling /get_prompt request:", error);
-  //     })
-  //     .finally(() => {
-  //       updateIsLoading(false);
-  //     });
-  // };
-
-  // const savePrompt = () => {
-  //   updateIsLoading(true);
-  //   axios({
-  //     method: "POST",
-  //     url: `${SERVER_URL}/save_prompt`,
-  //     data: {
-  //       prompt: UIPrompt,
-  //     },
-  //   })
-  //     .then((response) => {
-  //       console.log("/save_prompt request successful:", response.data);
-  //       // getPrompt();
-  //       setUpdatedPrompt(false);
-  //     })
-  //     .catch((error) => {
-  //       console.error("Error calling /save_prompt request:", error);
-  //     })
-  //     .finally(() => {
-  //       updateIsLoading(false);
-  //     });
-  // };
 
   const generateFakeData = () => {
     updateIsLoading(true);

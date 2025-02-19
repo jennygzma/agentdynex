@@ -9,7 +9,7 @@ interface ButtonProps extends MuiButtonProps {
   colorVariant?: Color;
 }
 
-type Color = "transparent" | "blue" | "red";
+type Color = "transparent" | "blue" | "red" | "darkpurple" | "orange";
 
 const Button = ({
   children,
@@ -17,14 +17,18 @@ const Button = ({
   onClick,
   sx,
   disabled = false,
-  colorVariant = "blue",
+  colorVariant = "darkpurple",
   ...props
 }: ButtonProps): ReactElement => {
-  let color = "#5BB9C2";
+  let color = "#6a4c9cff";
+  if (colorVariant === "orange") color = "#c75927";
+  if (colorVariant === "blue") color = "#5BB9C2";
   if (colorVariant === "red") color = "#9a4e4e";
   if (colorVariant === "transparent") color = "transparent";
 
-  let hoverColor = "#79D8EA";
+  let hoverColor = "#c75927";
+  if (colorVariant === "orange") hoverColor = "#6a4c9cff";
+  if (colorVariant === "blue") hoverColor = "#79D8EA";
   if (colorVariant === "red") hoverColor = "#9a4e4e";
   if (colorVariant === "transparent") hoverColor = "rgba(0, 0, 0, 0.1)";
 
@@ -39,7 +43,7 @@ const Button = ({
         boxShadow: "none",
         "&:hover": {
           backgroundColor: hoverColor,
-          color: "black",
+          color: "white",
         },
         ...sx,
       }}

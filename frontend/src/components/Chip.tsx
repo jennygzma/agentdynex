@@ -2,7 +2,7 @@ import React, { ReactElement, ReactNode } from "react";
 import { Chip as MuiChip, ChipProps as MuiChipProps } from "@mui/material";
 import { SxProps, Theme } from "@mui/system";
 
-const COLOR = "#9a4e4e";
+const COLOR = "#9d5ba3ff";
 
 interface ChipProps extends MuiChipProps {
   selected?: boolean;

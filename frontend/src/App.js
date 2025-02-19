@@ -4,9 +4,6 @@
 import React from "react";
 import "./App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import OnePiece from "./pages/one-piece";
-import FistUxProto from "./pages/first-ux-proto";
-import SecondUxProto from "./pages/second-ux-proto";
 import Home from "./pages/current";
 import { AppProvider } from "./pages/current/hooks/app-context";
 
@@ -22,10 +19,6 @@ function App() {
             </AppProvider>
           }
         />
-        <Route path="/proto-2" element={<SecondUxProto />} />
-        <Route path="/proto-1" element={<FistUxProto />} />
-        <Route path="/one-piece" element={<OnePiece />} />
-        {/* </Route> */}
       </Routes>
     </BrowserRouter>
   );

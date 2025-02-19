@@ -8,7 +8,7 @@ interface TextFieldProps extends Omit<MuiTextFieldProps, "inputProps"> {
   code?: boolean;
 }
 
-const COLOR = "#9a4e4e";
+const COLOR = "#9d5ba3ff";
 
 const TextField = ({
   code = false,
@@ -46,7 +46,7 @@ const TextField = ({
             borderRadius: 0,
           },
           "&.Mui-focused fieldset": {
-            borderColor: "#9a4e4e",
+            borderColor: "#6a4c9cff",
             borderRadius: 0,
           },
         },
@@ -54,7 +54,7 @@ const TextField = ({
           color: COLOR,
         },
         "& .MuiInputLabel-root.Mui-focused": {
-          color: "#9a4e4e",
+          color: "#6a4c9cff",
         },
         ...sx,
       }}

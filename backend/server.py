@@ -5,6 +5,7 @@ import json
 import uuid
 
 import globals
+from code_generation import generate_config as get_generated_config
 from code_generation import get_fake_data as get_generated_fake_data
 from code_generation import (
     get_iterate_code,
@@ -13,11 +14,8 @@ from code_generation import (
     wipeout_code,
 )
 from flask import Flask, jsonify, request
-from matrix import brainstorm_answers
 from matrix import brainstorm_inputs as brainstorm_generated_inputs
-from matrix import brainstorm_question, get_context_from_other_inputs
-from matrix import get_needs_specification as check_needs_specification
-from matrix import summarize_input_from_context
+from matrix import get_context_from_other_inputs
 from planning import create_spec
 from planning import get_plan as get_generated_plan
 from planning import get_plan_from_task_map
@@ -68,28 +66,11 @@ def save_problem():
         f"{globals.folder_path}/{globals.PROBLEM_FILE_NAME}",
         globals.problem,
     )
-    # globals.matrix = categorize_problem(globals.problem)
     create_and_write_file(
         f"{globals.folder_path}/{globals.MATRIX_FILE_NAME}",
         json.dumps(globals.matrix),
     )
     return jsonify({"message": "Saved problem"}), 200
-
-
-@app.route("/get_needs_specification", methods=["GET"])
-def get_needs_specification():
-    print("calling get_needs_specification...")
-    category = request.args.get("category")
-    needs_specification = check_needs_specification(category, globals.matrix[category])
-    return (
-        jsonify(
-            {
-                "message": "getting user problem",
-                "needs_specification": needs_specification,
-            }
-        ),
-        200,
-    )
 
 
 @app.route("/brainstorm_inputs", methods=["GET"])
@@ -128,58 +109,6 @@ def update_input():
         json.dumps(globals.matrix),
     )
     return jsonify({"message": "Updated input"}), 200
-
-
-@app.route("/get_question", methods=["GET"])
-def get_question():
-    print("calling get_question...")
-    category = request.args.get("category")
-    context = get_context_from_other_inputs(globals.problem, category, globals.matrix)
-    question = brainstorm_question(category, context)
-    return (
-        jsonify({"message": "Generated get_question", "question": question}),
-        200,
-    )
-
-
-@app.route("/get_brainstorms", methods=["GET"])
-def get_brainstorms():
-    print("calling get_brainstorms...")
-    category = request.args.get("category")
-    question = request.args.get("question")
-    context = get_context_from_other_inputs(globals.problem, None, globals.matrix)
-    brainstorms = brainstorm_answers(category, question, context)
-    return (
-        jsonify({"message": "Generated get_brainstorms", "brainstorms": brainstorms}),
-        200,
-    )
-
-
-@app.route("/update_specifications", methods=["POST"])
-def update_specifications():
-    print("calling update_specifications...")
-    category = request.json["category"]
-    print(request.json["specifications"])
-    specifications = request.json["specifications"]
-    text = ""
-    for spec in specifications:
-        question = spec.get("question", "")
-        answer = spec.get("answer", "")
-        if answer.strip():
-            text += f"{question}{answer}\n"
-    category_input = summarize_input_from_context(
-        category, globals.matrix[category], text
-    )
-    globals.matrix[category] = category_input
-    create_and_write_file(
-        f"{globals.folder_path}/{globals.MATRIX_FOLDER_NAME}/{globals.CATEGORY_FILE_NAME[category]}",
-        text,
-    )
-    create_and_write_file(
-        f"{globals.folder_path}/{globals.MATRIX_FILE_NAME}",
-        json.dumps(globals.matrix),
-    )
-    return jsonify({"message": "Saved goal"}), 200
 
 
 @app.route("/explore_prototype", methods=["POST"])
@@ -241,52 +170,62 @@ def set_current_prototype():
     )
 
 
-@app.route("/get_prompt", methods=["GET"])
-def get_prompt():
-    print("calling get_prompt...")
-    prompt = read_file(
-        f"{globals.folder_path}/{globals.current_prototype}/{globals.PROMPT_FILE_NAME}"
+@app.route("/generate_config", methods=["POST"])
+def generate_config():
+    print("calling generate_config...")
+    problem = globals.problem
+
+    config = get_generated_config(problem, globals.matrix)
+
+    create_and_write_file(
+        f"{globals.folder_path}/{globals.current_prototype}/{globals.CONFIG_FILE_NAME}",
+        config,
+    )
+    return jsonify({"message": "Generated config"}), 200
+
+
+@app.route("/save_config", methods=["POST"])
+def save_config():
+    print("calling save_config...")
+    config = request.json["config"]
+    create_and_write_file(
+        f"{globals.folder_path}/{globals.current_prototype}/{globals.CONFIG_FILE_NAME}",
+        config,
+    )
+    return jsonify({"message": "Saved config"}), 200
+
+
+@app.route("/get_config", methods=["GET"])
+def get_config():
+    print("calling get_config...")
+    config = read_file(
+        f"{globals.folder_path}/{globals.current_prototype}/{globals.CONFIG_FILE_NAME}"
     )
     return (
-        jsonify(
-            {
-                "message": "getting prompt for theory",
-                "prompt": prompt,
-            }
-        ),
+        jsonify({"message": "getting config", "config": config}),
         200,
     )
 
 
-@app.route("/save_prompt", methods=["POST"])
-def save_prompt():
-    print("calling save_prompt...")
-    prompt = request.json["prompt"]
-    folder_path = f"{globals.folder_path}/{globals.current_prototype}"
-    create_and_write_file(
-        f"{folder_path}/{globals.PROMPT_FILE_NAME}",
-        prompt,
+#####################################################################################################################################################################################
+# For testing only. Run curl http://127.0.0.1:5000/set_globals_for_uuid/uuid
+@app.route("/set_globals_for_uuid/<generated_uuid>", methods=["GET"])
+def set_globals_for_uuid(generated_uuid):
+    print("calling set_globals_for_uuid")
+    globals.folder_path = f"{globals.GENERATED_FOLDER_PATH}/{generated_uuid}"
+    globals.prototypes = (
+        json.loads(read_file(f"{globals.folder_path}/{globals.PROTOTYPES}"))
+        if file_exists(f"{globals.folder_path}/{globals.PROTOTYPES}")
+        else []
     )
-    task_map_json = (
-        json.loads(read_file(f"{folder_path}/{globals.TASK_MAP_FILE_NAME}"))
-        if file_exists(f"{folder_path}/{globals.TASK_MAP_FILE_NAME}")
-        else {}
+    globals.matrix = json.loads(
+        read_file(f"{globals.folder_path}/{globals.MATRIX_FILE_NAME}")
     )
-    task_map = {int(key): value for key, value in task_map_json.items()}
-    if folder_exists(f"{folder_path}/1"):
-        wipeout_code(folder_path, 1, task_map, globals.current_prototype)
-    create_and_write_file(
-        f"{folder_path}/{globals.SPEC_FILE_NAME}" "",
-    )
-    create_and_write_file(
-        f"{folder_path}/{globals.FAKED_DATA_FILE_NAME}",
-        "",
-    )
-    create_and_write_file(
-        f"{folder_path}/{globals.TASK_MAP_FILE_NAME}",
-        "",
-    )
-    return jsonify({"message": "Saved prompt"}), 200
+    globals.problem = read_file(f"{globals.folder_path}/{globals.PROBLEM_FILE_NAME}")
+    return jsonify({"message": "Successfully set global fields"}), 200
+
+
+#####################################################################################################################################################################################
 
 
 @app.route("/generate_fake_data", methods=["POST"])
@@ -890,23 +829,6 @@ def get_test_cases_per_lock_step():
         ),
         200,
     )
-
-
-# For testing only. Run curl http://127.0.0.1:5000/set_globals_for_uuid/uuid
-@app.route("/set_globals_for_uuid/<generated_uuid>", methods=["GET"])
-def set_globals_for_uuid(generated_uuid):
-    print("calling set_globals_for_uuid")
-    globals.folder_path = f"{globals.GENERATED_FOLDER_PATH}/{generated_uuid}"
-    globals.prototypes = (
-        json.loads(read_file(f"{globals.folder_path}/{globals.PROTOTYPES}"))
-        if file_exists(f"{globals.folder_path}/{globals.PROTOTYPES}")
-        else []
-    )
-    globals.matrix = json.loads(
-        read_file(f"{globals.folder_path}/{globals.MATRIX_FILE_NAME}")
-    )
-    globals.problem = read_file(f"{globals.folder_path}/{globals.PROBLEM_FILE_NAME}")
-    return jsonify({"message": "Successfully set global fields"}), 200
 
 
 # Running app

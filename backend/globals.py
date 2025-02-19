@@ -45,6 +45,9 @@ def call_llm(system_message, user_message, llm=globals.LLM):
 
 
 MATRIX_FILE_NAME = "matrix.txt"
+
+CONFIG_FILE_NAME = "config.txt"
+
 FAKED_DATA_FILE_NAME = "faked_data.json"
 SPEC_FILE_NAME = "spec.txt"
 TOOLS_REQUIREMENT_FILE_NAME = "tools_requirement.json"

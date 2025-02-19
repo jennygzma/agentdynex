@@ -11,6 +11,7 @@ import Header from "./components/header";
 import Button from "../../components/Button";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import Matrix from "./components/matrix";
+import ConfigCreation from "./components/config_creation";
 
 const local = true;
 export const SERVER_URL = local
@@ -41,7 +42,8 @@ const Home = () => {
           }}
         >
           <Matrix />
-          <ProjectFormation />
+          <ConfigCreation />
+          {/* <ProjectFormation />
           {expand ? (
             <>
               <Stack
@@ -78,7 +80,7 @@ const Home = () => {
                 IMPLEMENTATION
               </Typography>
             </Stack>
-          )}
+          )} */}
         </Stack>
       )}
     </div>
