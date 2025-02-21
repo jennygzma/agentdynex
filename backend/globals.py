@@ -84,12 +84,12 @@ CURRENT_DEBUG_ITERATION = "current_debug_iteration"
 # matrix fields
 problem = None
 matrix = {
-    "PersonXIdea": None,
-    "PersonXGrounding": None,
-    "ApproachXIdea": None,
-    "ApproachXGrounding": None,
-    "InteractionXIdea": None,
-    "InteractionXGrounding": None,
+    "AgentsXIdea": None,
+    "AgentsXGrounding": None,
+    "ActionsXIdea": None,
+    "ActionsXGrounding": None,
+    "WorldXIdea": None,
+    "WorldXGrounding": None,
 }
 # all prototypes to explore
 prototypes = []

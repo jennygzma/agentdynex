@@ -41,7 +41,7 @@ const ConfigCreation = () => {
     })
       .then((response) => {
         console.log("/get_config request successful:", response.data);
-        setConfig(response.data.code);
+        setConfig(response.data.config);
       })
       .catch((error) => {
         console.error("Error calling /get_config request:", error);
@@ -74,7 +74,7 @@ const ConfigCreation = () => {
     getConfig();
   }, [currentPrototype]);
 
-  // if (!currentPrototype) return <></>;
+  if (!currentPrototype) return <></>;
   return (
     <Stack spacing="10px" width="100%">
       <Button
@@ -89,7 +89,7 @@ const ConfigCreation = () => {
         <Stack spacing="10px">
           <TextField
             className={"code"}
-            rows={100}
+            rows={75}
             value={config}
             onChange={(e) => {
               setConfig(e.target.value);

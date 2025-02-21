@@ -46,20 +46,10 @@ const Prototypes = () => {
       spacing="10px"
       sx={{
         padding: "10px",
-        backgroundColor: "#F8F3CA",
+        backgroundColor: "white",
         height: "100vh",
       }}
     >
-      {/* <Typography
-          variant="h4"
-          sx={{
-            fontWeight: "bold",
-            alignSelf: "center",
-            fontFamily: "monospace",
-          }}
-        >
-          Prototypes
-        </Typography> */}
       {prototypes && (
         <Stack spacing="10px">
           <Stack spacing="5px">
@@ -75,8 +65,8 @@ const Prototypes = () => {
                       borderRadius: 0,
                       border:
                         currentPrototype === prototype
-                          ? "2px solid #9a4e4e"
-                          : "1px solid transparent", // Thicker border and color if currentPrototype matches
+                          ? "3px solid  #9d5ba3ff"
+                          : "1px solid #0451a5", // Thicker border and color if currentPrototype matches
                     }}
                   >
                     <CardActionArea

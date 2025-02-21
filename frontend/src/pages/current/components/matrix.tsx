@@ -158,7 +158,7 @@ const Matrix = () => {
           paddingTop: "100px",
         }}
       >
-        <Button colorVariant="red" onClick={() => setExpand(true)}>
+        <Button onClick={() => setExpand(true)}>
           <ExpandMore />
         </Button>
         <Typography variant="h5" sx={{ fontWeight: "bold" }}>
@@ -181,14 +181,14 @@ const Matrix = () => {
           alignItems: "center",
         }}
       >
-        <Button colorVariant="red" onClick={() => setExpand(false)}>
+        <Button onClick={() => setExpand(false)}>
           <ExpandLess />
         </Button>
         <Typography variant="h5" sx={{ fontWeight: "bold" }}>
           DESIGN MATRIX CONTEXT
         </Typography>
       </Stack>
-      <Typography variant="h6">Application Problem: {problem}</Typography>
+      <Typography variant="h6">Simulation Goal: {problem}</Typography>
       <Typography variant="h6">{currentPrototype}</Typography>
       <>
         <TableContainer sx={{ backgroundColor: "white" }}>

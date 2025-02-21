@@ -29,7 +29,7 @@ const Spinner = () => {
   return (
     <Box sx={overlayStyle}>
       <SpinnerImage
-        src={require("../../../assets/franky-icon.ico")}
+        src={require("../../../assets/robin.ico")}
         alt="Loading..."
       />
     </Box>

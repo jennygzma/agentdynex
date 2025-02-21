@@ -121,27 +121,30 @@ Please follow these rules while creating the JSON
 """
 
 def get_matrix_description(problem, matrix):
-    description = f"Create a config for this {problem}."
+    print("get_matrix_description...")
+    description = ""
 
-    if matrix.get("AgentsXIdea"):
+    if matrix['AgentsXIdea']:
         description += f"\nIt is for {matrix['AgentsXIdea']}."
-        if matrix.get("AgentsXGrounding"):
+        if matrix["AgentsXGrounding"]:
             description += f" For more details: {matrix['AgentsXGrounding']}"
 
-    if description.get("ActionsXIdea"):
+    if matrix["ActionsXIdea"]:
         description += f"\nThe approach should be: {matrix['ActionsXIdea']}."
-        if description.get("ActionsXGrounding"):
+        if matrix["ActionsXGrounding"]:
             description += f" For more details: {matrix['ActionsXGrounding']}"
 
-    if description.get("WorldXIdea"):
+    if matrix["WorldXIdea"]:
         description += f"\nThe interaction paradigm shown in the interface should be {matrix['WorldXIdea']}."
-        if description.get("WorldXGrounding"):
+        if matrix["WorldXGrounding"]:
             description += f" For more details: {matrix['WorldXGrounding']}"
 
     return description.strip()
 
 def generate_config(problem, matrix):
-  print("calling LLM for get_fake_data...")
+  print("calling LLM for generate_config...")
+  print(matrix)
+  # print(json.load(matrix))
   matrix_description = get_matrix_description(problem, matrix)
   system_message = f"""
     Based on this context, generate a config.
@@ -151,7 +154,7 @@ def generate_config(problem, matrix):
     """
   user_message = f"Please generate a config given this problem: {problem}"
   res = call_llm(system_message, user_message)
-  print("sucessfully called LLM for get_fake_data", res)
+  print("sucessfully called LLM for generate_config", res)
   return res
 
 ###################################################################################################################################
