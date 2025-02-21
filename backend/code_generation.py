@@ -47,11 +47,12 @@ annotated_config_example = """
             "private_bio": "",  // the private bio is short but will describe the personality of the agent. in this case, since the professor doesn't really need to have a personality.
             "public_bio": "The professor is carrying out a semester of instruction of a course. Her late policy involves not accepting any late assignments. Any assignment submitted late will not receive any credit.", // the public bio should be vague and not reveal the inherent personality of the agent. it can also refer to what the agent will do that the other agents should be aware of.
             "directives": [ // based on the personality, general and short directives are created for each agent relevant to the simulation. the directives can indicate how an agent will act based on the scenario (in this case, what happens when assignments are assigned), who they will interact with primarily, etc.
+                "Explicitly tell students that they can only submit their assignment by verbally telling me that they have completed their assignment."
                 "Maintain a good relationship will all students.",
                 "Announce the assignment of five assignments at a regular intervals. Assignments should have due dates after one another.",
-                "Assignments should be simple - do not provide descriptions of them, simply tell students that you have an assignmnet to announce.",
+                "Assignments should be simple - do not provide descriptions of them, simply tell students that you have an assignmnet to announce.", // the directive does not ask the students to submit a real assignment, but instead, a proxie of a simple assignment, because it knows that the students are agents in a multi-agent simulation
                 "Engage with students when they ask questions or address the Professor.",
-                "The late policy should be clearly announced to all students."
+                "The late policy should be clearly announced to all students.",
             ],
             "initial_plan": {
                 "description": "Announce her late assignment policy to her students and assign five assignments over the course of the semester.", // the descrpition is short and describes what the agent must do. it has nothing to do with the personality of the agent.
@@ -118,7 +119,8 @@ config_rules = """
 Please follow these rules while creating the JSON
         1. Please only return the JSON and nothing else.
         2. Do not specify any date or time in the config. For example, do not say “wait for 5 minutes”, or “submit before March 16”, or “submit a day early”.
-"""
+        3. Everything in the action column (ActionsXIdea, ActionsXGrounding) should be incorporated in the directives for each agent. If it has to do with when the simulation stops, it should be in the stop condition.
+        """
 
 def get_matrix_description(problem, matrix):
     print("get_matrix_description...")
@@ -148,9 +150,11 @@ def generate_config(problem, matrix):
   matrix_description = get_matrix_description(problem, matrix)
   system_message = f"""
     Based on this context, generate a config.
-     {matrix_description}
+        {matrix_description}
       This is the format the config should be in:
         {annotated_config_example}
+    Follow these rules when generating the config:
+    {config_rules}
     """
   user_message = f"Please generate a config given this problem: {problem}"
   res = call_llm(system_message, user_message)

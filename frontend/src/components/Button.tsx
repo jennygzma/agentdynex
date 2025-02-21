@@ -26,7 +26,7 @@ const Button = ({
   if (colorVariant === "red") color = "#9a4e4e";
   if (colorVariant === "transparent") color = "transparent";
 
-  let hoverColor = "gray";
+  let hoverColor = "black";
   if (colorVariant === "orange") hoverColor = "#6a4c9cff";
   if (colorVariant === "blue") hoverColor = "#79D8EA";
   if (colorVariant === "red") hoverColor = "#9a4e4e";
