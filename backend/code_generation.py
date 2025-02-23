@@ -38,7 +38,7 @@ annotated_config_example = """
     "locations": [
         {
             "name": "Classroom",
-            "description": "The classroom is where students and the professor are and interact with one another. The professor makes announcements to the class - including of the late policy and of assignments."  // the location's description should have be short and concise and describe what an agent or multiple agents will do in there.
+            "description": "The classroom is where students and the professor are and interact with one another. The professor makes announcements to the class - including of the late policy and of assignments."  // the location's description should have be short and concise and describe what an agent or multiple agents will do in there. it should also describe WHERE each agent should go
         }
     ],
     "agents": [
@@ -50,7 +50,7 @@ annotated_config_example = """
                 "Explicitly tell students that they can only submit their assignment by verbally telling me that they have completed their assignment."
                 "Maintain a good relationship will all students.",
                 "Announce the assignment of five assignments at a regular intervals. Assignments should have due dates after one another.",
-                "Assignments should be simple - do not provide descriptions of them, simply tell students that you have an assignmnet to announce.", // the directive does not ask the students to submit a real assignment, but instead, a proxie of a simple assignment, because it knows that the students are agents in a multi-agent simulation
+                "Assignments should be simple - do not provide descriptions of them, simply tell students that you have an assignment to announce.", // the directive does not ask the students to submit a real assignment, but instead, a proxie of a simple assignment, because it knows that the students are agents in a multi-agent simulation
                 "Engage with students when they ask questions or address the Professor.",
                 "The late policy should be clearly announced to all students.",
             ],

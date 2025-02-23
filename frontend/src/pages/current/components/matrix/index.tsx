@@ -30,7 +30,7 @@ const MATRIX_CATEGORY_DESCRIPTIONS: Record<CategoryType, string> = {
 
 const getDependencies = (
   category: CategoryType | undefined,
-  matrixCategoryInfo: Record<CategoryType, string>,
+  matrixCategoryInfo: Record<CategoryType, string | []>,
 ): CategoryType[] => {
   let dependencies = [];
   if (category === undefined) return dependencies;
@@ -48,7 +48,7 @@ const getDependencies = (
   return dependencies;
 };
 
-const ProjectSpecification = () => {
+const Matrix = () => {
   const {
     currentPrototype,
     updateCurrentPrototype,
@@ -399,4 +399,4 @@ const ProjectSpecification = () => {
   );
 };
 
-export default ProjectSpecification;
+export default Matrix;

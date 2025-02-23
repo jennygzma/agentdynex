@@ -96,15 +96,15 @@ Avoid redundancy and any unnecessary agents.
 ACTIONSXIDEA_EXAMPLES = """Action ideas focus on what each type of agent need to do in the world and when they can exit the simulation (the stop condition).
 Every action should consist of the agent communicating that they have completed a task. Agents can complete a task by simply saying they have completed a task.
 For example, if the idea is to "simulate the tragedy of the commons", some examples of the actions are "agents should verbally stating the money they have consumed, stopping when they all agree or the pot is empty"
-If there are two types of agents, an example idea could be "mediator agents should announce whose turn it is, and agents should verbally state the money they have consumed"
-Remember that agents are JUST agents. They cannot do actions like submitting PDFS, uploading files, accessing portals, etc. Everything should be verbal or pretend or proxies of normal human behavior.
-So agents don't have to actually complete an assignment, they can jsut verbally say they did it. The professor doesn't have to ask for a PDF or research project, they just verbally state an assignment is due and the student pretends to complete it.
+Make sure there are actions that span all the types of agents, as well as stop conditions for each agent. Try to keep the array oragnized by agent (first 3 actions are for agent type 1, second 3 actions are for agent type 2, last couple actions show the stop condition)
+For example, if there are two types of agents, an example idea could be "mediator agents should announce whose turn it is" and "meidator agent announces the bet each round" and "agents should verbally state to mediator the money they have consumed" and "simulation stops when there is no more money" and "simulation stops when 3 rounds are over."
 If agents are voting in a simulation, they can just verbally declare it without having to cast a ballot or upload their vote. If an agent is counting the votes, they should NOT have to read any files. They should either just observer or count via verbal vote.
 """
 
 ACTIONSXGROUDING_EXAMPLES = """Action Grounding should focus on how exactly the action will be performed by the agents, whether that be declaring verbally when something has happened or physically moving to another room.
-Ensure that you focus on the simplist way that the agent will perform the action.
+Ensure that you focus on the simplist way that the agent will perform the action. Keep in mind that agents CANNOT do anything related to vision, since this is a simulation. Agents can only speak to one another or move around.
 Make sure the explanations for how to complete the action are NOT AT ALL RELATED TO THE AGENT'S PERSONALITY. IT SHOULD REMAIN EXTREMELY OBJECTIVE.
+Remember that agents are JUST agents. They cannot do actions like submitting PDFS, uploading files, accessing portals, etc. Everything should be verbal or pretend or proxies of normal human behavior. So agents don't have to actually complete an assignment, they can jsut verbally say they did it. The professor doesn't have to ask for a PDF or research project, they just verbally state an assignment is due and the student pretends to complete it.
 Explicitly ensure that actions are simple (for example, if the professor is assigning a homework, make sure it is a FAKE homework by stating in the professor's directive that the assignment should have NO DESCRIPTION)
 For the idea "simulate the tragedy of the commons", some examples of the actions "declaring the money they have consumed, stopping when they all agree or the pot is empty" can be:
 "Agents verbally communicate that they have consumed a resource upon doing so, which will also be supported in the world be the visible depletion of the resource after said consumption. The simulation should either end once all agents verbally declare and agree upon sustainable consumption rates that satisfy the stability of the resource and each parties’ needs, or it should end once all parties declare that the resource has officially depleted."
@@ -118,8 +118,8 @@ Only brainstorm room ideas that exist in the physical world -- for example, do n
 """
 
 WORLDXGROUNDING_EXAMPLES = """The World Grounding should focus on how exactly the world idea should be implemented, while factoring in the context of how the agent needs to perform the action.
-Consider who can enter each room -- for example, can only a certain type of agent be in the office room, but all agents can be in the common room? Explicitly state out who can be in each room.
-If in
+Consider who can enter each room -- for example, can only a certain type of agent be in the office room, but all agents can be in the common room? Explicitly state out who can be in each room. If only certain agents can speak to one another, be specific about that too.
+In each room, NOTHING can be visual -- agents can only speak to one another or move around.
 Also, consider exactly where each agent should start out. If there is an initial announcement that needs to be made, all agents should start off in the same room.
 For the idea "simulate the tragedy of the commons", the world idea could be "A single room", and the grounding can be:
 "A single room that acts like a “bunker”. The room has a single water dispenser with a visible gauge that shows the water level. Parties can take turns using the water dispenser one by one. The dispenser refills slowly because of limited water resources from an underground reservoir. So if family overuse, the refill rate will decrease and risk complete depletion."
@@ -161,25 +161,35 @@ def get_context_from_other_inputs(problem, category, matrix):
 def brainstorm_inputs(category, context, existing_brainstorms, iteration):
     print("calling LLM for brainstorm_inputs...")
     is_grounding = "Grounding" in category
+    is_action = "Actions" in category
     print(f"category {category} is_grounding {is_grounding}")
     iteration_message = f"The user would also like you to factor this into the brainstormed answer: {iteration}" if iteration != "" else ""
     user_message = f"""This is the category you are brainstorming for: {category}. {iteration_message}.
     Make sure not to repeat brainstorms from this list: {existing_brainstorms}
     """
-    grounding_format = """
-        The answers should be as specific as possible, but do not be overly verbose in your response. USE AS LITTLE WORDS AS POSSIBLE. Do not repeat what is said in the corresponding idea section.
-        The answer should be 50-100 words.
-       RETURN THE ANSWER AS A STRING WITH BULLETED LIST. LIMIT TO 3 OR 4 BULLET POINTS IN THE LIST:
-       example:
-        - The daily message should include a concise profile summary for each of the five matches, highlighting essential details such as name, age, occupation, and a short personal note or shared interest.
-        - Include compatibility scores or commonalities (e.g., mutual friends, hobbies) to help users quickly assess each match’s potential.
-        - Provide clear action buttons within the message to either like, pass, or start a conversation, making it easy for users to engage with their daily options.
-        DO NOT RETURN A PARAGRAPH.
-    """ if is_grounding else """
-        The answers SHOULD BE 10-15 words WORDS that specify what exactly the idea is. ALL THE ANSWERS MUST BE VERY DIFFERENT FROM ONE ANOTHER.
-        Format the the responses in an array like so: ["1 professor and 2 students", "3 shoppers"]
-        The array should have size 3 maximum.
-    """
+    if is_action and not is_grounding:
+        response_format = """
+            The answers SHOULD BE 10-15 words WORDS that specify what exactly the idea is. ALL THE ANSWERS MUST BE VERY DIFFERENT FROM ONE ANOTHER.
+            Format the the responses in an array like so: ["home-buyer agents declare their", "3 shoppers"]
+            The array should have size 10 maximum."""
+    elif is_grounding:
+        response_format = """
+            The answers should be as specific as possible, but do not be overly verbose in your response. USE AS LITTLE WORDS AS POSSIBLE. Do not repeat what is said in the corresponding idea section.
+            The answer should be 50-100 words.
+        RETURN THE ANSWER AS A STRING WITH BULLETED LIST. LIMIT TO 3 OR 4 BULLET POINTS IN THE LIST:
+        example:
+            - The daily message should include a concise profile summary for each of the five matches, highlighting essential details such as name, age, occupation, and a short personal note or shared interest.
+            - Include compatibility scores or commonalities (e.g., mutual friends, hobbies) to help users quickly assess each match’s potential.
+            - Provide clear action buttons within the message to either like, pass, or start a conversation, making it easy for users to engage with their daily options.
+            DO NOT RETURN A PARAGRAPH.
+        """
+    else:
+        response_format = """
+            The answers SHOULD BE 10-15 words WORDS that specify what exactly the idea is. ALL THE ANSWERS MUST BE VERY DIFFERENT FROM ONE ANOTHER.
+            Format the the responses in an array like so: ["1 professor and 2 students", "3 shoppers"]
+            The array should have size 3 maximum.
+        """
+
 
     system_message = f"""
     You are a helpful assistant that helps brainstorm specification answers for a category to narrow down inputs.
@@ -187,7 +197,7 @@ def brainstorm_inputs(category, context, existing_brainstorms, iteration):
     {PAAW_EXAMPLES}
     Here is the context for this problem: {context}
     {MATRIX_EXAMPLES[category]}
-    {grounding_format}
+    {response_format}
     """
     res = call_llm(system_message, user_message, llm="openai")
     brainstorms = res if is_grounding else cleanup_array("here are the users: " + res)

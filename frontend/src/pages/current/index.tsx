@@ -1,16 +1,11 @@
-import { Stack, Typography } from "@mui/material";
+import { Stack } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import CodeGeneration from "./components/implementation";
 import { useAppContext } from "./hooks/app-context";
 import Spinner from "./components/spinner";
 import { MatrixProvider } from "./hooks/matrix-context";
-import ProblemSpecification from "./components/problem-specification";
-import Steps from "./components/steps";
-import ProjectFormation from "./components/project-formation";
-import Header from "./components/header";
-import Button from "../../components/Button";
-import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import Matrix from "./components/matrix";
+import Header from "./components/header";
+import SetMatrix from "./components/set-matrix";
 import ConfigCreation from "./components/config_creation";
 
 const local = true;
@@ -29,7 +24,7 @@ const Home = () => {
       {isLoading && <Spinner />}
       <MatrixProvider>
         <Header />
-        {!currentPrototype && <ProblemSpecification />}
+        {!currentPrototype && <Matrix />}
       </MatrixProvider>
       {currentPrototype && (
         <Stack
@@ -38,49 +33,10 @@ const Home = () => {
             padding: "40px",
             height: "100%",
             minHeight: "100vh",
-            // backgroundColor:"#9a4e4e",
           }}
         >
-          <Matrix />
+          <SetMatrix />
           <ConfigCreation />
-          {/* <ProjectFormation />
-          {expand ? (
-            <>
-              <Stack
-                direction="row"
-                spacing="10px"
-                sx={{
-                  alignItems: "center",
-                }}
-              >
-                <Button colorVariant="red" onClick={() => setExpand(false)}>
-                  <ExpandLess />
-                </Button>
-                <Typography variant="h5" sx={{ fontWeight: "bold" }}>
-                  IMPLEMENTATION
-                </Typography>
-              </Stack>
-              <Stack direction="row" spacing="20px">
-                <Steps />
-                <CodeGeneration />
-              </Stack>
-            </>
-          ) : (
-            <Stack
-              direction="row"
-              spacing="10px"
-              sx={{
-                alignItems: "center",
-              }}
-            >
-              <Button colorVariant="red" onClick={() => setExpand(true)}>
-                <ExpandMore />
-              </Button>
-              <Typography variant="h5" sx={{ fontWeight: "bold" }}>
-                IMPLEMENTATION
-              </Typography>
-            </Stack>
-          )} */}
         </Stack>
       )}
     </div>

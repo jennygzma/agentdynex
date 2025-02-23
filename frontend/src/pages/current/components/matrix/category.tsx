@@ -1,4 +1,4 @@
-import { Badge, Stack, Typography } from "@mui/material";
+import { Checkbox, FormControlLabel, Stack, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Box from "../../../../components/Box";
@@ -16,20 +16,6 @@ interface CategoryProps {
   isDependency: boolean;
 }
 
-interface Specification {
-  question: string;
-  brainstorm: string[];
-  answer: string;
-}
-
-const mapQuestionsToSpecifications = (
-  questions: Array<string>,
-): Array<Specification> =>
-  questions.map((question) => ({
-    question: question,
-    brainstorm: [],
-    answer: "",
-  }));
 const Category = ({
   description,
   category,
@@ -45,10 +31,17 @@ const Category = ({
     matrixCategoryInfo,
   } = useMatrixContext();
   let initialInput = "";
+  let initialActionsInput = [];
   let initialBrainstorm = [];
 
+  // use input for all but ActionsXIdea
   const [input, setInput] = useState(initialInput);
+  const isActionsXIdea = category === "ActionsXIdea";
+  const [actionsInput, setActionsInput] = useState(initialActionsInput);
+
   const [brainstorms, setBrainstorms] = useState(initialBrainstorm);
+  const [newActionsBrainstorm, setNewActionsBrainstorm] = useState("");
+
   const [iteration, setIteration] = useState("");
   const isGrounding = category.includes("Grounding");
   const ideaPair = category.split("X")[0] + "XIdea";
@@ -83,7 +76,7 @@ const Category = ({
       url: `${SERVER_URL}/update_input`,
       data: {
         category: category,
-        input: input,
+        input: isActionsXIdea ? actionsInput : input,
       },
     })
       .then((response) => {
@@ -128,6 +121,15 @@ const Category = ({
   useEffect(() => {}, [submittedProblem]);
 
   useEffect(() => {}, [currentPrototype]);
+
+  const handleCheckBoxChange =
+    (name: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
+      if (event.target.checked) {
+        setActionsInput([...actionsInput, name]);
+      } else {
+        setActionsInput(actionsInput.filter((value) => value !== name));
+      }
+    };
 
   return (
     <Box
@@ -185,46 +187,104 @@ const Category = ({
         ) : (
           <></>
         )}
-        {brainstorms?.map((brainstorm) => {
-          return (
-            <Chip
-              key={brainstorm}
-              label={brainstorm}
+        {isActionsXIdea ? (
+          <div>
+            <Stack direction="column">
+              {brainstorms?.map((brainstorm) => (
+                <FormControlLabel
+                  key={brainstorm}
+                  control={
+                    <Checkbox
+                      checked={actionsInput.includes(brainstorm)}
+                      onChange={handleCheckBoxChange(brainstorm)}
+                      sx={{
+                        color: "purple",
+                        "&.Mui-checked": {
+                          color: "purple",
+                        },
+                      }}
+                    />
+                  }
+                  label={brainstorm}
+                />
+              ))}
+            </Stack>
+            <InputWithButton
+              label="Input"
+              input={newActionsBrainstorm}
+              setInput={setNewActionsBrainstorm}
               onClick={() => {
-                setInput(brainstorm);
+                setBrainstorms([...brainstorms, newActionsBrainstorm]);
+                setNewActionsBrainstorm("");
+              }}
+              onChange={() => {
                 if (currentCategory !== category) {
                   updateCurrentCategory(category);
                 }
               }}
-              clickable
-              selected={brainstorm === input}
-              sx={{
-                alignSelf: "center",
-              }}
+              direction="row"
+              buttonName="+"
+              rows={category.includes("Idea") ? 1 : 8}
             />
-          );
-        })}
-        <InputWithButton
-          label="Input"
-          input={input}
-          setInput={setInput}
-          disabled={disabled}
-          onClick={() => {
-            updateInput();
-            updateUpdatedMatrix(true);
-            updateMatrixCategoryInfo(category, input);
-            if (currentCategory !== category) {
-              updateCurrentCategory(category);
-            }
-          }}
-          onChange={() => {
-            if (currentCategory !== category) {
-              updateCurrentCategory(category);
-            }
-          }}
-          direction="column"
-          rows={category.includes("Idea") ? 1 : 8}
-        />
+          </div>
+        ) : (
+          brainstorms?.map((brainstorm) => {
+            return (
+              <Chip
+                key={brainstorm}
+                label={brainstorm}
+                onClick={() => {
+                  setInput(brainstorm);
+                  if (currentCategory !== category) {
+                    updateCurrentCategory(category);
+                  }
+                }}
+                clickable
+                selected={brainstorm === input}
+                sx={{
+                  alignSelf: "center",
+                }}
+              />
+            );
+          })
+        )}
+        {isActionsXIdea ? (
+          <Button
+            onClick={() => {
+              updateInput();
+              updateUpdatedMatrix(true);
+              updateMatrixCategoryInfo(category, actionsInput);
+              if (currentCategory !== category) {
+                updateCurrentCategory(category);
+              }
+            }}
+            disabled={disabled}
+          >
+            Submit
+          </Button>
+        ) : (
+          <InputWithButton
+            label="Input"
+            input={input}
+            setInput={setInput}
+            disabled={disabled}
+            onClick={() => {
+              updateInput();
+              updateUpdatedMatrix(true);
+              updateMatrixCategoryInfo(category, input);
+              if (currentCategory !== category) {
+                updateCurrentCategory(category);
+              }
+            }}
+            onChange={() => {
+              if (currentCategory !== category) {
+                updateCurrentCategory(category);
+              }
+            }}
+            direction="column"
+            rows={category.includes("Idea") ? 1 : 8}
+          />
+        )}
         {isGrounding && (
           <Stack spacing="5px">
             <Button

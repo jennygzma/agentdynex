@@ -11,7 +11,7 @@ import {
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useAppContext } from "../hooks/app-context";
-import { CategoryType, useMatrixContext } from "../hooks/matrix-context";
+import { CategoryType } from "../hooks/matrix-context";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import Button from "../../../components/Button";
 import { SERVER_URL } from "..";
@@ -27,13 +27,9 @@ const MATRIX_CATEGORY_DESCRIPTIONS: Record<CategoryType, string> = {
   WorldXGrounding: "What are the core features for this interaction?",
 };
 
-const Matrix = () => {
-  const {
-    currentPrototype,
-    updateCurrentPrototype,
-    updateIsLoading,
-    updatePrototypes,
-  } = useAppContext();
+const SetMatrix = () => {
+  const { currentPrototype, updateIsLoading, updatePrototypes } =
+    useAppContext();
   const [problem, setProblem] = useState("");
   const [prototypeName, setPrototypeName] = useState("");
   const [expand, setExpand] = useState(true);
@@ -398,4 +394,4 @@ const Matrix = () => {
   );
 };
 
-export default Matrix;
+export default SetMatrix;

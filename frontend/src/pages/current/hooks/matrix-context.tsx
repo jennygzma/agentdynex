@@ -15,8 +15,11 @@ export type CategoryType =
   | "WorldXGrounding";
 
 export interface MatrixState {
-  matrixCategoryInfo: Record<CategoryType, string>;
-  updateMatrixCategoryInfo: (category: CategoryType, newInput?: string) => void;
+  matrixCategoryInfo: Record<CategoryType, string | []>;
+  updateMatrixCategoryInfo: (
+    category: CategoryType,
+    newInput?: string | any[],
+  ) => void;
   submittedProblem: boolean;
   updateSubmittedProblem: Dispatch<SetStateAction<boolean>>;
   updatedMatrix: boolean;
@@ -37,11 +40,11 @@ export const MatrixProvider = ({ children }) => {
   >(undefined);
 
   const [matrixCategoryInfo, setUpdateMatrixCategoryInfo] = useState<
-    Record<CategoryType, string>
+    Record<CategoryType, string | []>
   >({
     AgentsXIdea: "",
     AgentsXGrounding: "",
-    ActionsXIdea: "",
+    ActionsXIdea: [],
     ActionsXGrounding: "",
     WorldXIdea: "",
     WorldXGrounding: "",
