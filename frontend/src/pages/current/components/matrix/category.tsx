@@ -46,6 +46,7 @@ const Category = ({
   const isGrounding = category.includes("Grounding");
   const ideaPair = category.split("X")[0] + "XIdea";
   const disabled = isGrounding && matrixCategoryInfo[ideaPair].length === 0;
+  const [isActionsXIdeaChanged, setIsActionsXIdeaChanged] = useState(false);
   const [versions, setVersions] = useState([]);
 
   const getInput = () => {
@@ -129,6 +130,7 @@ const Category = ({
       } else {
         setActionsInput(actionsInput.filter((value) => value !== name));
       }
+      setIsActionsXIdeaChanged(true);
     };
 
   return (
@@ -257,8 +259,9 @@ const Category = ({
               if (currentCategory !== category) {
                 updateCurrentCategory(category);
               }
+              setIsActionsXIdeaChanged(false);
             }}
-            disabled={disabled}
+            disabled={disabled || !isActionsXIdeaChanged}
           >
             Submit
           </Button>
