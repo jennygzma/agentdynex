@@ -94,11 +94,12 @@ Avoid redundancy and any unnecessary agents.
 """
 
 ACTIONSXIDEA_EXAMPLES = """Action ideas focus on what each type of agent need to do in the world and when they can exit the simulation (the stop condition).
+Make sure there are actions that span all the types of agents, as well as stop conditions for each agent.
 Every action should consist of the agent communicating that they have completed a task. Agents can complete a task by simply saying they have completed a task.
-For example, if the idea is to "simulate the tragedy of the commons", some examples of the actions are "agents should verbally stating the money they have consumed, stopping when they all agree or the pot is empty"
-Make sure there are actions that span all the types of agents, as well as stop conditions for each agent. Try to keep the array oragnized by agent (first 3 actions are for agent type 1, second 3 actions are for agent type 2, last couple actions show the stop condition)
-For example, if there are two types of agents, an example idea could be "mediator agents should announce whose turn it is" and "meidator agent announces the bet each round" and "agents should verbally state to mediator the money they have consumed" and "simulation stops when there is no more money" and "simulation stops when 3 rounds are over."
+For example, if the idea is to "simulate the tragedy of the commons", some examples of the actions are "agents should verbally stating the money they have consumed", "the simulation stops when the pot is empty"
+For example, if there are two types of agents, an example idea could be "mediator agents should announce whose turn it is" and "mediator agent announces the bet each round" and "agents should verbally state to mediator the money they have consumed" and "simulation stops when there is no more money" and "simulation stops when 3 rounds are over."
 If agents are voting in a simulation, they can just verbally declare it without having to cast a ballot or upload their vote. If an agent is counting the votes, they should NOT have to read any files. They should either just observer or count via verbal vote.
+Try to keep the array oragnized by agent. For example, the first 3 actions in the list are for the real estate agent, the next couple actions are for the home buyer agent, last couple actions shows the stop condition(s))
 """
 
 ACTIONSXGROUDING_EXAMPLES = """Action Grounding should focus on how exactly the action will be performed by the agents, whether that be declaring verbally when something has happened or physically moving to another room.
@@ -170,8 +171,8 @@ def brainstorm_inputs(category, context, existing_brainstorms, iteration):
     if is_action and not is_grounding:
         response_format = """
             The answers SHOULD BE 10-15 words WORDS that specify what exactly the idea is. ALL THE ANSWERS MUST BE VERY DIFFERENT FROM ONE ANOTHER.
-            Format the the responses in an array like so: ["home-buyer agents declare their", "3 shoppers"]
-            The array should have size 10 maximum."""
+            Format the the responses in an array like so: ["home-buyer agents declare their bid", "home-owner agents can only speak to the real-estate agent", "simulation ends when real-estate agent picks a buyer"]
+            The array should have size 10 maximum. The actions must all be different from one another."""
     elif is_grounding:
         response_format = """
             The answers should be as specific as possible, but do not be overly verbose in your response. USE AS LITTLE WORDS AS POSSIBLE. Do not repeat what is said in the corresponding idea section.
