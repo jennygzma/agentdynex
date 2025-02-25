@@ -37,39 +37,51 @@ MATRIX_DESCRIPTIONS = {
     """,
 }
 
-# PAAW_EXAMPLES = """
-# Here are some examples:
+PAAW_EXAMPLES = """
+Here are some examples:
 
-# OKCupid -
-# PersonXIdea: Single person
-# PersonXGrounding: - Difficulty in finding potential partners who meet specific criteria like race, religion, age, or occupation. \n - Challenges in efficiently filtering through dating apps to locate compatible matches. \n - Need for an application that streamlines the process by allowing users to set precise criteria and receive curated suggestions.
-# ApproachXIdea: Searchable Database to allow people to search for people based on specified criteria
-# ApproachXGrounding: - Ensure the database includes comprehensive filters such as age, gender, sex, religion, and occupation to meet users' specific search criteria. \n - Develop a robust and scalable search algorithm that efficiently handles large datasets and returns accurate results based on the selected filters. \n - Implement user-friendly search and filtering interfaces that make it easy for users to apply multiple criteria and refine their search results.
-# InteractionXIdea: Faceted Browsing
-# InteractionXGrounding: - Provide users with multiple facet filters, including age, gender, religion, occupation, and location, to refine their search effectively. \n - Ensure the UI dynamically updates search results in real-time as users adjust their facet filters, offering immediate feedback. \n - Design intuitive navigation with clear options to reset filters, switch criteria, and save searches, using checkboxes, sliders, and dropdowns for ease of use.
+Problem: Simulating people buying a house for a homeowner who really cares about the home but also cares about monetary value
+AgentsXIdea: 1 real estate agent, 3 home-buyer agents
+AgentsXGrounding:
+Debbie: 1 real estate agent to facilitate the selling of the home. Does not care as much about financial gain as a good buyer who will love the home
+Alice: first-time home buyer who is not as wealthy but will resort to emotional plea to seller to create an emotional connection
+Bob: aggressive buyer who will offer significantly above the asking price
+Charlie: strategic buyer who will offer a lot of cash
+ActionsXIdea: real estate agent conducting the bidding, home-buyer agents making bids
+ActionsXGrounding:
+The real estate agent will declare the price of the home
+The real estate agent will verbally ask agents to bid
+The agents will not talk to each other. They will only speak to the real-estate agent when they are making their offers.
+The simulation ends when the real estate agent has decided who the home is for
+WorldXGrounding: 1 bidding room, 1 waiting room for each agent to stay in
+WorldXIdea:
+Bidding Room: where the home-buyer agents will travel here to speak to the real estate agent regarding their home bid. Home-buyer agents should come into this room whenever they want to make an offer or speak to the real-estate agent. Only one home-buyer agent is allowed in here at a time.
+Waiting Room: where each agent will return to. They cannot speak to each other. This is where they will reflect and make their next move. All agents will start off in the waiting room and the bidding agent will declare the price of the home, then the bidding agent will move to the bidding room.
 
-# Tinder:
-# PersonXIdea: Single person
-# PersonXGrounding: - Users often struggle to find matches that meet their physical preferences quickly and efficiently. \n - The abundance of profiles makes it challenging to identify those that align with specific looks or appearances. \n - A streamlined approach to swiping and filtering by appearance would help users connect with potential matches faster, focusing on visual attraction.
-# ApproachXIdea: Lower the cognitive load by providing less information, making it easier to judge potential matches quickly
-# ApproachXGrounding: - Limit the displayed information to essential details, such as a single profile photo and a brief tagline, to encourage snap judgments. \n - Focus on visual appeal as the primary matching criterion, reducing the need for users to sift through extensive profiles. \n - Use an algorithm to prioritize matches based on visual preferences and minimal data inputs, streamlining the matching process.
-# InteractionXIdea: Card Swipe
-# InteractionXGrounding: - Each card should prominently feature a large profile photo, as visual appeal is the primary factor in this interaction. \n - Include minimal text, such as the person’s name, age, and a short tagline or fun fact, to provide just enough context without overwhelming the user. \n - Add simple icons or buttons for actions like "Like" or "Pass," ensuring that users can quickly swipe or tap to make their choice.
+Idea: Landlord implementing no-smoking policy
+AgentsXIdea: 1 landlord agent, 3 tenant agents
+AgentsXGrounding:
+Sophia: landlord who does not want tenants to smoke
+Nishaad: a young newly college-graduate student who is addicted to his vape. He wants to continue living in the apartment.
+Mohan: a young married man who has no smoking addiction and is a stickler for rules. He wants to continue living in the apartment.
+Tejas: an older man who has lived in the apartment for 10 years. He is seen as the father figure to Nishaad and Mohan.
+ActionsXIdea: landlord announces no smoking policy
+ActionsXGrounding:
+The landlord agent will announce the no smoking policy
+The tenant agents will interact with one another and sometimes talk to the landlord agent.
+The simulation ends when the landlord agent decides whether to continue the lease or not
+WorldXGrounding: 1 landlord’s room, 1 tenant’s room
+WorldXIdea:
+Landlord’s Room: where the landlord goes to wait after speaking to the tenants once in a while. Only the landlord is allowed in this room.
+Waiting Room: where the agents interact with one another and “live” together. The landlord agent will periodically come in here to chat with the tenants. All agents start off in this room so the landlord can tell everyone about the no smoking policy. All agents should end in this room when the Landlord tells them about if the lease can be renewed or not based on the tenant’s behavior for the no-smoking policy.
 
-# Coffee Meets Bagel:
-# PersonXIdea: Single person
-# PersonXGrounding: - Users who are looking for serious relationships prefer fewer, high-quality matches over endless swiping. \n - The overwhelming number of potential matches on other apps can make it difficult to focus on finding a meaningful connection.\n - An app designed for serious dating should streamline the process by offering a curated selection of potential partners, reducing time spent on the app.
-# ApproachXIdea: Lower the cognitive load by having less matches to make more intentional judgements
-# ApproachXGrounding: - Present a select number of potential matches each day to prevent decision fatigue and promote thoughtful consideration.\n - Display key information like shared interests, compatibility indicators, and mutual friends to aid decision-making without overwhelming the user. \n - Prioritize quality over quantity, ensuring that each match is relevant to the user’s preferences and relationship goals.
-# InteractionXIdea: Feed with 5 options to date
-# InteractionXGrounding: - The daily message should include a concise profile summary for each of the five matches, highlighting essential details such as name, age, occupation, and a short personal note or shared interest. \n - Include compatibility scores or commonalities (e.g., mutual friends, hobbies) to help users quickly assess each match’s potential. \n - Provide clear action buttons within the message to either like, pass, or start a conversation, making it easy for users to engage with their daily options.
-# """
+"""
 
 AGENTSXIDEA_EXAMPLES = """Agents Ideas focus on the amount and type of agents we need.
-For example, if the idea is "simulating the tragedy of the commons ", some examples of agents are:
-"5 agents with varying degrees of social influence/peer pressure influencing their choices" or
-"3 agents with different family sizes who need different amounts of the resource that is being shared to survive"
-ONLY GIVE 3 AGENTS MAXIMUM.
+Consider different TYPES of agents.
+For example if simulating a house-bidding situation where people cannot hear or see what fellow competitors are bidding, a good idea could be "1 real estate agent, and 2 home bidders", because we need someone to facillitate the bidding.
+However, a simple simulation of people returning shopping carts could just have "3 shopper agents".
+One response should return 3 agents maximum. Another shoudl return 5 agents maximum. Another should return 7 agents maximum.
 """
 AGENTSXGROUNDING_EXAMPLES = """Agents Grounding focuses on the personality of each agent and a brief description of the agent.
 For example, if the idea is to "simulate the tragedy of the commons" for "3 agents with varying degrees of social influence/peer pressure influencing their choices", some example goals of the application could be:
@@ -82,32 +94,56 @@ Avoid redundancy and any unnecessary agents.
 """
 
 ACTIONSXIDEA_EXAMPLES = """Action ideas focus on what each type of agent need to do in the world and when they can exit the simulation (the stop condition).
+Make sure there are actions that span all the types of agents, as well as stop conditions for each agent.
 Every action should consist of the agent communicating that they have completed a task. Agents can complete a task by simply saying they have completed a task.
-For example, if the idea is to "simulate the tragedy of the commons", some examples of the actions are "verbally stating the money they have consumed, stopping when they all agree or the pot is empty"
-Remember that agents are JUST agents. They cannot do actions like submitting PDFS, uploading files, accessing portals, etc. Everything should be verbal or pretend or proxies of normal human behavior.
-So agents don't have to actually complete an assignment, they can jsut verbally say they did it. The professor doesn't have to ask for a PDF or research project, they just verbally state an assignment is due and the student pretends to complete it.
+For example, if the idea is to "simulate the tragedy of the commons", some examples of the actions are "agents should verbally stating the money they have consumed", "the simulation stops when the pot is empty"
+For example, if there are two types of agents, an example idea could be "mediator agents should announce whose turn it is" and "mediator agent announces the bet each round" and "agents should verbally state to mediator the money they have consumed" and "simulation stops when there is no more money" and "simulation stops when 3 rounds are over."
 If agents are voting in a simulation, they can just verbally declare it without having to cast a ballot or upload their vote. If an agent is counting the votes, they should NOT have to read any files. They should either just observer or count via verbal vote.
+Try to keep the array oragnized by agent. For example, the first 3 actions in the list are for the real estate agent, the next couple actions are for the home buyer agent, last couple actions shows the stop condition(s)). Here is an example:
+[
+    "Professor announces the submission due date",
+    "Professor gives extensions to students when requested",
+    "Professor schedules a meeting with students submitting work late frequently",
+     "Professor agent provides feedback to student agents",
+    "Student agents declare they submitted the assignment",
+    "Student agents declare they submitted the assignment late",
+    "Simulation ends when professor finishes meetings with all students",
+    "Simulation ends when all assignments have been submitted",
+    "Simulation ends when all meetings have ended",
+    "Simulation ends after feedback from professor is provided to all students"
+]
 """
 
-ACTIONSXGROUDING_EXAMPLES = """Action Grounding should focus on how exactly the action will be performed by the agents, whether that be declaring verbally when something has happened or physically moving to another room.
-Ensure that you focus on the simplist way that the agent will perform the action.
+ACTIONSXGROUDING_EXAMPLES = """Action Grounding should focus on how the LOGISTICS of the actions will play out in the simulation. It should really work on specifying what the actions will do.
+There should be a description for EACH ACTION checked off.
+For example, here are some things you should consider if running a classroom simulation:
+- If the professors must announce the assignment, when should it be announced?
+- What type of assignment should it be? (hint, the assignment should be announced at the beginning of class, it should be a research proposal that does not require a PDF).
+- How many assignments should there be? (3 assignments)
+- When are the due dates? (should not be specific dates, should just be sequentially announced one after another, due approximately minutes after one another because it is a simulation)
+- If the students verbally declare they submitted the assignmnet, what do they say?
 Make sure the explanations for how to complete the action are NOT AT ALL RELATED TO THE AGENT'S PERSONALITY. IT SHOULD REMAIN EXTREMELY OBJECTIVE.
-For the idea "simulate the tragedy of the commons", some examples of the actions "declaring the money they have consumed, stopping when they all agree or the pot is empty" can be:
-"Agents verbally communicate that they have consumed a resource upon doing so, which will also be supported in the world be the visible depletion of the resource after said consumption. The simulation should either end once all agents verbally declare and agree upon sustainable consumption rates that satisfy the stability of the resource and each parties’ needs, or it should end once all parties declare that the resource has officially depleted."
+Remember that agents are JUST agents. They cannot do actions like submitting PDFS, uploading files, accessing portals, etc. Everything should be verbal or pretend or proxies of normal human behavior.
+So agents don't have to actually complete an assignment, they can just verbally say they did it. The professor doesn't have to ask for a PDF or research project, they just verbally state an assignment is due and the student pretends to complete it.
+Explicitly ensure that actions are simple and based in a simulation-like world.
 """
 
 WORLDXIDEA_EXAMPLES = """The World ideas focuses on the world in which the agents exist in and how they perform their action.
 Examples include "1 classroom", "1 dorm room", "1 classroom and 1 dorm room", "community meeting room", "bunker".
 The world should factor in how exactly the agents will perform their action -- for example, if they need to move to another room, when voting, then we need two rooms: one to wait and one to vote in.
+Do not create unnecessary rooms. For example, if students are verbally declaring their tasks, there is no need to create another room.
 Only brainstorm room ideas that exist in the physical world -- for example, do not brainstorm "submission portal"
 """
 
 WORLDXGROUNDING_EXAMPLES = """The World Grounding should focus on how exactly the world idea should be implemented, while factoring in the context of how the agent needs to perform the action.
+DO NOT ADD ANY NEW ROOMS NOT SPECIFIED BY WORLDXIDEA. IT SHOULD BE EXACTLY THE SAME AS WORLDXIDEA.
+Consider who can enter each room -- for example, can only a certain type of agent be in the office room, but all agents can be in the common room? Explicitly state out who can be in each room. If only certain agents can speak to one another, be specific about that too.
+Also, consider exactly where each agent should start out. If there is an initial announcement that needs to be made, all agents should start off in the same room.
 For the idea "simulate the tragedy of the commons", the world idea could be "A single room", and the grounding can be:
 "A single room that acts like a “bunker”. The room has a single water dispenser with a visible gauge that shows the water level. Parties can take turns using the water dispenser one by one. The dispenser refills slowly because of limited water resources from an underground reservoir. So if family overuse, the refill rate will decrease and risk complete depletion."
 Only return the location and A ONE SENTENCE DESCRIPTION MAXIMUM OF 100 CHARACTERS.
 Only describe how agents will interact in this room and what they will do.
-Do not describe anything else about the room.
+DO NOT DESCRIBE ANYTHING ELSE.
 """
 
 MATRIX_EXAMPLES = {
@@ -143,32 +179,42 @@ def get_context_from_other_inputs(problem, category, matrix):
 def brainstorm_inputs(category, context, existing_brainstorms, iteration):
     print("calling LLM for brainstorm_inputs...")
     is_grounding = "Grounding" in category
+    is_action = "Actions" in category
     print(f"category {category} is_grounding {is_grounding}")
     iteration_message = f"The user would also like you to factor this into the brainstormed answer: {iteration}" if iteration != "" else ""
     user_message = f"""This is the category you are brainstorming for: {category}. {iteration_message}.
     Make sure not to repeat brainstorms from this list: {existing_brainstorms}
     """
-    grounding_format = """
-        The answers should be as specific as possible, but do not be overly verbose in your response. USE AS LITTLE WORDS AS POSSIBLE. Do not repeat what is said in the corresponding idea section.
-        The answer should be 50-100 words.
-       RETURN THE ANSWER AS A STRING WITH BULLETED LIST. LIMIT TO 3 OR 4 BULLET POINTS IN THE LIST:
-       example:
-        - The daily message should include a concise profile summary for each of the five matches, highlighting essential details such as name, age, occupation, and a short personal note or shared interest.
-        - Include compatibility scores or commonalities (e.g., mutual friends, hobbies) to help users quickly assess each match’s potential.
-        - Provide clear action buttons within the message to either like, pass, or start a conversation, making it easy for users to engage with their daily options.
-        DO NOT RETURN A PARAGRAPH.
-    """ if is_grounding else """
-        The answers SHOULD BE 10-15 words WORDS that specify what exactly the idea is. ALL THE ANSWERS MUST BE DIFFERENT FROM ONE ANOTHER.
-        Format the the responses in an array like so: ["1 professor and 2 students", "3 shoppers"]
-        The array should have size 3 maximum.
-    """
-    #     {PAAW_EXAMPLES} ADD LATER
+    if is_action and not is_grounding:
+        response_format = """
+            The answers SHOULD BE 10-15 words WORDS that specify what exactly the idea is. ALL THE ANSWERS MUST BE VERY DIFFERENT FROM ONE ANOTHER.
+            Format the the responses in an array like so: ["home-buyer agents declare their bid", "home-owner agents can only speak to the real-estate agent", "simulation ends when real-estate agent picks a buyer"]
+            The array should have size 10 maximum. The actions must all be different from one another."""
+    elif is_grounding:
+        response_format = """
+            The answers should be as specific as possible, but do not be overly verbose in your response. USE AS LITTLE WORDS AS POSSIBLE. Do not repeat what is said in the corresponding idea section.
+            The answer should be 50-100 words.
+        RETURN THE ANSWER AS A STRING WITH BULLETED LIST. LIMIT TO 3 OR 4 BULLET POINTS IN THE LIST:
+        example:
+            - The daily message should include a concise profile summary for each of the five matches, highlighting essential details such as name, age, occupation, and a short personal note or shared interest.
+            - Include compatibility scores or commonalities (e.g., mutual friends, hobbies) to help users quickly assess each match’s potential.
+            - Provide clear action buttons within the message to either like, pass, or start a conversation, making it easy for users to engage with their daily options.
+            DO NOT RETURN A PARAGRAPH.
+        """
+    else:
+        response_format = """
+            The answers SHOULD BE 10-15 words WORDS that specify what exactly the idea is. ALL THE ANSWERS MUST BE VERY DIFFERENT FROM ONE ANOTHER.
+            Format the the responses in an array like so: ["1 professor and 2 students", "3 shoppers"]
+            The array should have size 3 maximum.
+        """
+
     system_message = f"""
     You are a helpful assistant that helps brainstorm specification answers for a category to narrow down inputs.
     {MATRIX_DESCRIPTION}
+    {PAAW_EXAMPLES}
     Here is the context for this problem: {context}
     {MATRIX_EXAMPLES[category]}
-    {grounding_format}
+    {response_format}
     """
     res = call_llm(system_message, user_message, llm="openai")
     brainstorms = res if is_grounding else cleanup_array("here are the users: " + res)

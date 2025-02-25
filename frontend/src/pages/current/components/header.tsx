@@ -82,13 +82,12 @@ const Header = () => {
         >
           <img
             src={require("../../../assets/robin.ico")}
-            alt="franky"
+            alt="robin"
             width="50x"
           />
           <Typography
             variant="h4"
             sx={{
-              // alignSelf: "center",
               color: "white",
               fontWeight: "bold",
               fontFamily: "Courier New",

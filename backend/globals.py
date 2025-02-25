@@ -47,39 +47,11 @@ def call_llm(system_message, user_message, llm=globals.LLM):
 MATRIX_FILE_NAME = "matrix.txt"
 
 CONFIG_FILE_NAME = "config.txt"
-
-FAKED_DATA_FILE_NAME = "faked_data.json"
-SPEC_FILE_NAME = "spec.txt"
-TOOLS_REQUIREMENT_FILE_NAME = "tools_requirement.json"
-
 PROBLEM_FILE_NAME = "problem.txt"
 PROTOTYPES = "prototypes.txt"
 MATRIX_FOLDER_NAME = "matrix"
-CATEGORY_FILE_NAME = {
-    "PersonXIdea": "PersonXIdea.txt",
-    "PersonXGrounding": "PersonXApproach.txt",
-    "ApproachXIdea": "ApproachXIdea.txt",
-    "ApproachXGrounding": "ApproachXGrounding.txt",
-    "InteractionXIdea": "InteractionXIdea.txt",
-    "InteractionXGrounding": "InteractionXGrounding.txt",
-}
-PROMPT_FILE_NAME = "prompt.txt"
-TASK_MAP_FILE_NAME = "task_map.json"
 
 GENERATED_FOLDER_PATH = "generated"
-MERGED_CODE_FILE_NAME = "merged.txt"
-CHECKED_CODE_FILE_NAME = "checked.html"
-CLEANED_CODE_FILE_NAME = "cleaned.html"
-TASK_FILE_NAME = "task.txt"
-ITERATION_FOLDER_NAME = "iteration"
-ITERATION_FILE_NAME = "iteration.txt"
-ITERATION_MERGE_FILE_NAME = "iteration_merged.txt"
-ITERATION_CLEANED_FILE_NAME = "iteration_clean.html"
-MAIN_CODE_FILE_NAME = "index.html"
-
-# task_map fields
-DEBUG_ITERATION_MAP = "debug_iteration_map"
-CURRENT_DEBUG_ITERATION = "current_debug_iteration"
 
 # matrix fields
 problem = None
