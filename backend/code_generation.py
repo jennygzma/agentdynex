@@ -132,6 +132,11 @@ def get_matrix_description(matrix):
         if matrix["WorldXGrounding"]:
             description += f" For more details: {matrix['WorldXGrounding']}"
 
+    if matrix["StopConditionXIdea"]:
+        description += f"\nThe interaction paradigm shown in the interface should be {matrix['StopConditionXIdea']}."
+        if matrix["StopConditionXGrounding"]:
+            description += f" For more details: {matrix['StopConditionXGrounding']}"
+
     return description.strip()
 
 

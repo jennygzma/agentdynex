@@ -62,6 +62,8 @@ matrix = {
     "ActionsXGrounding": None,
     "WorldXIdea": None,
     "WorldXGrounding": None,
+    "StopConditionXIdea": None,
+    "StopConditionXGrounding": None,
 }
 # all prototypes to explore
 prototypes = []

@@ -17,14 +17,18 @@ import Button from "../../../components/Button";
 import { SERVER_URL } from "..";
 
 const MATRIX_CATEGORY_DESCRIPTIONS: Record<CategoryType, string> = {
-  AgentsXIdea: "Who is the application for?",
+  AgentsXIdea: "Who are the agent types?",
   AgentsXGrounding:
-    "What is the users goal? What are problems with existing approaches?",
-  ActionsXIdea:
-    "What is the concept, theory, or strategy that guides the solution?",
-  ActionsXGrounding: "How do we translate this approach to reality?",
-  WorldXIdea: "What is the core interaction paradigm?",
-  WorldXGrounding: "What are the core features for this interaction?",
+    "What are the agent's personalities? What is their role in the simulation?",
+  ActionsXIdea: "What actions will the agents do?",
+  ActionsXGrounding:
+    "How can we translate these actions to work in a simulation? What mechanisms are necessary?",
+  WorldXIdea: "What is the world the agents interact in?",
+  WorldXGrounding:
+    "How should we define each room? What do agents do in each room?",
+  StopConditionXIdea: "What is the stop condition for the simulation?",
+  StopConditionXGrounding:
+    "What are the specific of the stop conditions? What muste we ensure happen in the simulation before the stop condition?",
 };
 
 const SetMatrix = () => {
@@ -37,9 +41,11 @@ const SetMatrix = () => {
   const [AgentsXIdea, setAgentsXIdea] = useState("");
   const [ActionsXIdea, setActionsXIdea] = useState("");
   const [WorldXIdea, setWorldXIdea] = useState("");
+  const [StopConditionXIdea, setStopConditionXIdea] = useState("");
   const [AgentsXGrounding, setAgentsXGrounding] = useState("");
   const [ActionsXGrounding, setActionsXGrounding] = useState("");
   const [WorldXGrounding, setWorldXGrounding] = useState("");
+  const [StopConditionXGrounding, setStopConditionXGrounding] = useState("");
 
   const getProblem = () => {
     updateIsLoading(true);
@@ -113,12 +119,18 @@ const SetMatrix = () => {
         setActionsXIdea(actionsXIdea);
         const worldXIdea = await getInput("WorldXIdea");
         setWorldXIdea(worldXIdea);
+        const stopConditionXIdea = await getInput("StopConditionXIdea");
+        setStopConditionXIdea(stopConditionXIdea);
         const agentsXGrounding = await getInput("AgentsXGrounding");
         setAgentsXGrounding(agentsXGrounding);
         const actionsXGrounding = await getInput("ActionsXGrounding");
         setActionsXGrounding(actionsXGrounding);
         const worldXGrounding = await getInput("WorldXGrounding");
         setWorldXGrounding(worldXGrounding);
+        const stopConditionXGrounding = await getInput(
+          "StopConditionXGrounding",
+        );
+        setStopConditionXGrounding(stopConditionXGrounding);
       } catch (error) {
         console.error("Failed to fetch input:", error);
       } finally {
@@ -200,7 +212,7 @@ const SetMatrix = () => {
                 ></TableCell>
                 <TableCell
                   sx={{
-                    width: "31%",
+                    width: "21%",
                     borderBottom: "none",
                     verticalAlign: "bottom",
                   }}
@@ -217,7 +229,7 @@ const SetMatrix = () => {
                 </TableCell>
                 <TableCell
                   sx={{
-                    width: "31%",
+                    width: "21%",
                     borderBottom: "none",
                     verticalAlign: "bottom",
                   }}
@@ -234,7 +246,7 @@ const SetMatrix = () => {
                 </TableCell>
                 <TableCell
                   sx={{
-                    width: "31%",
+                    width: "21%",
                     borderBottom: "none",
                     verticalAlign: "bottom",
                   }}
@@ -247,6 +259,23 @@ const SetMatrix = () => {
                     }}
                   >
                     WORLD
+                  </Typography>
+                </TableCell>
+                <TableCell
+                  sx={{
+                    width: "21%",
+                    borderBottom: "none",
+                    verticalAlign: "bottom",
+                  }}
+                >
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      fontWeight: "bold",
+                      // fontFamily: "monospace",
+                    }}
+                  >
+                    STOPCONDITION
                   </Typography>
                 </TableCell>
               </TableRow>
@@ -318,6 +347,22 @@ const SetMatrix = () => {
                   </Typography>
                   <Typography variant="body2">{WorldXIdea}</Typography>
                 </TableCell>
+                <TableCell
+                  sx={{
+                    borderBottom: "none",
+                    verticalAlign: "top",
+                  }}
+                >
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {MATRIX_CATEGORY_DESCRIPTIONS["StopConditionXIdea"]}
+                  </Typography>
+                  <Typography variant="body2">{StopConditionXIdea}</Typography>
+                </TableCell>
               </TableRow>
               <TableRow>
                 <TableCell
@@ -384,6 +429,24 @@ const SetMatrix = () => {
                     {MATRIX_CATEGORY_DESCRIPTIONS["WorldXGrounding"]}
                   </Typography>
                   <Typography variant="body2">{WorldXGrounding}</Typography>
+                </TableCell>
+                <TableCell
+                  sx={{
+                    borderBottom: "none",
+                    verticalAlign: "top",
+                  }}
+                >
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {MATRIX_CATEGORY_DESCRIPTIONS["StopConditionXGrounding"]}
+                  </Typography>
+                  <Typography variant="body2">
+                    {StopConditionXGrounding}
+                  </Typography>
                 </TableCell>
               </TableRow>
             </TableBody>
