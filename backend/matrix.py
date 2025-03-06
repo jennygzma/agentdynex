@@ -33,7 +33,13 @@ MATRIX_DESCRIPTIONS = {
     How should the simulated world look? How many rooms should there be in this world?""",
 
     "WorldXGrounding": """Within the world section and the grounding subsection, we delve into the specifics of each room:
-    What will the agent do in each room? What is the purpose of each room?
+    What will the agent do in each room? What is the purpose of each room?""",
+
+    "StopConditionXIdea": """Within the stop condition section and the idea subsection we contemplate the stop condition of the simulation.
+    When should the simulation stop?""",
+
+    "StopConditionXGrounding": """Within the stop condition section and the grounding subsection, we delve into the specifics of the stop condition:
+    Specifically, in what state should each agent and world be in for there to be a stop?
     """,
 }
 
@@ -52,11 +58,15 @@ ActionsXGrounding:
 The real estate agent will declare the price of the home
 The real estate agent will verbally ask agents to bid
 The agents will not talk to each other. They will only speak to the real-estate agent when they are making their offers.
-The simulation ends when the real estate agent has decided who the home is for
-WorldXGrounding: 1 bidding room, 1 waiting room for each agent to stay in
-WorldXIdea:
+WorldXIdea: 1 bidding room, 1 waiting room for each agent to stay in
+WorldXGrounding:
 Bidding Room: where the home-buyer agents will travel here to speak to the real estate agent regarding their home bid. Home-buyer agents should come into this room whenever they want to make an offer or speak to the real-estate agent. Only one home-buyer agent is allowed in here at a time.
 Waiting Room: where each agent will return to. They cannot speak to each other. This is where they will reflect and make their next move. All agents will start off in the waiting room and the bidding agent will declare the price of the home, then the bidding agent will move to the bidding room.
+StopConditionXIdea: landlord or tenants cancel or extend the lease
+StopConditionXGrounding:
+Either the landlord agent tells all the tenants in the waiting room the new modified or unmodified lease they have to sign, and the tenant agents either reject or accept the new leases,
+Or the tenant agents decide they don’t want to continue the lease.
+The tenant agents should have had sufficient time discussing amongst themselves what they want to do (they are free to do anything), and also time to talk to the landlord.
 
 Idea: Landlord implementing no-smoking policy
 AgentsXIdea: 1 landlord agent, 3 tenant agents
@@ -69,12 +79,13 @@ ActionsXIdea: landlord announces no smoking policy
 ActionsXGrounding:
 The landlord agent will announce the no smoking policy
 The tenant agents will interact with one another and sometimes talk to the landlord agent.
-The simulation ends when the landlord agent decides whether to continue the lease or not
-WorldXGrounding: 1 landlord’s room, 1 tenant’s room
-WorldXIdea:
+WorldXIdea: 1 landlord’s room, 1 tenant’s room
+WorldXGrounding:
 Landlord’s Room: where the landlord goes to wait after speaking to the tenants once in a while. Only the landlord is allowed in this room.
 Waiting Room: where the agents interact with one another and “live” together. The landlord agent will periodically come in here to chat with the tenants. All agents start off in this room so the landlord can tell everyone about the no smoking policy. All agents should end in this room when the Landlord tells them about if the lease can be renewed or not based on the tenant’s behavior for the no-smoking policy.
-
+StopConditionXIdea: landlord decides who will get the home and home-buyer agrees
+StopConditionXGrounding:
+The landlord agent tells the home-buyer agent that they get the house and the final cost, and the home-buyer agent agrees to pay the amount. Otherwise, they can reject it. The landlord agent can then ask their next pick until there is a mutual agreement.
 """
 
 AGENTSXIDEA_EXAMPLES = """Agents Ideas focus on the amount and type of agents we need.
@@ -146,6 +157,16 @@ Only describe how agents will interact in this room and what they will do.
 DO NOT DESCRIBE ANYTHING ELSE.
 """
 
+STOPCONDITIONXIDEA_EXAMPLES = """The Stop condition ideas focus on in what state the simulation can stop.
+Examples include "an agreement has been made between agent A and agent B", "there are no more funds", "3 rounds are completed".
+Keep it simple. Do not brainstorm anythign that is overly complex.
+"""
+
+STOPCONDITIONXGROUNDING_EXAMPLES = """The Stop Condition Grounding should focus on the specifics of the stop condition.
+What room should the stop condition be in? What should have the agents been able to do before the simulation is over?
+It should clarify the exact state in which the simulatoin will stop.
+"""
+
 MATRIX_EXAMPLES = {
     "AgentsXIdea": AGENTSXIDEA_EXAMPLES,
     "AgentsXGrounding": AGENTSXGROUNDING_EXAMPLES,
@@ -153,6 +174,8 @@ MATRIX_EXAMPLES = {
     "ActionsXGrounding": ACTIONSXGROUDING_EXAMPLES,
     "WorldXIdea": WORLDXIDEA_EXAMPLES,
     "WorldXGrounding": WORLDXGROUNDING_EXAMPLES,
+    "StopConditionXIdea": STOPCONDITIONXIDEA_EXAMPLES,
+    "StopConditionXGrounding": STOPCONDITIONXGROUNDING_EXAMPLES,
 }
 
 MATRIX_DESCRIPTION = f"{PAAW_DESCRIPTION} + {" ".join(MATRIX_DESCRIPTIONS.values())}"

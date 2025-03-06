@@ -12,7 +12,9 @@ export type CategoryType =
   | "ActionsXIdea"
   | "ActionsXGrounding"
   | "WorldXIdea"
-  | "WorldXGrounding";
+  | "WorldXGrounding"
+  | "StopConditionXIdea"
+  | "StopConditionXGrounding";
 
 export interface MatrixState {
   matrixCategoryInfo: Record<CategoryType, string | []>;
@@ -48,6 +50,8 @@ export const MatrixProvider = ({ children }) => {
     ActionsXGrounding: "",
     WorldXIdea: "",
     WorldXGrounding: "",
+    StopConditionXIdea: [],
+    StopConditionXGrounding: "",
   });
 
   const updateMatrixCategoryInfo = (

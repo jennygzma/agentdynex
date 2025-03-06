@@ -26,6 +26,9 @@ const MATRIX_CATEGORY_DESCRIPTIONS: Record<CategoryType, string> = {
   WorldXIdea: "What is the world the agents interact in?",
   WorldXGrounding:
     "How should we define each room? What do agents do in each room?",
+  StopConditionXIdea: "What is the stop condition?",
+  StopConditionXGrounding:
+    "What are the specific of the stop conditions? What muste we ensure happen in the simulation before the stop condition?",
 };
 
 const getDependencies = (
@@ -210,7 +213,7 @@ const Matrix = () => {
                   ></TableCell>
                   <TableCell
                     sx={{
-                      width: "31%",
+                      width: "20%",
                       borderBottom: "none",
                       verticalAlign: "bottom",
                     }}
@@ -226,7 +229,7 @@ const Matrix = () => {
                   </TableCell>
                   <TableCell
                     sx={{
-                      width: "31%",
+                      width: "21%",
                       borderBottom: "none",
                       verticalAlign: "bottom",
                     }}
@@ -242,7 +245,7 @@ const Matrix = () => {
                   </TableCell>
                   <TableCell
                     sx={{
-                      width: "31%",
+                      width: "21%",
                       borderBottom: "none",
                       verticalAlign: "bottom",
                     }}
@@ -254,6 +257,22 @@ const Matrix = () => {
                       }}
                     >
                       WORLD
+                    </Typography>
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      width: "21%",
+                      borderBottom: "none",
+                      verticalAlign: "bottom",
+                    }}
+                  >
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        fontWeight: "bold",
+                      }}
+                    >
+                      STOP CONDITION
                     </Typography>
                   </TableCell>
                 </TableRow>
@@ -310,6 +329,22 @@ const Matrix = () => {
                       category={"WorldXIdea"}
                       description={MATRIX_CATEGORY_DESCRIPTIONS["WorldXIdea"]}
                       isDependency={dependencies?.includes("WorldXIdea")}
+                    />
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      borderBottom: "none",
+                      verticalAlign: "top",
+                    }}
+                  >
+                    <Category
+                      category={"StopConditionXIdea"}
+                      description={
+                        MATRIX_CATEGORY_DESCRIPTIONS["StopConditionXIdea"]
+                      }
+                      isDependency={dependencies?.includes(
+                        "StopConditionXIdea",
+                      )}
                     />
                   </TableCell>
                 </TableRow>
@@ -370,6 +405,22 @@ const Matrix = () => {
                         MATRIX_CATEGORY_DESCRIPTIONS["WorldXGrounding"]
                       }
                       isDependency={dependencies?.includes("WorldXGrounding")}
+                    />
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      borderBottom: "none",
+                      verticalAlign: "top",
+                    }}
+                  >
+                    <Category
+                      category="StopConditionXGrounding"
+                      description={
+                        MATRIX_CATEGORY_DESCRIPTIONS["StopConditionXGrounding"]
+                      }
+                      isDependency={dependencies?.includes(
+                        "StopConditionXGrounding",
+                      )}
                     />
                   </TableCell>
                 </TableRow>
