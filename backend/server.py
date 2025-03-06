@@ -5,7 +5,7 @@ import json
 import uuid
 
 import globals
-from code_generation import generate_config as get_generated_config
+from backend.config_generation import generate_config as get_generated_config
 from flask import Flask, jsonify, request
 from matrix import brainstorm_inputs as brainstorm_generated_inputs
 from matrix import get_context_from_other_inputs
@@ -43,7 +43,6 @@ def save_problem():
             f"{globals.GENERATED_FOLDER_PATH}/generations_{date_time}_{uuid.uuid4()}"
         )
         create_folder(globals.folder_path)
-        create_folder(f"{globals.folder_path}/{globals.MATRIX_FOLDER_NAME}")
     create_and_write_file(
         f"{globals.folder_path}/{globals.PROBLEM_FILE_NAME}",
         globals.problem,
@@ -137,6 +136,16 @@ def set_current_prototype():
         f"{globals.folder_path}/{globals.MATRIX_FILE_NAME}",
         json.dumps(globals.matrix),
     )
+    if file_exists(f"{globals.folder_path}/{globals.current_prototype}/{globals.CONFIG_FILE_NAME}"):
+        globals.config = json.loads(
+            read_file(
+                f"{globals.folder_path}/{globals.current_prototype}/{globals.CONFIG_FILE_NAME}"
+            )
+        )
+        create_and_write_file(
+            f"{globals.folder_path}/{globals.CONFIG_FILE_NAME}",
+            json.dumps(globals.config),
+        )
     return (
         jsonify(
             {
@@ -152,11 +161,16 @@ def generate_config():
     print("calling generate_config...")
     problem = globals.problem
 
-    config = get_generated_config(problem, globals.matrix)
+    globals.config = get_generated_config(problem, globals.matrix)
 
     create_and_write_file(
         f"{globals.folder_path}/{globals.current_prototype}/{globals.CONFIG_FILE_NAME}",
-        config,
+        globals.config,
+    )
+
+    create_and_write_file(
+        f"{globals.folder_path}/{globals.CONFIG_FILE_NAME}",
+        globals.config,
     )
     return jsonify({"message": "Generated config"}), 200
 
@@ -164,10 +178,14 @@ def generate_config():
 @app.route("/save_config", methods=["POST"])
 def save_config():
     print("calling save_config...")
-    config = request.json["config"]
+    globals.config = request.json["config"]
     create_and_write_file(
         f"{globals.folder_path}/{globals.current_prototype}/{globals.CONFIG_FILE_NAME}",
-        config,
+        globals.config,
+    )
+    create_and_write_file(
+        f"{globals.folder_path}/{globals.CONFIG_FILE_NAME}",
+        globals.config,
     )
     return jsonify({"message": "Saved config"}), 200
 
