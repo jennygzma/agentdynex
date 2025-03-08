@@ -6,12 +6,14 @@ import {
 
 interface TextFieldProps extends Omit<MuiTextFieldProps, "inputProps"> {
   code?: boolean;
+  readOnly?: boolean;
 }
 
 const COLOR = "#9d5ba3ff";
 
 const TextField = ({
   code = false,
+  readOnly = false,
   className = "text-field",
   label,
   variant = "outlined",
@@ -32,7 +34,11 @@ const TextField = ({
       value={value}
       placeholder={placeholder}
       onChange={onChange}
-      inputProps={code ? { style: { fontFamily: "monospace" } } : undefined}
+      inputProps={
+        code
+          ? { readOnly: readOnly, style: { fontFamily: "monospace" } }
+          : undefined
+      }
       sx={{
         width: "100%",
         backgroundColor: "white",

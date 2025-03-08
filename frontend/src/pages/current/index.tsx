@@ -6,7 +6,7 @@ import { MatrixProvider } from "./hooks/matrix-context";
 import Matrix from "./components/matrix";
 import Header from "./components/header";
 import SetMatrix from "./components/set-matrix";
-import ConfigCreation from "./components/config_creation";
+import SimulationRuns from "./components/simulation_runs";
 
 const local = true;
 export const SERVER_URL = local
@@ -36,7 +36,7 @@ const Home = () => {
           }}
         >
           <SetMatrix />
-          <ConfigCreation />
+          <SimulationRuns />
         </Stack>
       )}
     </div>

@@ -43,20 +43,22 @@ def call_llm(system_message, user_message, llm=globals.LLM):
     message = openai_client.chat.completions.create(model="gpt-4", messages=messages)
     return message.choices[0].message.content
 
+
 PROBLEM_FILE_NAME = "problem.txt"
 PROTOTYPES = "prototypes.txt"
 MATRIX_FILE_NAME = "matrix.txt"
 CONFIG_FILE_NAME = "config.txt"
+RUN_TREE = "run_tree.json"
 
 # config iteration logic
-INITIAL_CONFIG_FILE = "initial_config_run-"
-LOGS_FILE = "logs_run-"
-IMPROVEMENTS_FILE = "improvements_run-"
-RESULTS_FILE = "results_run-"
-UPDATED_CONFIG = "updated_config_run-"
+INITIAL_CONFIG_FILE = "initial_config.txt"
+LOGS_FILE = "logs.txt"
+IMPROVEMENTS_FILE = "improvements.txt"
+RESULTS_FILE = "results.txt"
+UPDATED_CONFIG = "updated_config.txt"
 
-GENERATED_FOLDER_PATH = "generated"
-CONFIG_ITERATIONS_FOLDER_PATH = "config_iterations"
+GENERATED_FOLDER_NAME = "generated"
+CONFIG_ITERATIONS_FOLDER_NAME = "config_iterations"
 
 # matrix fields
 problem = None
@@ -70,8 +72,9 @@ matrix = {
     "StopConditionXIdea": None,
     "StopConditionXGrounding": None,
 }
+run_tree = None
 config = None
-config_iteration = None
+run_id = None
 # all prototypes to explore
 prototypes = []
 current_prototype = None

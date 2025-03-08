@@ -1,10 +1,10 @@
 import { Card, Paper, Stack, Tab, Tabs, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useAppContext } from "../hooks/app-context";
-import Button from "../../../components/Button";
-import TextField from "../../../components/TextField";
-import { SERVER_URL } from "..";
+import { useAppContext } from "../../hooks/app-context";
+import { SERVER_URL } from "../..";
+import Button from "../../../../components/Button";
+import TextField from "../../../../components/TextField";
 
 const ConfigCreation = () => {
   const { updateIsLoading, currentPrototype } = useAppContext();
@@ -77,14 +77,36 @@ const ConfigCreation = () => {
   if (!currentPrototype) return <></>;
   return (
     <Stack spacing="10px" width="100%">
-      <Button
-        onClick={generateConfig}
-        sx={{
-          width: "100%",
-        }}
-      >
-        {config ? "Regenerate Config" : "Generate Config"}
-      </Button>
+      {config ? (
+        <Stack direction="row" spacing="10px">
+          <Button
+            onClick={generateConfig}
+            sx={{
+              width: "100%",
+            }}
+          >
+            Regenerate Config
+          </Button>
+          <Button
+            onClick={() => {
+              // creating a new run
+            }}
+            sx={{ width: "100%" }}
+          >
+            Create Run
+          </Button>
+        </Stack>
+      ) : (
+        <Button
+          onClick={generateConfig}
+          sx={{
+            width: "100%",
+          }}
+        >
+          Generate Config
+        </Button>
+      )}
+
       {config && (
         <Stack spacing="10px">
           <TextField
