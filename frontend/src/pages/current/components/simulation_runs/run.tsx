@@ -96,17 +96,18 @@ const Run = () => {
       });
   };
 
-  const generateReflection = () => {
+  const generateSummary = () => {
     updateIsLoading(true);
     axios({
       method: "POST",
-      url: `${SERVER_URL}/generate_reflection`,
+      url: `${SERVER_URL}/generate_summary`,
     })
       .then((response) => {
-        console.log("/generate_reflection request successful:", response.data);
+        console.log("/generate_summary request successful:", response.data);
       })
       .catch((error) => {
-        console.error("Error calling /generate_reflection request:", error);
+        console.error("Error calling /generate_summary request:", error);
+        getSummary();
       })
       .finally(() => {
         updateIsLoading(false);
@@ -149,12 +150,29 @@ const Run = () => {
       });
   };
 
+  const getAnalysis = () => {
+    updateIsLoading(true);
+    axios({
+      method: "GET",
+      url: `${SERVER_URL}/get_analysis`,
+    })
+      .then((response) => {
+        console.log("/get_analysis request successful:", response.data);
+        setHasReflection(response.data.analysis ? true : false);
+      })
+      .catch((error) => {
+        console.error("Error calling /get_analysis request:", error);
+      })
+      .finally(() => {
+        updateIsLoading(false);
+      });
+  };
+
   useEffect(() => {
     if (!currentPrototype) return;
     getConfig();
+    getAnalysis();
     setIsRunningSimulation(false);
-    setHasReflection(false);
-    // this may need to change
     getLogs();
     getSummary();
   }, [currentPrototype, currentRunId]);
@@ -189,14 +207,29 @@ const Run = () => {
           </Stack>
           <Stack spacing="20px" direction="row">
             {isRunningSimulation ? (
-              <Button
-                onClick={() => {
-                  setIsRunningSimulation(false);
-                  stopSimulation();
-                }}
+              <Stack
+                direction="row"
+                spacing="10px"
+                sx={{ alignItems: "center" }}
               >
-                Stop Running Simulation
-              </Button>
+                <Typography variant="h6">Running Simulation...</Typography>
+                <img
+                  src={require("../../../../assets/robin-beginning.gif")}
+                  style={{ width: "30px", height: "25px" }}
+                />
+                <Button
+                  onClick={() => {
+                    setIsRunningSimulation(false);
+                    stopSimulation();
+                  }}
+                >
+                  Stop Running Simulation&nbsp;&nbsp;
+                  <img
+                    src={require("../../../../assets/robin-kid.gif")}
+                    style={{ width: "35px", height: "25px" }}
+                  />
+                </Button>{" "}
+              </Stack>
             ) : (
               <Button
                 onClick={() => {
@@ -204,14 +237,18 @@ const Run = () => {
                   runSimulation();
                 }}
               >
-                Run Simulation
+                {logs ? "Rerun Simulation" : "Run Simulation"}&nbsp;&nbsp;
+                <img
+                  src={require("../../../../assets/robin-beginning.gif")}
+                  style={{ width: "30px", height: "25px" }}
+                />
               </Button>
             )}
             {!isRunningSimulation && logs && summary && (
               <Button
                 onClick={() => {
                   setHasReflection(true);
-                  generateReflection();
+                  // generateReflection();
                 }}
               >
                 REFLECT
@@ -264,7 +301,7 @@ const Run = () => {
                       getLogs();
                     }}
                   >
-                    Get Logs
+                    Get Logs 📝
                   </Button>
                 </Stack>
                 <TextField
@@ -289,10 +326,10 @@ const Run = () => {
                   </Typography>
                   <Button
                     onClick={() => {
-                      getSummary();
+                      generateSummary();
                     }}
                   >
-                    Get Summary
+                    Get Summary ℹ️
                   </Button>{" "}
                 </Stack>
                 <TextField

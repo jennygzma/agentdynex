@@ -11,6 +11,7 @@ const Reflection = () => {
   const {
     updateIsLoading,
     currentPrototype,
+    currentRunId,
     updateCurrentRunId,
     updateCurrentRunTree,
   } = useAppContext();
@@ -53,7 +54,7 @@ const Reflection = () => {
     })
       .then((response) => {
         console.log("/get_config request successful:", response.data);
-        setConfig(response.data.config);
+        setConfig(response.data.config ?? "");
       })
       .catch((error) => {
         console.error("Error calling /get_config request:", error);
@@ -131,11 +132,30 @@ const Reflection = () => {
       });
   };
 
+  const generateAnalysis = () => {
+    updateIsLoading(true);
+    axios({
+      method: "POST",
+      url: `${SERVER_URL}/generate_analysis`,
+    })
+      .then((response) => {
+        console.log("/generate_analysis request successful:", response.data);
+      })
+      .catch((error) => {
+        console.error("Error calling /generate_analysis request:", error);
+        getAnalysis();
+      })
+      .finally(() => {
+        updateIsLoading(false);
+      });
+  };
+
   useEffect(() => {
     if (!currentPrototype) return;
     getRunTree();
     getConfig();
-  }, [currentPrototype]);
+    getAnalysis();
+  }, [currentPrototype, currentRunId]);
 
   const reflection = true;
 
@@ -183,7 +203,7 @@ const Reflection = () => {
                 getAnalysis();
               }}
             >
-              Get Analysis
+              Get Analysis 🤯
             </Button>
           </Stack>
           <TextField
@@ -209,7 +229,7 @@ const Reflection = () => {
                 createNewRun();
               }}
             >
-              Create New Run
+              Create New Run ➕
             </Button>
           </Stack>
           <Stack spacing="10px">

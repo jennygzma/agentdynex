@@ -61,7 +61,7 @@ from utils import create_and_write_file
 # user needs to fill this out themselves
 GPTEAM_PATH = "/Users/jennyma/Projects/GPTeam"
 PROJECT_PATH = "/Users/jennyma/Projects/agents-design-prototype/backend"
-CONFIG_FILE_NAME = "config.txt"
+CONFIG_FILE_NAME = "config.json"
 
 
 # config_id will be 0, run-1, run-2, run-1-1. if 0, the new run_id for it will be 0->run-1, run-1->run-1-1 or run-1-2 (if run-1-1 exists then it will be run-1-2(it needs to check the json file))
