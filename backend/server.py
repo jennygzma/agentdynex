@@ -9,7 +9,11 @@ from config_generation import generate_config as get_generated_config
 from flask import Flask, jsonify, request
 from matrix import brainstorm_inputs as brainstorm_generated_inputs
 from matrix import get_context_from_other_inputs
+from reflection import generate_analysis as generate_LLM_analysis
+from reflection import generate_summary as generate_LLM_summary
 from run_simulation import find_folder_path, get_next_run_id
+from run_simulation import run_simulation as run_external_simulation
+from run_simulation import stop_simulation as stop_external_simulation
 from utils import create_and_write_file, create_folder, file_exists, read_file
 
 # Initializing flask app
@@ -244,10 +248,6 @@ def get_config():
     )
 
 
-# TASK - update run tree
-
-
-# TASK - set current run id
 @app.route("/set_current_run_id", methods=["POST"])
 def set_current_run_id():
     print("calling set_current_run_id...")
@@ -330,29 +330,11 @@ def create_new_run():
             f"{current_run_id_folder_path}/{globals.CONFIG_ITERATIONS_FOLDER_NAME}/{next_run_id}/{globals.INITIAL_CONFIG_FILE}",
             config_to_run,
         )
-        # delete this stuff later
-        create_and_write_file(
-            f"{current_run_id_folder_path}/{globals.CONFIG_ITERATIONS_FOLDER_NAME}/{next_run_id}/{globals.LOGS_FILE}",
-            "log log log",
-        )
-        create_and_write_file(
-            f"{current_run_id_folder_path}/{globals.CONFIG_ITERATIONS_FOLDER_NAME}/{next_run_id}/{globals.SUMMARY_FILE}",
-            "summary summary sumary",
-        )
     else:
         create_folder(f"{current_run_id_folder_path}/{next_run_id}")
         create_and_write_file(
             f"{current_run_id_folder_path}/{next_run_id}/{globals.INITIAL_CONFIG_FILE}",
             config_to_run,
-        )
-        # delete this stuff later
-        create_and_write_file(
-            f"{current_run_id_folder_path}/{next_run_id}/{globals.LOGS_FILE}",
-            "log log log",
-        )
-        create_and_write_file(
-            f"{current_run_id_folder_path}/{next_run_id}/{globals.SUMMARY_FILE}",
-            "summary summary summary",
         )
     globals.run_id = next_run_id
     return (
@@ -379,33 +361,38 @@ def get_run_tree():
     )
 
 
-@app.route("/run_config", methods=["POST"])
-def run_config():
-    print("calling run_config...")
-    data = request.json
-    run_id = data["run_id"]
-    next_run_id, globals.run_tree = get_next_run_id(run_id, globals.run_tree)
-    config_iterations_folder_path = f"{globals.folder_path}/{globals.current_prototype}/{globals.CONFIG_ITERATIONS_FOLDER_NAME}"
-    current_run_id_folder_path = find_folder_path(run_id, config_iterations_folder_path)
-    if run_id == "0":
-        config_to_run_file_path = f"{globals.folder_path}/{globals.current_prototype}/{globals.CONFIG_FILE_NAME}"
-    else:
-        config_to_run_file_path = (
-            f"{current_run_id_folder_path}/{globals.UPDATED_CONFIG}"
-        )
-    config_to_run = read_file(config_to_run_file_path)
-    print(config_to_run_file_path + " config_to_run_file_path")
-    # create_folder(f"{current_run_id_folder_path}/{next_run_id})
-    create_and_write_file(
-        f"{current_run_id_folder_path}/{next_run_id}/{globals.UPDATED_CONFIG}",
-        config_to_run,
+@app.route("/run_simulation", methods=["POST"])
+def run_simulation():
+    print("calling run_simulation...")
+    current_prototype_folder_path = f"{globals.folder_path}/{globals.current_prototype}"
+    current_run_id_folder_path = find_folder_path(
+        globals.run_id, current_prototype_folder_path
     )
+    create_and_write_file(f"{current_run_id_folder_path}/{globals.LOGS_FILE}", "")
+    create_and_write_file(f"{current_run_id_folder_path}/{globals.SUMMARY_FILE}", "")
+    config_to_run_file_path = (
+        f"{current_run_id_folder_path}/{globals.INITIAL_CONFIG_FILE}"
+    )
+    config_to_run = read_file(config_to_run_file_path)
+    run_external_simulation(current_run_id_folder_path, config_to_run)
     return (
         jsonify(
             {
-                "message": "running config",
-                "config": config_to_run,
-                "new_run_id": next_run_id,
+                "message": "running simulation",
+            }
+        ),
+        200,
+    )
+
+
+@app.route("/stop_simulation", methods=["POST"])
+def stop_simulation():
+    print("calling stop_simulation...")
+    stop_external_simulation()
+    return (
+        jsonify(
+            {
+                "message": "stopping simulation",
             }
         ),
         200,
@@ -431,6 +418,29 @@ def get_logs():
     )
 
 
+@app.route("/generate_summary", methods=["POST"])
+def generate_summary():
+    print("calling generate_summary...")
+    current_prototype_folder_path = f"{globals.folder_path}/{globals.current_prototype}"
+    current_run_id_folder_path = find_folder_path(
+        globals.run_id, current_prototype_folder_path
+    )
+    logs = read_file(f"{current_run_id_folder_path}/{globals.LOGS_FILE}")
+    summary = generate_LLM_summary(logs)
+    create_and_write_file(
+        f"{current_run_id_folder_path}/{globals.SUMMARY_FILE}", summary
+    )
+    return (
+        jsonify(
+            {
+                "message": "generated summary",
+                "summary": summary,
+            }
+        ),
+        200,
+    )
+
+
 @app.route("/get_summary", methods=["GET"])
 def get_summary():
     print("calling get_summary...")
@@ -442,7 +452,7 @@ def get_summary():
     return (
         jsonify(
             {
-                "message": "grabbed logs",
+                "message": "got summary",
                 "summary": summary,
             }
         ),
@@ -450,31 +460,31 @@ def get_summary():
     )
 
 
-@app.route("/generate_reflection", methods=["POST"])
-def generate_reflection():
-    print("calling generate_reflection...")
+@app.route("/generate_analysis", methods=["POST"])
+def generate_analysis():
+    print("calling generate_analysis...")
     current_prototype_folder_path = f"{globals.folder_path}/{globals.current_prototype}"
     current_run_id_folder_path = find_folder_path(
         globals.run_id, current_prototype_folder_path
     )
+    logs = read_file(f"{current_run_id_folder_path}/{globals.LOGS_FILE}")
+    analysis = generate_LLM_analysis(logs)
+    create_and_write_file(
+        f"{current_run_id_folder_path}/{globals.ANALYSIS_FILE}", analysis
+    )
+    # change this later
     initial_config = read_file(
         f"{current_run_id_folder_path}/{globals.INITIAL_CONFIG_FILE}"
     )
-    reflected_config = initial_config
     create_and_write_file(
         f"{current_run_id_folder_path}/{globals.UPDATED_CONFIG}",
         initial_config,  # replace with reflection later
     )
-    # delete this later
-    create_and_write_file(
-        f"{current_run_id_folder_path}/{globals.ANALYSIS_FILE}",
-        "analysis analysis analysis",  # replace with reflection later
-    )
     return (
         jsonify(
             {
-                "message": "generated new config from reflection",
-                "reflected_config": reflected_config,
+                "message": "generated analysis",
+                "analysis": analysis,
             }
         ),
         200,
@@ -500,8 +510,6 @@ def get_analysis():
     )
 
 
-# TASK - reflect and update config
-# TASK - stop simulation
 #####################################################################################################################################################################################
 # For testing only. Run curl http://127.0.0.1:5000/set_globals_for_uuid/uuid
 @app.route("/set_globals_for_uuid/<generated_uuid>", methods=["GET"])
