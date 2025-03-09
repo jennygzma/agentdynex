@@ -153,7 +153,7 @@ const Reflection = () => {
     );
   }
   return (
-    <Stack>
+    <Stack spacing="20px">
       <Stack direction="row" spacing="10px">
         <Button onClick={() => setExpand(false)}>
           <ExpandLess />
@@ -169,17 +169,26 @@ const Reflection = () => {
       </Stack>
       <Stack spacing="20px" direction="row">
         <Stack width="50%" spacing="20px">
-          <Typography
-            variant="h6"
-            sx={{
-              fontWeight: "bold",
-            }}
-          >
-            Analysis
-          </Typography>
+          <Stack direction="row" sx={{ justifyContent: "space-between" }}>
+            <Typography
+              variant="h6"
+              sx={{
+                fontWeight: "bold",
+              }}
+            >
+              Analysis
+            </Typography>
+            <Button
+              onClick={() => {
+                getAnalysis();
+              }}
+            >
+              Get Analysis
+            </Button>
+          </Stack>
           <TextField
-            className={"Logs"}
-            value={"LOGLOGLOGFILLIN LATER"}
+            className={"Analysis"}
+            value={analysis}
             readOnly={true}
             code={true}
             rows="50"
@@ -203,17 +212,25 @@ const Reflection = () => {
               Create New Run
             </Button>
           </Stack>
-
-          <TextField
-            className={"updated_config"}
-            rows={50}
-            value={config}
-            onChange={(e) => {
-              setConfig(e.target.value);
-              setUpdatedConfig(true);
-            }}
-            code={true}
-          />
+          <Stack spacing="10px">
+            <TextField
+              className={"updated_config"}
+              rows={50}
+              value={config}
+              onChange={(e) => {
+                setConfig(e.target.value);
+                setUpdatedConfig(true);
+              }}
+              code={true}
+            />
+            <Button
+              disabled={!updatedConfig}
+              onClick={saveConfig}
+              sx={{ width: "100%" }}
+            >
+              Update Config
+            </Button>
+          </Stack>
         </Stack>
       </Stack>{" "}
       <Divider />

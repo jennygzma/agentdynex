@@ -1,12 +1,4 @@
-import {
-  Card,
-  Divider,
-  Paper,
-  Stack,
-  Tab,
-  Tabs,
-  Typography,
-} from "@mui/material";
+import { Stack, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useAppContext } from "../../hooks/app-context";
@@ -23,7 +15,6 @@ const Run = () => {
   const [summary, setSummary] = useState("");
   const [updatedConfig, setUpdatedConfig] = useState(false);
   const [isRunningSimulation, setIsRunningSimulation] = useState(false);
-  const [hasLogs, setHasLogs] = useState(false);
   const [hasReflection, setHasReflection] = useState(true);
   const [expand, setExpand] = useState(true);
 
@@ -160,7 +151,7 @@ const Run = () => {
                 Run Simulation
               </Button>
             )}
-            {!isRunningSimulation && hasLogs && (
+            {!isRunningSimulation && logs && summary && (
               <Button
                 onClick={() => {
                   setHasReflection(true);
@@ -173,7 +164,7 @@ const Run = () => {
           </Stack>
           <Stack spacing="20px" width="100%" direction="row">
             {config && (
-              <Stack spacing="10px" width="33%">
+              <Stack spacing="25px" width="100%">
                 <Typography
                   variant="h6"
                   sx={{
@@ -201,38 +192,60 @@ const Run = () => {
                 </Button>
               </Stack>
             )}
-            <Stack width="33%">
-              <Typography
-                variant="h6"
-                sx={{
-                  fontWeight: "bold",
-                }}
-              >
-                Logs
-              </Typography>
-              <TextField
-                className={"Logs"}
-                value={"LOGLOGLOGFILLIN LATER"}
-                readOnly={true}
-                code={true}
-              />
-            </Stack>
-            <Stack width="33%">
-              <Typography
-                variant="h6"
-                sx={{
-                  fontWeight: "bold",
-                }}
-              >
-                Summary
-              </Typography>
-              <TextField
-                className={"Summary"}
-                value={"SUMMARY FILL IN LATER"}
-                readOnly={true}
-                code={true}
-              />
-            </Stack>
+            {(isRunningSimulation || logs) && (
+              <Stack width="33%" spacing="20px">
+                <Stack direction="row" sx={{ justifyContent: "space-between" }}>
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      fontWeight: "bold",
+                    }}
+                  >
+                    Logs
+                  </Typography>
+                  <Button
+                    onClick={() => {
+                      getLogs();
+                    }}
+                  >
+                    Get Logs
+                  </Button>
+                </Stack>
+                <TextField
+                  className={"Logs"}
+                  value={logs}
+                  readOnly={true}
+                  code={true}
+                />
+              </Stack>
+            )}
+            {(isRunningSimulation || logs) && (
+              <Stack width="33%" spacing="20px">
+                <Stack direction="row" sx={{ justifyContent: "space-between" }}>
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      fontWeight: "bold",
+                    }}
+                  >
+                    Summary
+                  </Typography>
+                  <Button
+                    onClick={() => {
+                      getSummary();
+                    }}
+                  >
+                    Get Summary
+                  </Button>{" "}
+                </Stack>
+                <TextField
+                  className={"Summary"}
+                  value={summary}
+                  readOnly={true}
+                  code={true}
+                />
+              </Stack>
+            )}
           </Stack>
         </Stack>
       )}
