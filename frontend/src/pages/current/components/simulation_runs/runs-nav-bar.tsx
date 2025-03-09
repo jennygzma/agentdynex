@@ -12,33 +12,13 @@ const RunsNavBar = () => {
     updateIsLoading,
     currentRunId,
     updateCurrentRunId,
-    // currentRunTree,
+    currentRunTree,
     updateCurrentRunTree,
     prototypes,
     updatePrototypes,
     currentPrototype,
     updateCurrentPrototype,
   } = useAppContext();
-
-  const currentRunTree = {
-    "run-1": {
-      "run-1-1": {
-        "run-1-1-1": {},
-        "run-1-1-2": {},
-      },
-      "run-1-2": {
-        "run-1-2-1": {},
-        "run-1-2-2": {},
-      },
-      "run-1-3": {},
-    },
-    "run-2": {
-      "run-2-1": {
-        "run-2-1-1": {},
-        "run-2-1-2": {},
-      },
-    },
-  };
 
   const [expandedNodes, setExpandedNodes] = useState<Record<string, boolean>>(
     {},
@@ -64,9 +44,14 @@ const RunsNavBar = () => {
       });
   };
 
-  console.log("hi jenny current_run_id" + currentRunId);
-
-  useEffect(() => {}, [currentRunTree]);
+  useEffect(() => {
+    if (!Object.keys(expandedNodes).includes(currentRunId)) {
+      setExpandedNodes((prev) => ({
+        ...prev,
+        [currentRunId]: true,
+      }));
+    }
+  }, [currentRunTree, currentRunId]);
 
   const toggleNode = (nodeRunId: string) => {
     setExpandedNodes((prev) => ({
@@ -139,7 +124,7 @@ const RunsNavBar = () => {
 
   return (
     <Stack
-      spacing="10px"
+      spacing="20px"
       sx={{
         padding: "10px",
         backgroundColor: "white",

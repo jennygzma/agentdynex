@@ -6,8 +6,8 @@ import { useAppContext } from "../../hooks/app-context";
 import ConfigCreation from "./config_creation";
 
 const SimulationRuns = () => {
-  const { updateIsLoading, currentRunId } = useAppContext();
-  if (!currentRunId) {
+  const { updateIsLoading, currentRunId, currentRunTree } = useAppContext();
+  if (!currentRunTree) {
     return <ConfigCreation />;
   }
   return (

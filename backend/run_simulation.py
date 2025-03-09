@@ -2,6 +2,7 @@ import os
 import signal
 import subprocess
 
+import globals
 from utils import create_and_write_file
 
 # HOW SIMULATION FOLDER WORKS
@@ -74,8 +75,12 @@ def get_next_run_id(run_id, run_tree):
                 return found
         return None
 
+    print(f"calling get_next_run_id for {run_id}...")
     if run_id == "0":
-        new_run_id = "run-1"
+        suffix = 1
+        while f"run-{suffix}" in run_tree:
+            suffix += 1
+        new_run_id = f"run-{suffix}"
         run_tree[new_run_id] = {}
         return new_run_id, run_tree
 
@@ -95,7 +100,7 @@ def get_next_run_id(run_id, run_tree):
     return new_run_id, run_tree
 
 
-def find_folder_path(run_id, base_path):
+def find_folder_path(run_id, current_prototype_path):
     """
     Given a run_id, finds the corresponding folder path in the config_iterations directory.
 
@@ -103,8 +108,14 @@ def find_folder_path(run_id, base_path):
     :param base_path: The base directory containing config iterations.
     :return: The absolute path to the folder corresponding to run_id.
     """
+    print(f"calling find_folder_path for run_id {run_id}...")
+    if run_id == "0":
+        return current_prototype_path
     parts = run_id.split("-")
-    folder_path = os.path.join(base_path, f"run-{parts[1]}")
+    folder_path = os.path.join(
+        f"{current_prototype_path}/{globals.CONFIG_ITERATIONS_FOLDER_NAME}",
+        f"run-{parts[1]}",
+    )
 
     for i in range(2, len(parts)):
         sub_run = "-".join(parts[: i + 1])

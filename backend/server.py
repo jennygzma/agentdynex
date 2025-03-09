@@ -97,7 +97,6 @@ def update_input():
 def explore_prototype():
     print("calling explore_prototype...")
     prototype = request.json["prototype"]
-    print(f"hi jenny {prototype}")
     globals.current_prototype = prototype
     globals.prototypes.append(prototype)
     create_and_write_file(
@@ -225,8 +224,11 @@ def set_current_run_id():
     print("calling set_current_run_id...")
     data = request.json
     globals.run_id = data["current_run_id"]
+    run_id_path = find_folder_path(
+        globals.run_id,
+        f"{globals.folder_path}/{globals.current_prototype}",
+    )
     if globals.run_id == "0":
-        run_id_path = f"{globals.folder_path}/{globals.current_prototype}"
         if file_exists(f"{run_id_path}/{globals.CONFIG_FILE_NAME}"):
             globals.config = json.loads(
                 read_file(
@@ -246,11 +248,6 @@ def set_current_run_id():
                 200,
             )
 
-    run_id_path = find_folder_path(
-        globals.run_id,
-        f"{globals.folder_path}/{globals.current_prototype}/{globals.CONFIG_ITERATIONS_FOLDER_NAME}",
-    )
-    print("hi jenny " + globals.run_id + " " + run_id_path)
     if file_exists(f"{run_id_path}/{globals.INITIAL_CONFIG_FILE}"):
         globals.config = json.loads(
             read_file(f"{run_id_path}/{globals.INITIAL_CONFIG_FILE}")
@@ -263,6 +260,68 @@ def set_current_run_id():
         jsonify(
             {
                 "message": "Set current run_id",
+            }
+        ),
+        200,
+    )
+
+
+@app.route("/create_new_run", methods=["POST"])
+def create_new_run():
+    print("calling create_new_run...")
+    next_run_id, globals.run_tree = get_next_run_id(globals.run_id, globals.run_tree)
+    create_and_write_file(
+        f"{globals.folder_path}/{globals.RUN_TREE}", json.dumps(globals.run_tree)
+    )
+    create_and_write_file(
+        f"{globals.folder_path}/{globals.current_prototype}/{globals.RUN_TREE}",
+        json.dumps(globals.run_tree),
+    )
+
+    current_prototype_folder_path = f"{globals.folder_path}/{globals.current_prototype}"
+    current_run_id_folder_path = find_folder_path(
+        globals.run_id, current_prototype_folder_path
+    )
+    if globals.run_id == "0":
+        config_to_run_file_path = (
+            f"{current_run_id_folder_path}/{globals.CONFIG_FILE_NAME}"
+        )
+    else:
+        config_to_run_file_path = (
+            f"{current_run_id_folder_path}/{globals.UPDATED_CONFIG}"
+        )
+    config_to_run = read_file(config_to_run_file_path)
+    print(config_to_run_file_path + " config_to_run_file_path")
+    # create_folder(f"{current_run_id_folder_path}/{next_run_id})
+    if globals.run_id == "0":
+        create_and_write_file(
+            f"{current_run_id_folder_path}/{globals.CONFIG_ITERATIONS_FOLDER_NAME}/{next_run_id}/{globals.UPDATED_CONFIG}",
+            config_to_run,
+        )
+    else:
+        create_and_write_file(
+            f"{current_run_id_folder_path}/{next_run_id}/{globals.UPDATED_CONFIG}",
+            config_to_run,
+        )
+    globals.run_id = next_run_id
+    return (
+        jsonify(
+            {
+                "message": "created new run",
+                "new_run_id": next_run_id,
+            }
+        ),
+        200,
+    )
+
+
+@app.route("/get_run_tree", methods=["GET"])
+def get_run_tree():
+    print("calling get_run_tree...")
+    return (
+        jsonify(
+            {
+                "run_tree": globals.run_tree,
             }
         ),
         200,
@@ -318,9 +377,9 @@ def set_globals_for_uuid(generated_uuid):
     globals.matrix = json.loads(
         read_file(f"{globals.folder_path}/{globals.MATRIX_FILE_NAME}")
     )
-    # globals.matrix = json.loads(
-    #     read_file(f"{globals.folder_path}/{globals.RUN_TREE}")
-    # )
+    globals.run_tree = json.loads(
+        read_file(f"{globals.folder_path}/{globals.RUN_TREE}")
+    )
     globals.problem = read_file(f"{globals.folder_path}/{globals.PROBLEM_FILE_NAME}")
     return jsonify({"message": "Successfully set global fields"}), 200
 
