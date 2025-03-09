@@ -53,8 +53,8 @@ RUN_TREE = "run_tree.json"
 # config iteration logic
 INITIAL_CONFIG_FILE = "initial_config.txt"
 LOGS_FILE = "logs.txt"
-IMPROVEMENTS_FILE = "improvements.txt"
-RESULTS_FILE = "results.txt"
+ANALYSIS_FILE = "analysis.txt"
+SUMMARY_FILE = "summary.txt"
 UPDATED_CONFIG = "updated_config.txt"
 
 GENERATED_FOLDER_NAME = "generated"

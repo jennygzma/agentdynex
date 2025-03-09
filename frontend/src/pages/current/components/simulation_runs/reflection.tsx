@@ -1,12 +1,4 @@
-import {
-  Card,
-  Divider,
-  Paper,
-  Stack,
-  Tab,
-  Tabs,
-  Typography,
-} from "@mui/material";
+import { Divider, Stack, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { TreeNode, useAppContext } from "../../hooks/app-context";
@@ -23,6 +15,7 @@ const Reflection = () => {
     updateCurrentRunTree,
   } = useAppContext();
   const [config, setConfig] = useState("");
+  const [analysis, setAnalysis] = useState("");
   const [updatedConfig, setUpdatedConfig] = useState(false);
   const [expand, setExpand] = useState(true);
 
@@ -33,6 +26,7 @@ const Reflection = () => {
       url: `${SERVER_URL}/save_config`,
       data: {
         config,
+        type: "updated",
       },
     })
       .then((response) => {
@@ -53,6 +47,9 @@ const Reflection = () => {
     axios({
       method: "GET",
       url: `${SERVER_URL}/get_config`,
+      params: {
+        type: "updated",
+      },
     })
       .then((response) => {
         console.log("/get_config request successful:", response.data);
@@ -60,24 +57,6 @@ const Reflection = () => {
       })
       .catch((error) => {
         console.error("Error calling /get_config request:", error);
-      })
-      .finally(() => {
-        updateIsLoading(false);
-      });
-  };
-
-  const generateConfig = () => {
-    updateIsLoading(true);
-    axios({
-      method: "POST",
-      url: `${SERVER_URL}/generate_config`,
-    })
-      .then((response) => {
-        console.log("/generate_config request successful:", response.data);
-        getConfig();
-      })
-      .catch((error) => {
-        console.error("Error calling /generate_config request:", error);
       })
       .finally(() => {
         updateIsLoading(false);
@@ -128,6 +107,24 @@ const Reflection = () => {
       })
       .catch((error) => {
         console.error("Error calling /get_run_tree request:", error);
+      })
+      .finally(() => {
+        updateIsLoading(false);
+      });
+  };
+
+  const getAnalysis = () => {
+    updateIsLoading(true);
+    axios({
+      method: "GET",
+      url: `${SERVER_URL}/get_analysis`,
+    })
+      .then((response) => {
+        console.log("/get_analysis request successful:", response.data);
+        setAnalysis(response.data.analysis);
+      })
+      .catch((error) => {
+        console.error("Error calling /get_analysis request:", error);
       })
       .finally(() => {
         updateIsLoading(false);

@@ -19,6 +19,8 @@ import { ExpandLess, ExpandMore } from "@mui/icons-material";
 const Run = () => {
   const { updateIsLoading, currentPrototype } = useAppContext();
   const [config, setConfig] = useState("");
+  const [logs, setLogs] = useState("");
+  const [summary, setSummary] = useState("");
   const [updatedConfig, setUpdatedConfig] = useState(false);
   const [isRunningSimulation, setIsRunningSimulation] = useState(false);
   const [hasLogs, setHasLogs] = useState(false);
@@ -32,6 +34,7 @@ const Run = () => {
       url: `${SERVER_URL}/save_config`,
       data: {
         config,
+        type: "initial",
       },
     })
       .then((response) => {
@@ -52,6 +55,9 @@ const Run = () => {
     axios({
       method: "GET",
       url: `${SERVER_URL}/get_config`,
+      params: {
+        type: "initial",
+      },
     })
       .then((response) => {
         console.log("/get_config request successful:", response.data);
@@ -65,18 +71,36 @@ const Run = () => {
       });
   };
 
-  const generateConfig = () => {
+  const getLogs = () => {
     updateIsLoading(true);
     axios({
-      method: "POST",
-      url: `${SERVER_URL}/generate_config`,
+      method: "GET",
+      url: `${SERVER_URL}/get_logs`,
     })
       .then((response) => {
-        console.log("/generate_config request successful:", response.data);
-        getConfig();
+        console.log("/get_logs request successful:", response.data);
+        setLogs(response.data.logs);
       })
       .catch((error) => {
-        console.error("Error calling /generate_config request:", error);
+        console.error("Error calling /get_logs request:", error);
+      })
+      .finally(() => {
+        updateIsLoading(false);
+      });
+  };
+
+  const getSummary = () => {
+    updateIsLoading(true);
+    axios({
+      method: "GET",
+      url: `${SERVER_URL}/get_summary`,
+    })
+      .then((response) => {
+        console.log("/get_summary request successful:", response.data);
+        setSummary(response.data.summary);
+      })
+      .catch((error) => {
+        console.error("Error calling /get_summary request:", error);
       })
       .finally(() => {
         updateIsLoading(false);
@@ -160,7 +184,7 @@ const Run = () => {
                 </Typography>
                 <TextField
                   className={"code"}
-                  rows={75}
+                  rows={50}
                   value={config}
                   onChange={(e) => {
                     setConfig(e.target.value);

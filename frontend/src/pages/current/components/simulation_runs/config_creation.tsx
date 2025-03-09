@@ -24,6 +24,7 @@ const ConfigCreation = () => {
       url: `${SERVER_URL}/save_config`,
       data: {
         config,
+        type: "",
       },
     })
       .then((response) => {
@@ -44,6 +45,9 @@ const ConfigCreation = () => {
     axios({
       method: "GET",
       url: `${SERVER_URL}/get_config`,
+      params: {
+        type: "",
+      },
     })
       .then((response) => {
         console.log("/get_config request successful:", response.data);
