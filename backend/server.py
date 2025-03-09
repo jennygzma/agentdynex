@@ -175,19 +175,19 @@ def generate_config():
     )
 
     globals.run_tree = {}
+    globals.run_id = "0"
     create_and_write_file(
         f"{globals.folder_path}/{globals.current_prototype}/{globals.RUN_TREE}",
-        globals.run_tree,
+        json.dumps(globals.run_tree),
     )
     create_and_write_file(
         f"{globals.folder_path}/{globals.current_prototype}/{globals.RUN_TREE}",
-        globals.run_tree,
+        json.dumps(globals.run_tree),
     )
 
     return jsonify({"message": "Generated config"}), 200
 
 
-# TASK - needs to see if updated or initial config is being saved and needs run id
 @app.route("/save_config", methods=["POST"])
 def save_config():
     print("calling save_config...")

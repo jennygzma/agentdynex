@@ -1,5 +1,5 @@
 import { Stack } from "@mui/material";
-import React from "react";
+import React, { useEffect } from "react";
 import RunsNavBar from "./runs-nav-bar";
 import Run from "./run";
 import { useAppContext } from "../../hooks/app-context";
@@ -7,6 +7,7 @@ import ConfigCreation from "./config_creation";
 
 const SimulationRuns = () => {
   const { updateIsLoading, currentRunId, currentRunTree } = useAppContext();
+  useEffect(() => {}, [currentRunId]);
   if (!currentRunTree) {
     return <ConfigCreation />;
   }

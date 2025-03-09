@@ -9,13 +9,13 @@ import Reflection from "./reflection";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
 
 const Run = () => {
-  const { updateIsLoading, currentPrototype } = useAppContext();
+  const { updateIsLoading, currentPrototype, currentRunId } = useAppContext();
   const [config, setConfig] = useState("");
   const [logs, setLogs] = useState("");
   const [summary, setSummary] = useState("");
   const [updatedConfig, setUpdatedConfig] = useState(false);
   const [isRunningSimulation, setIsRunningSimulation] = useState(false);
-  const [hasReflection, setHasReflection] = useState(true);
+  const [hasReflection, setHasReflection] = useState(false);
   const [expand, setExpand] = useState(true);
 
   const saveConfig = () => {
@@ -62,6 +62,23 @@ const Run = () => {
       });
   };
 
+  const generateReflection = () => {
+    updateIsLoading(true);
+    axios({
+      method: "POST",
+      url: `${SERVER_URL}/generate_reflection`,
+    })
+      .then((response) => {
+        console.log("/generate_reflection request successful:", response.data);
+      })
+      .catch((error) => {
+        console.error("Error calling /generate_reflection request:", error);
+      })
+      .finally(() => {
+        updateIsLoading(false);
+      });
+  };
+
   const getLogs = () => {
     updateIsLoading(true);
     axios({
@@ -101,7 +118,12 @@ const Run = () => {
   useEffect(() => {
     if (!currentPrototype) return;
     getConfig();
-  }, [currentPrototype]);
+    setIsRunningSimulation(false);
+    setHasReflection(false);
+    // this may need to change
+    setLogs("");
+    setSummary("");
+  }, [currentPrototype, currentRunId]);
 
   if (!currentPrototype) return <></>;
   return (
@@ -155,7 +177,7 @@ const Run = () => {
               <Button
                 onClick={() => {
                   setHasReflection(true);
-                  // call endpoint to reflect on stuff
+                  generateReflection();
                 }}
               >
                 REFLECT

@@ -1,4 +1,5 @@
 import os
+import shutil
 import signal
 import subprocess
 
@@ -109,7 +110,7 @@ def find_folder_path(run_id, current_prototype_path):
     :return: The absolute path to the folder corresponding to run_id.
     """
     print(f"calling find_folder_path for run_id {run_id}...")
-    if run_id == "0":
+    if run_id == "0" or None:
         return current_prototype_path
     parts = run_id.split("-")
     folder_path = os.path.join(
@@ -130,7 +131,7 @@ def run_simulation(run_iteration_path, run_id, config):
     config_path = f"{GPTEAM_PATH}/{CONFIG_FILE_NAME}"
     create_and_write_file(config_path, config)
 
-    log_file = f"{run_iteration_path}/{LOGS_FILE}_{run_id}"
+    log_file = f"{run_iteration_path}/{globals.LOGS_FILE}_{run_id}"
 
     if os.name == "nt":  # Windows
         cmd = [

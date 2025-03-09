@@ -104,11 +104,11 @@ Each agent should play a specific role in the simulation. If one of the agents c
 Avoid redundancy and any unnecessary agents.
 """
 
-ACTIONSXIDEA_EXAMPLES = """Action ideas focus on what each type of agent need to do in the world and when they can exit the simulation (the stop condition).
-Make sure there are actions that span all the types of agents, as well as stop conditions for each agent.
+ACTIONSXIDEA_EXAMPLES = """Action ideas focus on what each type of agent need to do in the world.
+Make sure there are actions that span all the types of agents.
 Every action should consist of the agent communicating that they have completed a task. Agents can complete a task by simply saying they have completed a task.
 For example, if the idea is to "simulate the tragedy of the commons", some examples of the actions are "agents should verbally stating the money they have consumed", "the simulation stops when the pot is empty"
-For example, if there are two types of agents, an example idea could be "mediator agents should announce whose turn it is" and "mediator agent announces the bet each round" and "agents should verbally state to mediator the money they have consumed" and "simulation stops when there is no more money" and "simulation stops when 3 rounds are over."
+For example, if there are two types of agents, an example idea could be "mediator agents should announce whose turn it is" and "mediator agent announces the bet each round" and "agents should verbally state to mediator the money they have consumed"
 If agents are voting in a simulation, they can just verbally declare it without having to cast a ballot or upload their vote. If an agent is counting the votes, they should NOT have to read any files. They should either just observer or count via verbal vote.
 Try to keep the array oragnized by agent. For example, the first 3 actions in the list are for the real estate agent, the next couple actions are for the home buyer agent, last couple actions shows the stop condition(s)). Here is an example:
 [
@@ -118,10 +118,6 @@ Try to keep the array oragnized by agent. For example, the first 3 actions in th
      "Professor agent provides feedback to student agents",
     "Student agents declare they submitted the assignment",
     "Student agents declare they submitted the assignment late",
-    "Simulation ends when professor finishes meetings with all students",
-    "Simulation ends when all assignments have been submitted",
-    "Simulation ends when all meetings have ended",
-    "Simulation ends after feedback from professor is provided to all students"
 ]
 """
 
