@@ -5,10 +5,11 @@ import json
 import uuid
 
 import globals
-from code_generation import generate_config as get_generated_config
+from config_generation import generate_config as get_generated_config
 from flask import Flask, jsonify, request
 from matrix import brainstorm_inputs as brainstorm_generated_inputs
 from matrix import get_context_from_other_inputs
+from run_simulation import find_folder_path, get_next_run_id
 from utils import create_and_write_file, create_folder, file_exists, read_file
 
 # Initializing flask app
@@ -40,10 +41,9 @@ def save_problem():
     date_time = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     if globals.folder_path is None:
         globals.folder_path = (
-            f"{globals.GENERATED_FOLDER_PATH}/generations_{date_time}_{uuid.uuid4()}"
+            f"{globals.GENERATED_FOLDER_NAME}/generations_{date_time}_{uuid.uuid4()}"
         )
         create_folder(globals.folder_path)
-        create_folder(f"{globals.folder_path}/{globals.MATRIX_FOLDER_NAME}")
     create_and_write_file(
         f"{globals.folder_path}/{globals.PROBLEM_FILE_NAME}",
         globals.problem,
@@ -97,7 +97,6 @@ def update_input():
 def explore_prototype():
     print("calling explore_prototype...")
     prototype = request.json["prototype"]
-    print(f"hi jenny {prototype}")
     globals.current_prototype = prototype
     globals.prototypes.append(prototype)
     create_and_write_file(
@@ -137,6 +136,18 @@ def set_current_prototype():
         f"{globals.folder_path}/{globals.MATRIX_FILE_NAME}",
         json.dumps(globals.matrix),
     )
+    if file_exists(
+        f"{globals.folder_path}/{globals.current_prototype}/{globals.CONFIG_FILE_NAME}"
+    ):
+        globals.config = json.loads(
+            read_file(
+                f"{globals.folder_path}/{globals.current_prototype}/{globals.CONFIG_FILE_NAME}"
+            )
+        )
+        create_and_write_file(
+            f"{globals.folder_path}/{globals.CONFIG_FILE_NAME}",
+            json.dumps(globals.config),
+        )
     return (
         jsonify(
             {
@@ -152,44 +163,351 @@ def generate_config():
     print("calling generate_config...")
     problem = globals.problem
 
-    config = get_generated_config(problem, globals.matrix)
+    globals.config = get_generated_config(problem, globals.matrix)
 
     create_and_write_file(
         f"{globals.folder_path}/{globals.current_prototype}/{globals.CONFIG_FILE_NAME}",
-        config,
+        globals.config,
     )
+    create_and_write_file(
+        f"{globals.folder_path}/{globals.CONFIG_FILE_NAME}",
+        globals.config,
+    )
+
+    globals.run_tree = {}
+    globals.run_id = "0"
+    create_and_write_file(
+        f"{globals.folder_path}/{globals.current_prototype}/{globals.RUN_TREE}",
+        json.dumps(globals.run_tree),
+    )
+    create_and_write_file(
+        f"{globals.folder_path}/{globals.current_prototype}/{globals.RUN_TREE}",
+        json.dumps(globals.run_tree),
+    )
+
     return jsonify({"message": "Generated config"}), 200
 
 
 @app.route("/save_config", methods=["POST"])
 def save_config():
     print("calling save_config...")
-    config = request.json["config"]
-    create_and_write_file(
-        f"{globals.folder_path}/{globals.current_prototype}/{globals.CONFIG_FILE_NAME}",
-        config,
+    globals.config = request.json["config"]
+    config_type = request.json["type"]
+    current_prototype_folder_path = f"{globals.folder_path}/{globals.current_prototype}"
+    current_run_id_folder_path = find_folder_path(
+        globals.run_id, current_prototype_folder_path
     )
+    create_and_write_file(
+        f"{globals.folder_path}/{globals.CONFIG_FILE_NAME}",
+        globals.config,
+    )
+    if config_type == "updated":
+        create_and_write_file(
+            f"{current_run_id_folder_path}/{globals.UPDATED_CONFIG}",
+            globals.config,
+        )
+    elif config_type == "initial":
+        create_and_write_file(
+            f"{current_run_id_folder_path}/{globals.INITIAL_CONFIG_FILE}",
+            globals.config,
+        )
+    else:
+        create_and_write_file(
+            f"{current_prototype_folder_path}/{globals.CONFIG_FILE_NAME}",
+            globals.config,
+        )
+
     return jsonify({"message": "Saved config"}), 200
 
 
 @app.route("/get_config", methods=["GET"])
 def get_config():
     print("calling get_config...")
-    config = read_file(
-        f"{globals.folder_path}/{globals.current_prototype}/{globals.CONFIG_FILE_NAME}"
+    config_type = request.args.get("type")
+    current_prototype_folder_path = f"{globals.folder_path}/{globals.current_prototype}"
+    current_run_id_folder_path = find_folder_path(
+        globals.run_id, current_prototype_folder_path
     )
+    if config_type == "updated":
+        config = read_file(f"{current_run_id_folder_path}/{globals.UPDATED_CONFIG}")
+    elif config_type == "initial":
+        config = read_file(
+            f"{current_run_id_folder_path}/{globals.INITIAL_CONFIG_FILE}"
+        )
+    else:
+        config = read_file(
+            f"{current_prototype_folder_path}/{globals.CONFIG_FILE_NAME}",
+        )
     return (
         jsonify({"message": "getting config", "config": config}),
         200,
     )
 
 
+# TASK - update run tree
+
+
+# TASK - set current run id
+@app.route("/set_current_run_id", methods=["POST"])
+def set_current_run_id():
+    print("calling set_current_run_id...")
+    data = request.json
+    globals.run_id = data["current_run_id"]
+    run_id_path = find_folder_path(
+        globals.run_id,
+        f"{globals.folder_path}/{globals.current_prototype}",
+    )
+    if globals.run_id == "0":
+        if file_exists(f"{run_id_path}/{globals.CONFIG_FILE_NAME}"):
+            globals.config = json.loads(
+                read_file(
+                    f"{globals.folder_path}/{globals.current_prototype}/{globals.CONFIG_FILE_NAME}"
+                )
+            )
+            create_and_write_file(
+                f"{globals.folder_path}/{globals.CONFIG_FILE_NAME}",
+                json.dumps(globals.config),
+            )
+            return (
+                jsonify(
+                    {
+                        "message": "Set current run_id",
+                    }
+                ),
+                200,
+            )
+
+    if file_exists(f"{run_id_path}/{globals.INITIAL_CONFIG_FILE}"):
+        globals.config = json.loads(
+            read_file(f"{run_id_path}/{globals.INITIAL_CONFIG_FILE}")
+        )
+        create_and_write_file(
+            f"{run_id_path}/{globals.INITIAL_CONFIG_FILE}",
+            json.dumps(globals.config),
+        )
+    return (
+        jsonify(
+            {
+                "message": "Set current run_id",
+            }
+        ),
+        200,
+    )
+
+
+@app.route("/create_new_run", methods=["POST"])
+def create_new_run():
+    print("calling create_new_run...")
+    next_run_id, globals.run_tree = get_next_run_id(globals.run_id, globals.run_tree)
+    create_and_write_file(
+        f"{globals.folder_path}/{globals.RUN_TREE}", json.dumps(globals.run_tree)
+    )
+    create_and_write_file(
+        f"{globals.folder_path}/{globals.current_prototype}/{globals.RUN_TREE}",
+        json.dumps(globals.run_tree),
+    )
+
+    current_prototype_folder_path = f"{globals.folder_path}/{globals.current_prototype}"
+    current_run_id_folder_path = find_folder_path(
+        globals.run_id, current_prototype_folder_path
+    )
+    if globals.run_id == "0":
+        config_to_run_file_path = (
+            f"{current_run_id_folder_path}/{globals.CONFIG_FILE_NAME}"
+        )
+    else:
+        config_to_run_file_path = (
+            f"{current_run_id_folder_path}/{globals.UPDATED_CONFIG}"
+        )
+    config_to_run = read_file(config_to_run_file_path)
+    print(config_to_run_file_path + " config_to_run_file_path")
+    # create_folder(f"{current_run_id_folder_path}/{next_run_id})
+    if globals.run_id == "0":
+        create_folder(
+            f"{current_run_id_folder_path}/{globals.CONFIG_ITERATIONS_FOLDER_NAME}/{next_run_id}"
+        )
+        create_and_write_file(
+            f"{current_run_id_folder_path}/{globals.CONFIG_ITERATIONS_FOLDER_NAME}/{next_run_id}/{globals.INITIAL_CONFIG_FILE}",
+            config_to_run,
+        )
+        # delete this stuff later
+        create_and_write_file(
+            f"{current_run_id_folder_path}/{globals.CONFIG_ITERATIONS_FOLDER_NAME}/{next_run_id}/{globals.LOGS_FILE}",
+            "log log log",
+        )
+        create_and_write_file(
+            f"{current_run_id_folder_path}/{globals.CONFIG_ITERATIONS_FOLDER_NAME}/{next_run_id}/{globals.SUMMARY_FILE}",
+            "summary summary sumary",
+        )
+    else:
+        create_folder(f"{current_run_id_folder_path}/{next_run_id}")
+        create_and_write_file(
+            f"{current_run_id_folder_path}/{next_run_id}/{globals.INITIAL_CONFIG_FILE}",
+            config_to_run,
+        )
+        # delete this stuff later
+        create_and_write_file(
+            f"{current_run_id_folder_path}/{next_run_id}/{globals.LOGS_FILE}",
+            "log log log",
+        )
+        create_and_write_file(
+            f"{current_run_id_folder_path}/{next_run_id}/{globals.SUMMARY_FILE}",
+            "summary summary summary",
+        )
+    globals.run_id = next_run_id
+    return (
+        jsonify(
+            {
+                "message": "created new run",
+                "new_run_id": next_run_id,
+            }
+        ),
+        200,
+    )
+
+
+@app.route("/get_run_tree", methods=["GET"])
+def get_run_tree():
+    print("calling get_run_tree...")
+    return (
+        jsonify(
+            {
+                "run_tree": globals.run_tree,
+            }
+        ),
+        200,
+    )
+
+
+@app.route("/run_config", methods=["POST"])
+def run_config():
+    print("calling run_config...")
+    data = request.json
+    run_id = data["run_id"]
+    next_run_id, globals.run_tree = get_next_run_id(run_id, globals.run_tree)
+    config_iterations_folder_path = f"{globals.folder_path}/{globals.current_prototype}/{globals.CONFIG_ITERATIONS_FOLDER_NAME}"
+    current_run_id_folder_path = find_folder_path(run_id, config_iterations_folder_path)
+    if run_id == "0":
+        config_to_run_file_path = f"{globals.folder_path}/{globals.current_prototype}/{globals.CONFIG_FILE_NAME}"
+    else:
+        config_to_run_file_path = (
+            f"{current_run_id_folder_path}/{globals.UPDATED_CONFIG}"
+        )
+    config_to_run = read_file(config_to_run_file_path)
+    print(config_to_run_file_path + " config_to_run_file_path")
+    # create_folder(f"{current_run_id_folder_path}/{next_run_id})
+    create_and_write_file(
+        f"{current_run_id_folder_path}/{next_run_id}/{globals.UPDATED_CONFIG}",
+        config_to_run,
+    )
+    return (
+        jsonify(
+            {
+                "message": "running config",
+                "config": config_to_run,
+                "new_run_id": next_run_id,
+            }
+        ),
+        200,
+    )
+
+
+@app.route("/get_logs", methods=["GET"])
+def get_logs():
+    print("calling get_logs...")
+    current_prototype_folder_path = f"{globals.folder_path}/{globals.current_prototype}"
+    current_run_id_folder_path = find_folder_path(
+        globals.run_id, current_prototype_folder_path
+    )
+    logs = read_file(f"{current_run_id_folder_path}/{globals.LOGS_FILE}")
+    return (
+        jsonify(
+            {
+                "message": "grabbed logs",
+                "logs": logs,
+            }
+        ),
+        200,
+    )
+
+
+@app.route("/get_summary", methods=["GET"])
+def get_summary():
+    print("calling get_summary...")
+    current_prototype_folder_path = f"{globals.folder_path}/{globals.current_prototype}"
+    current_run_id_folder_path = find_folder_path(
+        globals.run_id, current_prototype_folder_path
+    )
+    summary = read_file(f"{current_run_id_folder_path}/{globals.SUMMARY_FILE}")
+    return (
+        jsonify(
+            {
+                "message": "grabbed logs",
+                "summary": summary,
+            }
+        ),
+        200,
+    )
+
+
+@app.route("/generate_reflection", methods=["POST"])
+def generate_reflection():
+    print("calling generate_reflection...")
+    current_prototype_folder_path = f"{globals.folder_path}/{globals.current_prototype}"
+    current_run_id_folder_path = find_folder_path(
+        globals.run_id, current_prototype_folder_path
+    )
+    initial_config = read_file(
+        f"{current_run_id_folder_path}/{globals.INITIAL_CONFIG_FILE}"
+    )
+    reflected_config = initial_config
+    create_and_write_file(
+        f"{current_run_id_folder_path}/{globals.UPDATED_CONFIG}",
+        initial_config,  # replace with reflection later
+    )
+    # delete this later
+    create_and_write_file(
+        f"{current_run_id_folder_path}/{globals.ANALYSIS_FILE}",
+        "analysis analysis analysis",  # replace with reflection later
+    )
+    return (
+        jsonify(
+            {
+                "message": "generated new config from reflection",
+                "reflected_config": reflected_config,
+            }
+        ),
+        200,
+    )
+
+
+@app.route("/get_analysis", methods=["GET"])
+def get_analysis():
+    print("calling get_analysis...")
+    current_prototype_folder_path = f"{globals.folder_path}/{globals.current_prototype}"
+    current_run_id_folder_path = find_folder_path(
+        globals.run_id, current_prototype_folder_path
+    )
+    analysis = read_file(f"{current_run_id_folder_path}/{globals.ANALYSIS_FILE}")
+    return (
+        jsonify(
+            {
+                "message": "got analysis",
+                "analysis": analysis,
+            }
+        ),
+        200,
+    )
+
+
+# TASK - reflect and update config
+# TASK - stop simulation
 #####################################################################################################################################################################################
 # For testing only. Run curl http://127.0.0.1:5000/set_globals_for_uuid/uuid
 @app.route("/set_globals_for_uuid/<generated_uuid>", methods=["GET"])
 def set_globals_for_uuid(generated_uuid):
     print("calling set_globals_for_uuid")
-    globals.folder_path = f"{globals.GENERATED_FOLDER_PATH}/{generated_uuid}"
+    globals.folder_path = f"{globals.GENERATED_FOLDER_NAME}/{generated_uuid}"
     globals.prototypes = (
         json.loads(read_file(f"{globals.folder_path}/{globals.PROTOTYPES}"))
         if file_exists(f"{globals.folder_path}/{globals.PROTOTYPES}")
@@ -197,6 +515,9 @@ def set_globals_for_uuid(generated_uuid):
     )
     globals.matrix = json.loads(
         read_file(f"{globals.folder_path}/{globals.MATRIX_FILE_NAME}")
+    )
+    globals.run_tree = json.loads(
+        read_file(f"{globals.folder_path}/{globals.RUN_TREE}")
     )
     globals.problem = read_file(f"{globals.folder_path}/{globals.PROBLEM_FILE_NAME}")
     return jsonify({"message": "Successfully set global fields"}), 200

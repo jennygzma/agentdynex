@@ -44,14 +44,21 @@ def call_llm(system_message, user_message, llm=globals.LLM):
     return message.choices[0].message.content
 
 
-MATRIX_FILE_NAME = "matrix.txt"
-
-CONFIG_FILE_NAME = "config.txt"
 PROBLEM_FILE_NAME = "problem.txt"
 PROTOTYPES = "prototypes.txt"
-MATRIX_FOLDER_NAME = "matrix"
+MATRIX_FILE_NAME = "matrix.txt"
+CONFIG_FILE_NAME = "config.txt"
+RUN_TREE = "run_tree.json"
 
-GENERATED_FOLDER_PATH = "generated"
+# config iteration logic
+INITIAL_CONFIG_FILE = "initial_config.txt"
+LOGS_FILE = "logs.txt"
+ANALYSIS_FILE = "analysis.txt"
+SUMMARY_FILE = "summary.txt"
+UPDATED_CONFIG = "updated_config.txt"
+
+GENERATED_FOLDER_NAME = "generated"
+CONFIG_ITERATIONS_FOLDER_NAME = "config_iterations"
 
 # matrix fields
 problem = None
@@ -65,6 +72,9 @@ matrix = {
     "StopConditionXIdea": None,
     "StopConditionXGrounding": None,
 }
+run_tree = None
+config = None
+run_id = None
 # all prototypes to explore
 prototypes = []
 current_prototype = None

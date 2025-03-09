@@ -96,24 +96,6 @@ const Matrix = () => {
       });
   };
 
-  const getPrototypeName = () => {
-    updateIsLoading(true);
-    axios({
-      method: "GET",
-      url: `${SERVER_URL}/get_prototype_name`,
-    })
-      .then((response) => {
-        console.log("/get_prototype_name request successful:", response.data);
-        setPrototypeName(response.data.prototype_name);
-      })
-      .catch((error) => {
-        console.error("Error calling /get_prototype_name request:", error);
-      })
-      .finally(() => {
-        updateIsLoading(false);
-      });
-  };
-
   const saveProblem = () => {
     updateIsLoading(true);
     axios({
@@ -179,9 +161,7 @@ const Matrix = () => {
     getPrototypes();
   }, []);
 
-  useEffect(() => {
-    getPrototypeName();
-  }, [currentPrototype]);
+  useEffect(() => {}, [currentPrototype]);
 
   return (
     <Stack
