@@ -1,7 +1,7 @@
 import os
-import shutil
 import signal
 import subprocess
+import time
 
 import globals
 from utils import create_and_write_file
@@ -60,6 +60,7 @@ from utils import create_and_write_file
 
 # user needs to fill this out themselves
 GPTEAM_PATH = "/Users/jennyma/Projects/GPTeam"
+PROJECT_PATH = "/Users/jennyma/Projects/agents-design-prototype/backend"
 CONFIG_FILE_NAME = "config.txt"
 
 
@@ -125,14 +126,17 @@ def find_folder_path(run_id, current_prototype_path):
     return folder_path
 
 
-# function to run simulation
-def run_simulation(run_iteration_path, run_id, config):
-    print(f"calling run_simulation for run_id {run_id}...")
-    config_path = f"{GPTEAM_PATH}/{CONFIG_FILE_NAME}"
-    create_and_write_file(config_path, config)
+current_process = None
 
-    log_file = f"{run_iteration_path}/{globals.LOGS_FILE}_{run_id}"
 
+def run_simulation(current_run_path, config):
+    print("calling run_simulation...")
+    global current_process
+    gpteam_config_path = f"{GPTEAM_PATH}/{CONFIG_FILE_NAME}"
+    create_and_write_file(gpteam_config_path, config)
+
+    log_file = f"{PROJECT_PATH}/{current_run_path}/{globals.LOGS_FILE}"
+    print(f"log_file is {log_file}")
     if os.name == "nt":  # Windows
         cmd = [
             "cmd.exe",
@@ -143,33 +147,23 @@ def run_simulation(run_iteration_path, run_id, config):
             f'poetry run world > "{log_file}" 2>&1',
         ]
     else:  # macOS / Linux (More portable approach)
-        terminals = [
-            "gnome-terminal",
-            "konsole",
-            "xfce4-terminal",
-            "x-terminal-emulator",
+        shell_cmd = f'cd /Users/jennyma/Projects/GPTeam && poetry run db-reset && poetry run db-reset && poetry run world > "{log_file}" 2>&1'
+        shell_cmd_escaped = shell_cmd.replace('"', '\\"')
+        # macOS Terminal command
+        cmd = [
+            "osascript",
+            "-e",
+            f'tell application "Terminal" to do script "{shell_cmd_escaped}"',
         ]
-        terminal_cmd = next((t for t in terminals if shutil.which(t)), None)
-
-        if terminal_cmd:
-            cmd = [
-                terminal_cmd,
-                "--",
-                "bash",
-                "-c",
-                f'poetry run world > "{log_file}" 2>&1; exec bash',
-            ]
-        else:
-            raise RuntimeError("No suitable terminal emulator found.")
-
-    subprocess.Popen(cmd)
+    current_process = subprocess.Popen(cmd)
+    print(f"Simulation started with PID: {current_process.pid}")
 
 
 # function to stop simulation
 def stop_simulation():
-    """Stops the currently running simulation."""
+    print("calling stop_simulation...")
     global current_process
-
+    print(f"current_process is {current_process}")
     if current_process:
         if os.name == "nt":  # Windows
             subprocess.run(
@@ -178,10 +172,18 @@ def stop_simulation():
                 stderr=subprocess.DEVNULL,
             )
         else:  # macOS / Linux
-            os.kill(current_process.pid, signal.SIGTERM)  # Send termination signal
+            # Send SIGINT (Ctrl+C) to stop the current process
+            os.kill(current_process.pid, signal.SIGINT)  # Send interrupt signal
+            time.sleep(3)  # Give it a moment to stop the process
+            os.kill(current_process.pid, signal.SIGINT)  # Send interrupt signal
+            time.sleep(2)  # Give it a moment to stop the process
 
+        print(f"Simulation (PID: {current_process.pid}) stopped.")
         current_process = None  # Reset the global variable
-        print("Simulation stopped.")
+
+        applescript_command = 'tell application "Terminal" to close windows'
+        subprocess.run(["osascript", "-e", applescript_command])
+
     else:
         print("No active simulation to stop.")
 

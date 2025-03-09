@@ -18,6 +18,40 @@ const Run = () => {
   const [hasReflection, setHasReflection] = useState(false);
   const [expand, setExpand] = useState(true);
 
+  const runSimulation = () => {
+    updateIsLoading(true);
+    axios({
+      method: "POST",
+      url: `${SERVER_URL}/run_simulation`,
+    })
+      .then((response) => {
+        console.log("/run_simulation request successful:", response.data);
+      })
+      .catch((error) => {
+        console.error("Error calling /run_simulation request:", error);
+      })
+      .finally(() => {
+        updateIsLoading(false);
+      });
+  };
+
+  const stopSimulation = () => {
+    updateIsLoading(true);
+    axios({
+      method: "POST",
+      url: `${SERVER_URL}/stop_simulation`,
+    })
+      .then((response) => {
+        console.log("/stop_simulation request successful:", response.data);
+      })
+      .catch((error) => {
+        console.error("Error calling /stop_simulation request:", error);
+      })
+      .finally(() => {
+        updateIsLoading(false);
+      });
+  };
+
   const saveConfig = () => {
     updateIsLoading(true);
     axios({
@@ -121,8 +155,8 @@ const Run = () => {
     setIsRunningSimulation(false);
     setHasReflection(false);
     // this may need to change
-    setLogs("");
-    setSummary("");
+    getLogs();
+    getSummary();
   }, [currentPrototype, currentRunId]);
 
   if (!currentPrototype) return <></>;
@@ -158,7 +192,7 @@ const Run = () => {
               <Button
                 onClick={() => {
                   setIsRunningSimulation(false);
-                  // call endpoint to stop simulation
+                  stopSimulation();
                 }}
               >
                 Stop Running Simulation
@@ -167,7 +201,7 @@ const Run = () => {
               <Button
                 onClick={() => {
                   setIsRunningSimulation(true);
-                  // call endpoint to run simulation
+                  runSimulation();
                 }}
               >
                 Run Simulation
@@ -215,7 +249,7 @@ const Run = () => {
               </Stack>
             )}
             {(isRunningSimulation || logs) && (
-              <Stack width="33%" spacing="20px">
+              <Stack width="100%" spacing="20px">
                 <Stack direction="row" sx={{ justifyContent: "space-between" }}>
                   <Typography
                     variant="h6"
@@ -235,6 +269,7 @@ const Run = () => {
                 </Stack>
                 <TextField
                   className={"Logs"}
+                  rows={50}
                   value={logs}
                   readOnly={true}
                   code={true}
@@ -242,7 +277,7 @@ const Run = () => {
               </Stack>
             )}
             {(isRunningSimulation || logs) && (
-              <Stack width="33%" spacing="20px">
+              <Stack width="100%" spacing="20px">
                 <Stack direction="row" sx={{ justifyContent: "space-between" }}>
                   <Typography
                     variant="h6"
@@ -262,6 +297,7 @@ const Run = () => {
                 </Stack>
                 <TextField
                   className={"Summary"}
+                  rows={50}
                   value={summary}
                   readOnly={true}
                   code={true}
