@@ -44,6 +44,58 @@ const RunsNavBar = () => {
       });
   };
 
+  const getRunTree = () => {
+    updateIsLoading(true);
+    axios({
+      method: "GET",
+      url: `${SERVER_URL}/get_run_tree`,
+    })
+      .then((response) => {
+        console.log("/get_run_tree request successful:", response.data);
+        const runTreeJSON = response.data.run_tree;
+        function transformToTreeNode(response: any): TreeNode {
+          const treeNode: TreeNode = {};
+          for (const key in response) {
+            if (response.hasOwnProperty(key)) {
+              treeNode[key] = Object.keys(response[key]).length
+                ? transformToTreeNode(response[key])
+                : undefined;
+            }
+          }
+          return treeNode;
+        }
+        const runTree = transformToTreeNode(runTreeJSON);
+        updateCurrentRunTree(runTree);
+      })
+      .catch((error) => {
+        console.error("Error calling /get_run_tree request:", error);
+      })
+      .finally(() => {
+        updateIsLoading(false);
+      });
+  };
+
+  const deleteRunId = (runId) => {
+    updateIsLoading(true);
+    axios({
+      method: "POST",
+      url: `${SERVER_URL}/delete_run`,
+      data: {
+        run_id: runId,
+      },
+    })
+      .then((response) => {
+        console.log("/delete_run request successful:", response.data);
+      })
+      .catch((error) => {
+        console.error("Error calling /delete_run request:", error);
+      })
+      .finally(() => {
+        updateIsLoading(false);
+        getRunTree();
+      });
+  };
+
   useEffect(() => {
     if (!Object.keys(expandedNodes).includes(currentRunId)) {
       setExpandedNodes((prev) => ({
@@ -93,18 +145,29 @@ const RunsNavBar = () => {
                     sx={{ justifyContent: "space-between" }}
                   >
                     <Typography>{key}</Typography>
-                    {value && Object.keys(value).length > 0 && (
+                    <Stack direction="row" spacing="5px">
                       <Button
                         colorVariant="transparent"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleNode(nodeRunId);
+                        onClick={() => {
+                          deleteRunId(nodeRunId);
                         }}
                         sx={{ padding: 0, minWidth: "0px" }}
                       >
-                        {isExpanded ? "➖" : "➕"}
+                        🗑️
                       </Button>
-                    )}
+                      {value && Object.keys(value).length > 0 && (
+                        <Button
+                          colorVariant="transparent"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleNode(nodeRunId);
+                          }}
+                          sx={{ padding: 0, minWidth: "0px" }}
+                        >
+                          {isExpanded ? "➖" : "➕"}
+                        </Button>
+                      )}
+                    </Stack>
                   </Stack>
                 </CardActionArea>
               </Card>

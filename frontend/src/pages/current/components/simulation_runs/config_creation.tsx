@@ -76,6 +76,8 @@ const ConfigCreation = () => {
       })
       .finally(() => {
         updateIsLoading(false);
+        getConfig();
+        getRunTree();
       });
   };
 
@@ -140,7 +142,7 @@ const ConfigCreation = () => {
     <Stack spacing="10px" width="100%">
       {config ? (
         <Stack direction="row" spacing="10px">
-          {!currentRunTree && (
+          {
             <Button
               onClick={generateConfig}
               sx={{
@@ -149,7 +151,7 @@ const ConfigCreation = () => {
             >
               Regenerate Config
             </Button>
-          )}
+          }
           <Button
             onClick={() => {
               createNewRun();

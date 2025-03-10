@@ -11,10 +11,22 @@ from matrix import brainstorm_inputs as brainstorm_generated_inputs
 from matrix import get_context_from_other_inputs
 from reflection import generate_analysis as generate_LLM_analysis
 from reflection import generate_summary as generate_LLM_summary
-from run_simulation import find_folder_path, get_next_run_id
+from run_simulation import (
+    delete_child_runs,
+    delete_run_and_children,
+    find_folder_path,
+    get_next_run_id,
+)
 from run_simulation import run_simulation as run_external_simulation
 from run_simulation import stop_simulation as stop_external_simulation
-from utils import create_and_write_file, create_folder, file_exists, read_file
+from utils import (
+    create_and_write_file,
+    create_folder,
+    delete_file,
+    delete_folder,
+    file_exists,
+    read_file,
+)
 
 # Initializing flask app
 app = Flask(__name__)
@@ -177,7 +189,10 @@ def generate_config():
         f"{globals.folder_path}/{globals.CONFIG_FILE_NAME}",
         globals.config,
     )
-
+    if globals.run_tree != {}:
+        delete_folder(
+            f"{globals.folder_path}/{globals.current_prototype}/{globals.CONFIG_ITERATIONS_FOLDER_NAME}"
+        )
     globals.run_tree = {}
     globals.run_id = "0"
     create_and_write_file(
@@ -370,10 +385,36 @@ def run_simulation():
     )
     create_and_write_file(f"{current_run_id_folder_path}/{globals.LOGS_FILE}", "")
     create_and_write_file(f"{current_run_id_folder_path}/{globals.SUMMARY_FILE}", "")
+    delete_file(f"{current_run_id_folder_path}/{globals.ANALYSIS_FILE}")
+    delete_file(f"{current_run_id_folder_path}/{globals.UPDATED_CONFIG}")
+
     config_to_run_file_path = (
         f"{current_run_id_folder_path}/{globals.INITIAL_CONFIG_FILE}"
     )
     config_to_run = read_file(config_to_run_file_path)
+
+    has_children = (
+        bool(globals.run_tree.get(globals.run_id, {}))
+        if isinstance(globals.run_tree.get(globals.run_id), dict)
+        else False
+    )
+    print(f"has_children {has_children}, run_id {globals.run_id}")
+    if has_children:
+        to_delete, globals.run_tree = delete_child_runs(
+            globals.run_id, globals.run_tree
+        )
+        print(f"to_delete {to_delete}")
+        print(f"new run tree {globals.run_tree}")
+        for curr_run_id in to_delete:
+            delete_folder(f"{current_run_id_folder_path}/{curr_run_id}")
+        create_and_write_file(
+            f"{globals.folder_path}/{globals.RUN_TREE}", json.dumps(globals.run_tree)
+        )
+        create_and_write_file(
+            f"{globals.folder_path}/{globals.current_prototype}/{globals.RUN_TREE}",
+            json.dumps(globals.run_tree),
+        )
+
     run_external_simulation(current_run_id_folder_path, config_to_run)
     return (
         jsonify(
@@ -393,6 +434,34 @@ def stop_simulation():
         jsonify(
             {
                 "message": "stopping simulation",
+            }
+        ),
+        200,
+    )
+
+
+@app.route("/delete_run", methods=["POST"])
+def delete_run():
+    print("calling delete_run...")
+    data = request.json
+    run_id = data["run_id"]
+    globals.run_tree = delete_run_and_children(run_id, globals.run_tree)
+    create_and_write_file(
+        f"{globals.folder_path}/{globals.RUN_TREE}", json.dumps(globals.run_tree)
+    )
+    create_and_write_file(
+        f"{globals.folder_path}/{globals.current_prototype}/{globals.RUN_TREE}",
+        json.dumps(globals.run_tree),
+    )
+    current_prototype_folder_path = f"{globals.folder_path}/{globals.current_prototype}"
+    current_run_id_folder_path = find_folder_path(
+        globals.run_id, current_prototype_folder_path
+    )
+    delete_folder(current_run_id_folder_path)
+    return (
+        jsonify(
+            {
+                "message": f"deleted {run_id}",
             }
         ),
         200,
@@ -527,6 +596,7 @@ def set_globals_for_uuid(generated_uuid):
     globals.run_tree = json.loads(
         read_file(f"{globals.folder_path}/{globals.RUN_TREE}")
     )
+    globals.run_id = "0"
     globals.problem = read_file(f"{globals.folder_path}/{globals.PROBLEM_FILE_NAME}")
     return jsonify({"message": "Successfully set global fields"}), 200
 
