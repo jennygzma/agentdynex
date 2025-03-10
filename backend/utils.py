@@ -79,6 +79,17 @@ def delete_folder(folder_path):
         print(f"Error deleting folder '{folder_path}': {e}")
 
 
+def delete_file(file_path):
+    try:
+        if os.path.isfile(file_path):
+            os.remove(file_path)
+            print(f"File '{file_path}' has been deleted.")
+        else:
+            print(f"File '{file_path}' does not exist.")
+    except Exception as e:
+        print(f"Error deleting file '{file_path}': {e}")
+
+
 def add_comment_to_html_file(html_file_path, comment):
     try:
         with open(html_file_path, "r") as file:

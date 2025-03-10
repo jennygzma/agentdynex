@@ -159,7 +159,6 @@ def run_simulation(current_run_path, config):
     print(f"Simulation started with PID: {current_process.pid}")
 
 
-# function to stop simulation
 def stop_simulation():
     print("calling stop_simulation...")
     global current_process
@@ -188,4 +187,39 @@ def stop_simulation():
         print("No active simulation to stop.")
 
 
-# function to grab logs
+def delete_child_runs(run_id, run_tree):
+    def recursive_delete(d, target):
+        to_delete = []
+
+        # If the target run_id is found, collect its children and delete them
+        if target in d and isinstance(d[target], dict):
+            to_delete = list(d[target].keys())  # Collect children keys
+            d[target] = {}  # Remove only the children, keeping the parent
+
+        # Recursively check nested dictionaries and collect child keys to delete
+        for _key, value in d.items():
+            if isinstance(value, dict):
+                to_delete.extend(recursive_delete(value, target))
+
+        return to_delete
+
+    # Start the recursive delete process and return the children that were deleted
+    to_delete = recursive_delete(run_tree, run_id)
+    return to_delete, run_tree
+
+
+def delete_run_and_children(run_id, run_tree):
+    def recursive_delete(d, target):
+        if target in d:
+            del d[target]  # Delete the target node and all its children
+            return True  # Indicate that deletion occurred
+        # Recursively check nested dictionaries
+        for _key, value in d.items():
+            if isinstance(value, dict) and recursive_delete(value, target):
+                return True  # Stop further recursion once deleted
+
+        return False  # If the target was not found, return False
+
+    # Perform the deletion
+    recursive_delete(run_tree, run_id)
+    return run_tree
