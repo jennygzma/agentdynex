@@ -9,7 +9,7 @@ from config_generation import generate_config as get_generated_config
 from flask import Flask, jsonify, request
 from matrix import brainstorm_inputs as brainstorm_generated_inputs
 from matrix import get_context_from_other_inputs
-from reflection import generate_analysis as generate_LLM_analysis
+from reflection import generate_analysis_and_config
 from reflection import generate_summary as generate_LLM_summary
 from run_simulation import (
     delete_child_runs,
@@ -536,18 +536,16 @@ def generate_analysis():
     current_run_id_folder_path = find_folder_path(
         globals.run_id, current_prototype_folder_path
     )
-    logs = read_file(f"{current_run_id_folder_path}/{globals.LOGS_FILE}")
-    analysis = generate_LLM_analysis(logs)
+    summary = read_file(f"{current_run_id_folder_path}/{globals.SUMMARY_FILE}")
+    matrix = read_file(f"{current_prototype_folder_path}/{globals.MATRIX_FILE_NAME}")
+    config = read_file(f"{current_prototype_folder_path}/{globals.CONFIG_FILE_NAME}")
+    analysis, updated_config = generate_analysis_and_config(summary, matrix, config)
     create_and_write_file(
         f"{current_run_id_folder_path}/{globals.ANALYSIS_FILE}", analysis
     )
-    # change this later
-    initial_config = read_file(
-        f"{current_run_id_folder_path}/{globals.INITIAL_CONFIG_FILE}"
-    )
     create_and_write_file(
         f"{current_run_id_folder_path}/{globals.UPDATED_CONFIG}",
-        initial_config,  # replace with reflection later
+        updated_config,
     )
     return (
         jsonify(

@@ -143,10 +143,11 @@ const Reflection = () => {
       })
       .catch((error) => {
         console.error("Error calling /generate_analysis request:", error);
-        getAnalysis();
       })
       .finally(() => {
         updateIsLoading(false);
+        getAnalysis();
+        getConfig();
       });
   };
 
@@ -200,7 +201,7 @@ const Reflection = () => {
             </Typography>
             <Button
               onClick={() => {
-                getAnalysis();
+                generateAnalysis();
               }}
             >
               Get Analysis 🤯
@@ -224,13 +225,15 @@ const Reflection = () => {
             >
               Updated Configuration
             </Typography>
-            <Button
-              onClick={() => {
-                createNewRun();
-              }}
-            >
-              Create New Run ➕
-            </Button>
+            {config && (
+              <Button
+                onClick={() => {
+                  createNewRun();
+                }}
+              >
+                Create New Run ➕
+              </Button>
+            )}
           </Stack>
           <Stack spacing="10px">
             <TextField

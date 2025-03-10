@@ -23,6 +23,96 @@ from globals import call_llm
 
 openai_api_key = os.getenv("OPENAI_API_KEY")
 
+config_example = """
+{
+    "world_name": "Ultimatum Game",
+    "locations": [
+        {
+            "name": "Negotiation Room",
+            "description": "A shared space where the Proposer and Responder interact to make and respond to offers."
+        },
+        {
+            "name": "Proposer's Room",
+            "description": "A private space where the Proposer deliberates on the offer before submitting it."
+        },
+        {
+            "name": "Responder's Room",
+            "description": "A private space where the Responder deliberates on whether to accept or reject an offer."
+        }
+    ],
+    "agents": [
+        {
+            "first_name": "Mediator",
+            "private_bio": "",
+            "public_bio": "The Mediator facilitates the Ultimatum Game, ensures smooth interactions between the Proposer and Responder, enforces rules, and announces the results.",
+            "directives": [
+                "Announce the start of the Ultimatum Game. If no announcement is detected within 10 seconds, retry until confirmation.",
+                "Ensure both Proposer and Responder arrive in the Negotiation Room before starting the round.",
+                "Before processing payouts, verify that a valid total sum was retrieved. If not, prompt the Proposer to provide it.",
+                "If the total sum is missing and cannot be retrieved, assume a default total sum of 100 units.",
+                "Explicitly confirm that the total sum has been announced and acknowledged by the Proposer and Responder before proceeding.",
+                "If the Proposer does not submit an offer within 30 seconds, assign a default minimum offer.",
+                "If the Responder does not respond within 30 seconds, assume rejection and proceed.",
+                "Retrieve and store the total sum, compute Proposer and Responder payouts, and confirm the final amounts before announcing.",
+                "Announce whether the offer was accepted or rejected.",
+                "If accepted, allocate the proposed split to both players and announce the payout.",
+                "If rejected, announce that both players receive nothing.",
+                "Ensure all actions are completed before moving to the next round.",
+                "Do not finalize the round until all payout calculations have been confirmed.",
+                "Declare the end of the simulation after the predetermined number of rounds."
+            ],
+            "initial_plan": {
+                "description": "Facilitate the Ultimatum Game by enforcing offer submission, response deadlines, and payout calculations.",
+                "stop_condition": "Final round has been completed, and all payouts have been successfully confirmed.",
+                "location": "Negotiation Room"
+            }
+        },
+        {
+            "first_name": "Proposer",
+            "private_bio": "",
+            "public_bio": "The Proposer makes an offer on how to split a given sum with the Responder.",
+            "directives": [
+                "At the start of each round, move to the Negotiation Room.",
+                "Retrieve the total sum available for distribution before submitting an offer. If the total sum is unknown, request clarification from the Mediator.",
+                "Confirm receipt of the total sum announcement from the Mediator before proceeding.",
+                "Select and submit an offer within 30 seconds, regardless of whether the Responder has arrived.",
+                "If no offer is submitted within 30 seconds, default to a predefined minimum offer.",
+                "Confirm receipt of the offer by the Mediator. If not acknowledged, resend until confirmation.",
+                "Wait for the Mediator to announce the Responder’s decision.",
+                "If the offer is accepted, receive the allocated amount.",
+                "If the offer is rejected, receive nothing and prepare for the next round.",
+                "Return to the Proposer’s Room between rounds to deliberate on the next offer.",
+                "Do not request human input for total sum verification. Use stored values or predefined defaults."
+            ],
+            "initial_plan": {
+                "description": "Participate in the Ultimatum Game by making and submitting offers in each round.",
+                "stop_condition": "Final round has been completed or timeout occurs for submission.",
+                "location": "Negotiation Room"
+            }
+        },
+        {
+            "first_name": "Responder",
+            "private_bio": "",
+            "public_bio": "The Responder decides whether to accept or reject the Proposer’s offer.",
+            "directives": [
+                "At the start of each round, move to the Negotiation Room.",
+                "Wait up to 30 seconds for an offer to arrive.",
+                "If no offer is received within 30 seconds, assume a zero offer and reject it.",
+                "Submit an accept/reject decision within 30 seconds.",
+                "If the Mediator does not acknowledge receipt of the response, resend it until confirmation.",
+                "If the offer is accepted, receive the allocated amount.",
+                "If the offer is rejected, receive nothing and prepare for the next round.",
+                "Return to the Responder’s Room between rounds to deliberate on the next response strategy."
+            ],
+            "initial_plan": {
+                "description": "Participate in the Ultimatum Game by reviewing and responding to offers when prompted.",
+                "stop_condition": "Final round has been completed or timeout occurs for response submission.",
+                "location": "Negotiation Room"
+            }
+        }
+    ]
+}
+"""
 annotated_config_example = """
 {
     "world_name": "Clasroom Scenario NO-P - One Room",
@@ -154,6 +244,21 @@ def generate_config(problem, matrix):
     {config_rules}
     """
     user_message = f"Please generate a config given this problem: {problem}"
-    res = call_llm(system_message, user_message)
-    print("sucessfully called LLM for generate_config", res)
-    return res
+    res = "Here is the config " + call_llm(system_message, user_message)
+    json = cleanup_json(res)
+    print("sucessfully called LLM for generate_config", json)
+    return json
+
+
+def cleanup_json(json):
+    print("calling LLM for cleanup_json...")
+    user_message = f"This is the JSON: \n {json}"
+    system_message = f"""
+        You are cleaning up a JSON file to ensure that it runs on first try.
+        If the code runs on first try, return the code.
+        DO NOT DELETE ANY CODE. Only remove natural language. The goal is to have the code compile. Comments are okay.
+        This is an EXAMPLE of a result: {config_example}.
+    """
+    cleaned_json = call_llm(system_message, user_message)
+    print("successfully called LLM for cleanup_json: " + cleaned_json)
+    return cleaned_json
