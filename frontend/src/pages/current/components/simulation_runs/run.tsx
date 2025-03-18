@@ -1,4 +1,4 @@
-import { Stack, Typography } from "@mui/material";
+import { Divider, Stack, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { TreeNode, useAppContext } from "../../hooks/app-context";
@@ -13,13 +13,17 @@ const Run = () => {
     updateIsLoading,
     currentPrototype,
     currentRunId,
+    isRunningSimulation,
+    updateIsRunningSimulation,
     updateCurrentRunTree,
   } = useAppContext();
   const [config, setConfig] = useState("");
   const [logs, setLogs] = useState("");
   const [summary, setSummary] = useState("");
+  const [status, setStatus] = useState("");
+  const [milestones, setMilestones] = useState("");
   const [updatedConfig, setUpdatedConfig] = useState(false);
-  const [isRunningSimulation, setIsRunningSimulation] = useState(false);
+  // const [isRunningSimulation, setIsRunningSimulation] = useState(false);
   const [hasReflection, setHasReflection] = useState(false);
   const [expand, setExpand] = useState(true);
 
@@ -187,6 +191,42 @@ const Run = () => {
       });
   };
 
+  const getMilestones = () => {
+    updateIsLoading(true);
+    axios({
+      method: "GET",
+      url: `${SERVER_URL}/get_milestones`,
+    })
+      .then((response) => {
+        console.log("/get_milestones request successful:", response.data);
+        setMilestones(response.data.milestones);
+      })
+      .catch((error) => {
+        console.error("Error calling /get_milestones request:", error);
+      })
+      .finally(() => {
+        updateIsLoading(false);
+      });
+  };
+
+  const getStatus = () => {
+    // updateIsLoading(true);
+    axios({
+      method: "GET",
+      url: `${SERVER_URL}/get_status`,
+    })
+      .then((response) => {
+        console.log("/get_status request successful:", response.data);
+        setStatus(response.data.status);
+      })
+      .catch((error) => {
+        console.error("Error calling /get_status request:", error);
+      })
+      .finally(() => {
+        // updateIsLoading(false);
+      });
+  };
+
   const getAnalysis = () => {
     updateIsLoading(true);
     axios({
@@ -209,15 +249,23 @@ const Run = () => {
     if (!currentPrototype) return;
     getConfig();
     getAnalysis();
-    setIsRunningSimulation(false);
     getLogs();
     getSummary();
+    setExpand(true);
+    setStatus("");
+    setMilestones("");
   }, [currentPrototype, currentRunId]);
+
+  useEffect(() => {
+    if (isRunningSimulation) {
+      const intervalId = setInterval(getStatus, 30000);
+      return () => clearInterval(intervalId);
+    }
+  }, [isRunningSimulation]);
 
   if (!currentPrototype) return <></>;
   return (
     <Stack spacing="20px" width="85%">
-      {hasReflection && <Reflection />}
       {!expand ? (
         <Stack direction="row" spacing="10px">
           <Button onClick={() => setExpand(true)}>
@@ -253,10 +301,11 @@ const Run = () => {
                 <img
                   src={require("../../../../assets/robin-beginning.gif")}
                   style={{ width: "30px", height: "25px" }}
+                  alt="robin running"
                 />
                 <Button
                   onClick={() => {
-                    setIsRunningSimulation(false);
+                    updateIsRunningSimulation(false);
                     stopSimulation();
                   }}
                 >
@@ -264,13 +313,14 @@ const Run = () => {
                   <img
                     src={require("../../../../assets/robin-kid.gif")}
                     style={{ width: "35px", height: "25px" }}
+                    alt="stop"
                   />
                 </Button>{" "}
               </Stack>
             ) : (
               <Button
                 onClick={() => {
-                  setIsRunningSimulation(true);
+                  updateIsRunningSimulation(true);
                   runSimulation();
                 }}
               >
@@ -278,6 +328,7 @@ const Run = () => {
                 <img
                   src={require("../../../../assets/robin-beginning.gif")}
                   style={{ width: "30px", height: "25px" }}
+                  alt="run"
                 />
               </Button>
             )}
@@ -285,6 +336,7 @@ const Run = () => {
               <Button
                 onClick={() => {
                   setHasReflection(true);
+                  setExpand(false);
                   // generateReflection();
                 }}
               >
@@ -324,6 +376,55 @@ const Run = () => {
             )}
             {(isRunningSimulation || logs) && (
               <Stack width="100%" spacing="20px">
+                    <Stack
+                      direction="row"
+                      sx={{ justifyContent: "space-between" }}
+                    >
+                      <Typography
+                        variant="h6"
+                        sx={{
+                          fontWeight: "bold",
+                        }}
+                      >
+                        Milestones
+                      </Typography>
+                      <Button onClick={()=> getMilestones()}>
+                        GET MILESTONES
+                      </Button>
+                    </Stack>
+                    <TextField
+                      className={"Milestones"}
+                      rows={5}
+                      value={milestones}
+                      readOnly={true}
+                      code={true}
+                    />
+                    <Divider />
+                {isRunningSimulation && (
+                  <>
+                    <Stack
+                      direction="row"
+                      sx={{ justifyContent: "space-between" }}
+                    >
+                      <Typography
+                        variant="h6"
+                        sx={{
+                          fontWeight: "bold",
+                        }}
+                      >
+                        Status
+                      </Typography>
+                    </Stack>
+                    <TextField
+                      className={"Status"}
+                      rows={5}
+                      value={status}
+                      readOnly={true}
+                      code={true}
+                    />
+                    <Divider />
+                  </>
+                )}
                 <Stack direction="row" sx={{ justifyContent: "space-between" }}>
                   <Typography
                     variant="h6"
@@ -343,7 +444,7 @@ const Run = () => {
                 </Stack>
                 <TextField
                   className={"Logs"}
-                  rows={50}
+                  rows={45}
                   value={logs}
                   readOnly={true}
                   code={true}
@@ -361,13 +462,15 @@ const Run = () => {
                   >
                     Summary
                   </Typography>
-                  <Button
-                    onClick={() => {
-                      generateSummary();
-                    }}
-                  >
-                    Get Summary ℹ️
-                  </Button>{" "}
+                  {!isRunningSimulation && logs && (
+                    <Button
+                      onClick={() => {
+                        generateSummary();
+                      }}
+                    >
+                      Get Summary ℹ️
+                    </Button>
+                  )}
                 </Stack>
                 <TextField
                   className={"Summary"}
@@ -381,6 +484,8 @@ const Run = () => {
           </Stack>
         </Stack>
       )}
+      <Divider />
+      {hasReflection && <Reflection />}
     </Stack>
   );
 };

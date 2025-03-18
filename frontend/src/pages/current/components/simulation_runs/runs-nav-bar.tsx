@@ -14,10 +14,7 @@ const RunsNavBar = () => {
     updateCurrentRunId,
     currentRunTree,
     updateCurrentRunTree,
-    prototypes,
-    updatePrototypes,
-    currentPrototype,
-    updateCurrentPrototype,
+    isRunningSimulation,
   } = useAppContext();
 
   const [expandedNodes, setExpandedNodes] = useState<Record<string, boolean>>(
@@ -138,6 +135,7 @@ const RunsNavBar = () => {
                     updateCurrentRunId(nodeRunId);
                     setCurrentRunId(nodeRunId);
                   }}
+                  disabled={isRunningSimulation}
                   sx={{ padding: "10px", borderRadius: 0 }}
                 >
                   <Stack
@@ -212,6 +210,7 @@ const RunsNavBar = () => {
             updateCurrentRunId(INITIAL);
             setCurrentRunId("0");
           }}
+          disabled={isRunningSimulation}
           sx={{ padding: "10px", borderRadius: 0 }}
         >
           <Typography>{INITIAL}</Typography>

@@ -6,6 +6,7 @@ import "./App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/current";
 import { AppProvider } from "./pages/current/hooks/app-context";
+import Rubric from "./pages/current/rubric";
 
 function App() {
   return (
@@ -16,6 +17,14 @@ function App() {
           element={
             <AppProvider>
               <Home />
+            </AppProvider>
+          }
+        />
+        <Route
+          path="/rubric"
+          element={
+            <AppProvider>
+              <Rubric />
             </AppProvider>
           }
         />

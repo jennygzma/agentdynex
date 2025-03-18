@@ -34,10 +34,22 @@ MATRIX_DESCRIPTIONS = {
     "WorldXGrounding": """Within the world section and the grounding subsection, we delve into the specifics of each room:
     What will the agent do in each room? What is the purpose of each room?""",
 
+    "MilestonesXIdea": """Within the milestones section and the idea subsection we contemplate the chronological milestones of the simulation to ensure that it is progressing
+    What are the 3-5 milestones?""",
+
+    "MilestonesXGrounding": """Within the milestones section and the grounding subsection, we delve into the specifics of each milestone.
+    Specifically, what?""",
+
     "StopConditionXIdea": """Within the stop condition section and the idea subsection we contemplate the stop condition of the simulation.
     When should the simulation stop?""",
 
     "StopConditionXGrounding": """Within the stop condition section and the grounding subsection, we delve into the specifics of the stop condition:
+    Specifically, in what state should each agent and world be in for there to be a stop?""",
+
+    "FailureConditionXIdea": """Within the stop condition section and the idea subsection we contemplate the stop condition of the simulation.
+    When should the simulation stop?""",
+
+    "FailureConditionXGrounding": """Within the stop condition section and the grounding subsection, we delve into the specifics of the stop condition:
     Specifically, in what state should each agent and world be in for there to be a stop?
     """,
 }

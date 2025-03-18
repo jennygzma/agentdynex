@@ -9,8 +9,13 @@ from config_generation import generate_config as get_generated_config
 from flask import Flask, jsonify, request
 from matrix import brainstorm_inputs as brainstorm_generated_inputs
 from matrix import get_context_from_other_inputs
-from reflection import generate_analysis_and_config
+from reflection import (
+    generate_analysis_and_config,
+    generate_milesetones_list,
+    generate_rubric_missing,
+)
 from reflection import generate_summary as generate_LLM_summary
+from reflection import get_status as generate_status
 from run_simulation import (
     delete_child_runs,
     delete_run_and_children,
@@ -26,6 +31,7 @@ from utils import (
     delete_folder,
     file_exists,
     read_file,
+    rubric_to_dict,
 )
 
 # Initializing flask app
@@ -120,6 +126,7 @@ def explore_prototype():
         json.dumps(globals.prototypes),
     )
     folder_path = f"{globals.folder_path}/{prototype}"
+    globals.rubric = rubric_to_dict(json.load(globals.RUBRIC_FILE_NAME))
     create_folder(f"{folder_path}")
     create_and_write_file(
         f"{folder_path}/{globals.MATRIX_FILE_NAME}", json.dumps(globals.matrix)
@@ -468,6 +475,26 @@ def delete_run():
     )
 
 
+@app.route("/get_milestones", methods=["GET"])
+def get_milestones():
+    print("calling get_milestones...")
+    current_prototype_folder_path = f"{globals.folder_path}/{globals.current_prototype}"
+    current_run_id_folder_path = find_folder_path(
+        globals.run_id, current_prototype_folder_path
+    )
+    config = read_file(f"{current_run_id_folder_path}/{globals.INITIAL_CONFIG_FILE}")
+    milestones = generate_milesetones_list(config)
+    return (
+        jsonify(
+            {
+                "message": "generated milestones",
+                "milestones": milestones,
+            }
+        ),
+        200,
+    )
+
+
 @app.route("/get_logs", methods=["GET"])
 def get_logs():
     print("calling get_logs...")
@@ -481,6 +508,28 @@ def get_logs():
             {
                 "message": "grabbed logs",
                 "logs": logs,
+            }
+        ),
+        200,
+    )
+
+
+@app.route("/get_status", methods=["GET"])
+def get_status():
+    print("calling get_status...")
+    current_prototype_folder_path = f"{globals.folder_path}/{globals.current_prototype}"
+    current_run_id_folder_path = find_folder_path(
+        globals.run_id, current_prototype_folder_path
+    )
+    logs = read_file(f"{current_run_id_folder_path}/{globals.LOGS_FILE}")
+    problem = read_file(f"{globals.folder_path}/{globals.PROBLEM_FILE_NAME}")
+    matrix = read_file(f"{globals.folder_path}/{globals.MATRIX_FILE_NAME}")
+    status = generate_status(logs, problem, matrix)
+    return (
+        jsonify(
+            {
+                "message": "generated summary",
+                "status": status,
             }
         ),
         200,
@@ -529,6 +578,66 @@ def get_summary():
     )
 
 
+@app.route("/get_missing_rubric", methods=["GET"])
+def get_missing_rubric():
+    print("calling get_missing_rubric...")
+    current_prototype_folder_path = f"{globals.folder_path}/{globals.current_prototype}"
+    current_run_id_folder_path = find_folder_path(
+        globals.run_id, current_prototype_folder_path
+    )
+    config = read_file(f"{current_prototype_folder_path}/{globals.CONFIG_FILE_NAME}")
+    logs = read_file(f"{current_run_id_folder_path}/{globals.LOGS_FILE}")
+    log_words = logs.split()
+    log_words = log_words[-1000:]
+    missing = generate_rubric_missing(globals.rubric, config, log_words)
+    return (
+        jsonify(
+            {
+                "message": "got missing rubric",
+                "category": missing["category"],
+                "rubric_type": missing["rubric_type"],
+                "description": missing["description"],
+                "example": missing["example"],
+            }
+        ),
+        200,
+    )
+
+
+@app.route("/add_to_rubric", methods=["POST"])
+def add_to_rubric():
+    data = request.json
+    category = data["run_id"]
+    rubric_type = data["rubric_type"]
+    description = data["description"]
+    example = data["example"]
+    globals.rubric.append(
+        {
+            "category": category,
+            "rubric_type": rubric_type,
+            "description": description,
+            "example": example,
+        }
+    )
+    create_and_write_file(globals.RUBRIC_FILE_NAME, globals.rubric)
+    return (
+        jsonify(
+            {
+                "message": "added rubric",
+            }
+        ),
+        200,
+    )
+
+
+@app.route("/get_rubric", methods=["GET"])
+def get_rubric():
+    return (
+        jsonify({"message": "got rubric", "rubric": globals.rubric}),
+        200,
+    )
+
+
 @app.route("/generate_analysis", methods=["POST"])
 def generate_analysis():
     print("calling generate_analysis...")
@@ -536,10 +645,37 @@ def generate_analysis():
     current_run_id_folder_path = find_folder_path(
         globals.run_id, current_prototype_folder_path
     )
-    summary = read_file(f"{current_run_id_folder_path}/{globals.SUMMARY_FILE}")
+
+    has_children = (
+        bool(globals.run_tree.get(globals.run_id, {}))
+        if isinstance(globals.run_tree.get(globals.run_id), dict)
+        else False
+    )
+    print(f"has_children {has_children}, run_id {globals.run_id}")
+    if has_children:
+        to_delete, globals.run_tree = delete_child_runs(
+            globals.run_id, globals.run_tree
+        )
+        print(f"to_delete {to_delete}")
+        print(f"new run tree {globals.run_tree}")
+        for curr_run_id in to_delete:
+            delete_folder(f"{current_run_id_folder_path}/{curr_run_id}")
+        create_and_write_file(
+            f"{globals.folder_path}/{globals.RUN_TREE}", json.dumps(globals.run_tree)
+        )
+        create_and_write_file(
+            f"{globals.folder_path}/{globals.current_prototype}/{globals.RUN_TREE}",
+            json.dumps(globals.run_tree),
+        )
+
+    logs = read_file(f"{current_run_id_folder_path}/{globals.LOGS_FILE}")
+    log_words = logs.split()
+    log_words = log_words[-1000:]
     matrix = read_file(f"{current_prototype_folder_path}/{globals.MATRIX_FILE_NAME}")
     config = read_file(f"{current_prototype_folder_path}/{globals.CONFIG_FILE_NAME}")
-    analysis, updated_config = generate_analysis_and_config(summary, matrix, config)
+    analysis, updated_config = generate_analysis_and_config(
+        log_words, matrix, config, globals.rubric
+    )
     create_and_write_file(
         f"{current_run_id_folder_path}/{globals.ANALYSIS_FILE}", analysis
     )
@@ -594,6 +730,8 @@ def set_globals_for_uuid(generated_uuid):
     globals.run_tree = json.loads(
         read_file(f"{globals.folder_path}/{globals.RUN_TREE}")
     )
+    rubric = json.loads(read_file(globals.RUBRIC_FILE_NAME))
+    globals.rubric = rubric_to_dict(rubric)
     globals.run_id = "0"
     globals.problem = read_file(f"{globals.folder_path}/{globals.PROBLEM_FILE_NAME}")
     return jsonify({"message": "Successfully set global fields"}), 200

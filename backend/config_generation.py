@@ -208,24 +208,34 @@ def get_matrix_description(matrix):
     description = ""
 
     if matrix["AgentsXIdea"]:
-        description += f"\nIt is for {matrix['AgentsXIdea']}."
+        description += f"\nThe agenst will be {matrix['AgentsXIdea']}."
         if matrix["AgentsXGrounding"]:
             description += f" For more details: {matrix['AgentsXGrounding']}"
 
     if matrix["ActionsXIdea"]:
-        description += f"\nThe approach should be: {matrix['ActionsXIdea']}."
+        description += f"\nThe actions the different agents can take will be: {matrix['ActionsXIdea']}."
         if matrix["ActionsXGrounding"]:
             description += f" For more details: {matrix['ActionsXGrounding']}"
 
     if matrix["WorldXIdea"]:
-        description += f"\nThe interaction paradigm shown in the interface should be {matrix['WorldXIdea']}."
+        description += f"\nThe world that the simulation will exist in should be {matrix['WorldXIdea']}."
         if matrix["WorldXGrounding"]:
             description += f" For more details: {matrix['WorldXGrounding']}"
 
+    if matrix["MilestonesXIdea"]:
+            description += f"\nThe chronological milestones in the simulation should be {matrix['MilestonesXIdea']}."
+            if matrix["MilestonesXGrounding"]:
+                description += f" For more details: {matrix['MilestonesXGrounding']}"
+
     if matrix["StopConditionXIdea"]:
-        description += f"\nThe interaction paradigm shown in the interface should be {matrix['StopConditionXIdea']}."
+        description += f"\nThe stop condition for when the simulation is over should be {matrix['StopConditionXIdea']}."
         if matrix["StopConditionXGrounding"]:
             description += f" For more details: {matrix['StopConditionXGrounding']}"
+
+    if matrix["FailureConditionXIdea"]:
+        description += f"\nIndications that the simulation has gone awry are {matrix['FailureConditionXIdea']}."
+        if matrix["FailureConditionXGrounding"]:
+            description += f" For more details: {matrix['FailureConditionXGrounding']}"
 
     return description.strip()
 

@@ -48,6 +48,7 @@ PROBLEM_FILE_NAME = "problem.txt"
 PROTOTYPES = "prototypes.txt"
 MATRIX_FILE_NAME = "matrix.txt"
 CONFIG_FILE_NAME = "config.txt"
+RUBRIC_FILE_NAME = "rubric.json"
 RUN_TREE = "run_tree.json"
 
 # config iteration logic
@@ -69,8 +70,12 @@ matrix = {
     "ActionsXGrounding": None,
     "WorldXIdea": None,
     "WorldXGrounding": None,
+    "MilestonesXIdea": None,
+    "MilestonesXGrounding": None,
     "StopConditionXIdea": None,
     "StopConditionXGrounding": None,
+    "FailureConditionsXIdea": None,
+    "FailureConditionsXGrounding": None
 }
 run_tree = None
 config = None
@@ -80,3 +85,4 @@ prototypes = []
 current_prototype = None
 # folder for this code generation, in the form of a UUID
 folder_path = None
+rubric = None

@@ -408,7 +408,7 @@ const Matrix = () => {
             </Table>
           </TableContainer>
           <InputWithButton
-            className="prototyp-name"
+            className="prototype-name"
             label="Prototype Name"
             input={prototypeName}
             setInput={setPrototypeName}
