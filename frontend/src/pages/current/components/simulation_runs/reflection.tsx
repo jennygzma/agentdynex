@@ -1,4 +1,4 @@
-import { Divider, Stack, Typography } from "@mui/material";
+import { Stack, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { TreeNode, useAppContext } from "../../hooks/app-context";
@@ -6,6 +6,14 @@ import { SERVER_URL } from "../..";
 import Button from "../../../../components/Button";
 import TextField from "../../../../components/TextField";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
+import InputWithButton from "../../../../components/InputWithButton";
+
+type Rubric = {
+  category: string;
+  rubric_type: string;
+  description: string;
+  example: string;
+};
 
 const Reflection = () => {
   const {
@@ -19,6 +27,7 @@ const Reflection = () => {
   const [analysis, setAnalysis] = useState("");
   const [updatedConfig, setUpdatedConfig] = useState(false);
   const [expand, setExpand] = useState(true);
+  const [missingRubric, setMissingRubric] = useState<Rubric>(undefined);
 
   const saveConfig = () => {
     updateIsLoading(true);
@@ -143,7 +152,55 @@ const Reflection = () => {
       })
       .catch((error) => {
         console.error("Error calling /generate_analysis request:", error);
+      })
+      .finally(() => {
+        updateIsLoading(false);
         getAnalysis();
+        getConfig();
+      });
+  };
+
+  const getMissingRubric = () => {
+    updateIsLoading(true);
+    axios({
+      method: "GET",
+      url: `${SERVER_URL}/get_missing_rubric`,
+    })
+      .then((response) => {
+        console.log("/get_missing_rubric request successful:", response.data);
+        setMissingRubric({
+          category: response.data.category,
+          rubric_type: response.data.rubric_type,
+          description: response.data.description,
+          example: response.data.example,
+        });
+      })
+      .catch((error) => {
+        console.error("Error calling /get_missing_rubric request:", error);
+      })
+      .finally(() => {
+        updateIsLoading(false);
+      });
+  };
+
+  const saveMissingRubric = () => {
+    updateIsLoading(true);
+    axios({
+      method: "POST",
+      url: `${SERVER_URL}/add_to_rubric`,
+      data: {
+        config,
+        category: missingRubric.category,
+        rubric_type: missingRubric.rubric_type,
+        description: missingRubric.description,
+        example: missingRubric.example,
+      },
+    })
+      .then((response) => {
+        console.log("/add_to_rubric request successful:", response.data);
+      })
+      .catch((error) => {
+        console.error("Error calling /add_to_rubric request:", error);
       })
       .finally(() => {
         updateIsLoading(false);
@@ -158,6 +215,13 @@ const Reflection = () => {
   }, [currentPrototype, currentRunId]);
 
   const reflection = true;
+
+  const handleRubricChange = (field: keyof Rubric, value: string) => {
+    setMissingRubric((prev) => ({
+      ...prev, // Preserve existing fields
+      [field]: value, // Update only the specified field
+    }));
+  };
 
   if (!reflection) return <></>;
   if (!expand) {
@@ -200,7 +264,7 @@ const Reflection = () => {
             </Typography>
             <Button
               onClick={() => {
-                getAnalysis();
+                generateAnalysis();
               }}
             >
               Get Analysis 🤯
@@ -224,13 +288,15 @@ const Reflection = () => {
             >
               Updated Configuration
             </Typography>
-            <Button
-              onClick={() => {
-                createNewRun();
-              }}
-            >
-              Create New Run ➕
-            </Button>
+            {config && (
+              <Button
+                onClick={() => {
+                  createNewRun();
+                }}
+              >
+                Create New Run ➕
+              </Button>
+            )}
           </Stack>
           <Stack spacing="10px">
             <TextField
@@ -252,8 +318,68 @@ const Reflection = () => {
             </Button>
           </Stack>
         </Stack>
-      </Stack>{" "}
-      <Divider />
+        <Stack>
+          <Stack
+            direction="row"
+            sx={{ justifyContent: "space-between", paddingBottom: "20px" }}
+          >
+            <Typography
+              variant="h6"
+              sx={{
+                fontWeight: "bold",
+              }}
+            >
+              Add To Rubric (optional)
+            </Typography>
+            <Button
+              onClick={() => {
+                getMissingRubric();
+              }}
+            >
+              Get Missing Rubric
+            </Button>
+          </Stack>
+          {missingRubric && (
+            <Stack spacing="10px">
+              <Typography variant="h6">CATEGORY:</Typography>
+              <TextField
+                rows={1}
+                value={missingRubric.category}
+                onChange={(e) => {
+                  handleRubricChange("category", e.target.value);
+                }}
+              />
+              <Typography variant="h6">RUBRIC TYPE:</Typography>
+              <TextField
+                rows={1}
+                value={missingRubric.rubric_type}
+                onChange={(e) => {
+                  handleRubricChange("rubric_type", e.target.value);
+                }}
+              />
+              <Typography variant="h6">DESCRIPTION:</Typography>
+              <TextField
+                rows={5}
+                value={missingRubric.description}
+                onChange={(e) => {
+                  handleRubricChange("description", e.target.value);
+                }}
+              />
+              <Typography variant="h6">EXAMPLE:</Typography>
+              <TextField
+                rows={10}
+                value={missingRubric.example}
+                onChange={(e) => {
+                  handleRubricChange("example", e.target.value);
+                }}
+              />
+              <Button onClick={() => saveMissingRubric()}>
+                Save to Rubric
+              </Button>
+            </Stack>
+          )}
+        </Stack>
+      </Stack>
     </Stack>
   );
 };

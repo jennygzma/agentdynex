@@ -34,18 +34,65 @@ MATRIX_DESCRIPTIONS = {
     "WorldXGrounding": """Within the world section and the grounding subsection, we delve into the specifics of each room:
     What will the agent do in each room? What is the purpose of each room?""",
 
+    "MilestonesXIdea": """Within the milestones section and the idea subsection we contemplate the chronological milestones of the simulation to ensure that it is progressing
+    What are the 3-5 milestones?""",
+
+    "MilestonesXGrounding": """Within the milestones section and the grounding subsection, we delve into the specifics of each milestone.
+    Specifically, what must have happened for the agents to have reached each milestone?""",
+
     "StopConditionXIdea": """Within the stop condition section and the idea subsection we contemplate the stop condition of the simulation.
     When should the simulation stop?""",
 
     "StopConditionXGrounding": """Within the stop condition section and the grounding subsection, we delve into the specifics of the stop condition:
-    Specifically, in what state should each agent and world be in for there to be a stop?
+    Specifically, in what state should each agent and world be in for there to be a stop?""",
+
+    "FailureConditionXIdea": """Within the failure condition section and the idea subsection we contemplate in what state we should consider the simulation as a failure.
+    When should the simulation fail?""",
+
+    "FailureConditionXGrounding": """Within the failure condition section and the grounding subsection, we delve into the specifics of the failure condition:
+    Specifically, what are the details that show that the simulation has failed with no point of return?
     """,
 }
 
 PAAW_EXAMPLES = """
 Here are some examples:
 
-Problem: Simulating people buying a house for a homeowner who really cares about the home but also cares about monetary value
+Idea: Landlord implementing no-smoking policy
+AgentsXIdea: 1 landlord agent, 3 tenant agents
+AgentsXGrounding:
+Sophia: landlord who does not want tenants to smoke
+Nishaad: a young newly college-graduate student who is addicted to his vape. He wants to continue living in the apartment.
+Mohan: a young married man who has no smoking addiction and is a stickler for rules. He wants to continue living in the apartment.
+Tejas: an older man who has lived in the apartment for 10 years. He is seen as the father figure to Nishaad and Mohan.
+ActionsXIdea: landlord announces no smoking policy, tenants talk amongst each other, tenants talk to the landlord,
+ActionsXGrounding:
+The landlord agent will announce the no smoking policy to all the tenants
+The tenant agents will interact with one another and sometimes talk to the landlord agent.
+The tenant agents will continue to “smoke” if they want to
+WorldXGrounding: 1 landlord’s room, 1 tenant’s room
+WorldXIdea:
+Landlord’s Room: where the landlord goes to wait after speaking to the tenants once in a while. The tenant agents can come into the room if they so please to talk to the landlord.
+Waiting Room: where the agents interact with one another and “live” together. The landlord agent will periodically come in here to chat with the tenants. All agents start off in this room so the landlord can tell everyone about the no smoking policy. All agents should end in this room when the Landlord tells them about if the lease can be renewed or not based on the tenant’s behavior for the no-smoking policy.
+MilestonesXIdea:
+Landlord announces no smoking policy to tenants
+Tenants continue smoking or don’t continue smoking
+Tenants accept or reject the new lease
+MilestonesXGrounding:
+Landlord announces no smoking policy to tenants - the first milestone is when the landlord announces the new policy to the tenants. This should jumpstart the tenants beginning to talk to each other about the new policy
+Tenants continue smoking or don’t continue smoking - the second milestone is when the tenants choose what and what not to do after having discussed with each other and sufficiently had time to process their reactions
+Landlord or Tenants accept or reject the new lease - the final milestone should be when the tenants accept or reject the new lease after they have had some interaction with each other and with the landlord and decided if they smoked or not
+StopConditionXIdea: landlord or tenants cancel or extend the lease
+StopConditionXGrounding:
+Either the landlord agent tells all the tenants in the waiting room the new modified or unmodified lease they have to sign, and the tenant agents either reject or accept the new leases,
+Or the tenant agents decide they don’t want to continue the lease.
+The tenant agents should have had sufficient time discussing amongst themselves what they want to do (they are free to do anything), and also time to talk to the landlord.
+FailureConditionXIdea: indefinite waiting periods where tenants and landlord wait for a responses from each other, tenants do not discuss with each other, tenants do not discuss with landlord, tenants do not decide if they want to accept or reject the new lease
+FailureConditionXGrounding:
+The simulation is a failure if it gets stuck in an indefinite waiting loop, if, for example, the agents are all waiting for response from eachother or not
+The simulation is a failure if the tenants don’t discuss with eachother or the landlord, because then no dynamics are being captured as to the new smoking policy
+The simulation is a failure if they have no reaction to accept or reject the lease
+
+Idea: Simulating people buying a house for a homeowner who really cares about the home but also cares about monetary value
 AgentsXIdea: 1 real estate agent, 3 home-buyer agents
 AgentsXGrounding:
 Debbie: 1 real estate agent to facilitate the selling of the home. Does not care as much about financial gain as a good buyer who will love the home
@@ -57,34 +104,27 @@ ActionsXGrounding:
 The real estate agent will declare the price of the home
 The real estate agent will verbally ask agents to bid
 The agents will not talk to each other. They will only speak to the real-estate agent when they are making their offers.
-WorldXIdea: 1 bidding room, 1 waiting room for each agent to stay in
+WorldXIdea: 1 bidding room, 1 rooms for the agents to wait in
 WorldXGrounding:
 Bidding Room: where the home-buyer agents will travel here to speak to the real estate agent regarding their home bid. Home-buyer agents should come into this room whenever they want to make an offer or speak to the real-estate agent. Only one home-buyer agent is allowed in here at a time.
 Waiting Room: where each agent will return to. They cannot speak to each other. This is where they will reflect and make their next move. All agents will start off in the waiting room and the bidding agent will declare the price of the home, then the bidding agent will move to the bidding room.
-StopConditionXIdea: landlord or tenants cancel or extend the lease
-StopConditionXGrounding:
-Either the landlord agent tells all the tenants in the waiting room the new modified or unmodified lease they have to sign, and the tenant agents either reject or accept the new leases,
-Or the tenant agents decide they don’t want to continue the lease.
-The tenant agents should have had sufficient time discussing amongst themselves what they want to do (they are free to do anything), and also time to talk to the landlord.
-
-Idea: Landlord implementing no-smoking policy
-AgentsXIdea: 1 landlord agent, 3 tenant agents
-AgentsXGrounding:
-Sophia: landlord who does not want tenants to smoke
-Nishaad: a young newly college-graduate student who is addicted to his vape. He wants to continue living in the apartment.
-Mohan: a young married man who has no smoking addiction and is a stickler for rules. He wants to continue living in the apartment.
-Tejas: an older man who has lived in the apartment for 10 years. He is seen as the father figure to Nishaad and Mohan.
-ActionsXIdea: landlord announces no smoking policy
-ActionsXGrounding:
-The landlord agent will announce the no smoking policy
-The tenant agents will interact with one another and sometimes talk to the landlord agent.
-WorldXIdea: 1 landlord’s room, 1 tenant’s room
-WorldXGrounding:
-Landlord’s Room: where the landlord goes to wait after speaking to the tenants once in a while. Only the landlord is allowed in this room.
-Waiting Room: where the agents interact with one another and “live” together. The landlord agent will periodically come in here to chat with the tenants. All agents start off in this room so the landlord can tell everyone about the no smoking policy. All agents should end in this room when the Landlord tells them about if the lease can be renewed or not based on the tenant’s behavior for the no-smoking policy.
+MilestonesXIdea:
+The real estate agent declares the price of the home
+All of the homebuyers have declared interest in buying the home
+Some homebuyers have employed other methods to try to buy the home
+The real estate agent declares the agent who is the new homeowner
+MilestonesXGrounding:
+The real estate agent declares the price of the home - The real estate agent needs to declare the price of the home
+All of the homebuyers have declared interest in buying the home - the home buyers need to have declared interest in buying the home by showing the amount of money they want to pay
+Some homebuyers have employed other methods to try to buy the home - after the initial declaration of interaction and talking to the real estate agents, the homebuyers may try to provide emotional pleas or more to buy a home
+The real estate agent has decided who will buy the home.
 StopConditionXIdea: landlord decides who will get the home and home-buyer agrees
 StopConditionXGrounding:
 The landlord agent tells the home-buyer agent that they get the house and the final cost, and the home-buyer agent agrees to pay the amount. Otherwise, they can reject it. The landlord agent can then ask their next pick until there is a mutual agreement.
+FailureConditionXIdea: the people try to submit their home-decisions through a portal or pdf instead of verbally declaring it, they enter indefinite waiting loops waiting for eachother
+FailureConditionXGrounding:
+The simulation fails if there are EOF errors or if people are trying to submit their home-decisions through a portal
+The simulation fails if there are indefinite waiting periods of no action from a logical error, such as when an agent doesn’t respond to anyone or everyone is waiting for an acknowledgement and no acknowledgement of actions is coming.
 """
 
 AGENTSXIDEA_EXAMPLES = """Agents Ideas focus on the amount and type of agents we need.
@@ -152,6 +192,29 @@ Only describe how agents will interact in this room and what they will do.
 DO NOT DESCRIBE ANYTHING ELSE.
 """
 
+MILESTONESXIDEA_EXAMPLES = """The milestones ideas focus on the chronological order in which the simulation should proceed.
+If there are "rounds" in a simulation, then each milestone could be an indication that each round has completed.
+Or, a milestone could be if 1/2 of the agents do something, then 1/2 of the agents do the other thing.
+It should span the chronological ordering of how the simulation should go.
+There should be 3-5 milestones per simulation.
+For example:
+1. Assignment 1 has been completed
+2. Assignment 2 has been completed
+3. Assignment 3 has been completed
+
+Each milestone should be no more than 10 words.
+"""
+
+MILESTONESXGROUNDING_EXAMPLES = """The Milestones Grounding should focus on the specifics of the milestone.
+What should have occured for each milestone?
+For example:
+1. Assignment 1 has been completed - all student agents have submitted assignment 1
+2. Assignment 2 has been completed - all student agents have submitted assignment 2
+3. Assignment 3 has been completed - all student agents have submitted assignment 3
+
+The numbers shold be labled so they are in chronological order.
+"""
+
 STOPCONDITIONXIDEA_EXAMPLES = """The Stop condition ideas focus on in what state the simulation can stop.
 Examples include "an agreement has been made between agent A and agent B", "there are no more funds", "3 rounds are completed".
 Keep it simple. Do not brainstorm anythign that is overly complex.
@@ -162,6 +225,15 @@ What room should the stop condition be in? What should have the agents been able
 It should clarify the exact state in which the simulatoin will stop.
 """
 
+FAILURECONDITIONXIDEA_EXAMPLES = """The failure condition ideas focus on some scenarios in which we know the simulation has derailed.
+Examples include "agents wait for acknowledgements for something they say indefinitely", "agents try to do an impossible action rooted in physical world",
+and "agents wait indefinitely to submit their assignments.
+"""
+
+FAILURECONDITIONXGROUNDING_EXAMPLES = """The Failure Condition Grounding should focus on the specifics of the failure condition.
+What exactly does each failure condition mean to fail? What logic has gone wrong?
+"""
+
 MATRIX_EXAMPLES = {
     "AgentsXIdea": AGENTSXIDEA_EXAMPLES,
     "AgentsXGrounding": AGENTSXGROUNDING_EXAMPLES,
@@ -169,8 +241,12 @@ MATRIX_EXAMPLES = {
     "ActionsXGrounding": ACTIONSXGROUDING_EXAMPLES,
     "WorldXIdea": WORLDXIDEA_EXAMPLES,
     "WorldXGrounding": WORLDXGROUNDING_EXAMPLES,
+    "MilestonesXIdea": MILESTONESXIDEA_EXAMPLES,
+    "MilestonesXGrounding": MILESTONESXGROUNDING_EXAMPLES,
     "StopConditionXIdea": STOPCONDITIONXIDEA_EXAMPLES,
     "StopConditionXGrounding": STOPCONDITIONXGROUNDING_EXAMPLES,
+    "FailureConditionXIdea": FAILURECONDITIONXIDEA_EXAMPLES,
+    "FailureConditionXGrounding": FAILURECONDITIONXGROUNDING_EXAMPLES,
 }
 
 MATRIX_DESCRIPTION = f"{PAAW_DESCRIPTION} + {" ".join(MATRIX_DESCRIPTIONS.values())}"

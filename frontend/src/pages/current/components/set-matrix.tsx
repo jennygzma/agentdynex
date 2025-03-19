@@ -26,9 +26,15 @@ const MATRIX_CATEGORY_DESCRIPTIONS: Record<CategoryType, string> = {
   WorldXIdea: "What is the world the agents interact in?",
   WorldXGrounding:
     "How should we define each room? What do agents do in each room?",
+  MilestonesXIdea: "What are the chronological milestones for the simulation?",
+  MilestonesXGrounding:
+    "What are the specific of each milestone? What muste we ensure happen in the simulation before each milestone?",
   StopConditionXIdea: "What is the stop condition for the simulation?",
   StopConditionXGrounding:
     "What are the specific of the stop conditions? What muste we ensure happen in the simulation before the stop condition?",
+  FailureConditionXIdea: "What are the failure conditions for the simulation?",
+  FailureConditionXGrounding:
+    "What are the specifics of each failure conditions? Why does this indicate that the simulation has gone wrong?",
 };
 
 const SetMatrix = () => {
@@ -41,11 +47,16 @@ const SetMatrix = () => {
   const [AgentsXIdea, setAgentsXIdea] = useState("");
   const [ActionsXIdea, setActionsXIdea] = useState("");
   const [WorldXIdea, setWorldXIdea] = useState("");
+  const [MilestonesXIdea, setMilestonesXIdea] = useState("");
   const [StopConditionXIdea, setStopConditionXIdea] = useState("");
+  const [FailureConditionXIdea, setFailureConditionXIdea] = useState("");
   const [AgentsXGrounding, setAgentsXGrounding] = useState("");
   const [ActionsXGrounding, setActionsXGrounding] = useState("");
   const [WorldXGrounding, setWorldXGrounding] = useState("");
+  const [MilestonesXGrounding, setMilestonesXGrounding] = useState("");
   const [StopConditionXGrounding, setStopConditionXGrounding] = useState("");
+  const [FailureConditionXGrounding, setFailureConditionXGrounding] =
+    useState("");
 
   const getProblem = () => {
     updateIsLoading(true);
@@ -100,18 +111,28 @@ const SetMatrix = () => {
         setActionsXIdea(actionsXIdea);
         const worldXIdea = await getInput("WorldXIdea");
         setWorldXIdea(worldXIdea);
+        const milestonesXIdea = await getInput("MilestonesXIdea");
+        setMilestonesXIdea(milestonesXIdea);
         const stopConditionXIdea = await getInput("StopConditionXIdea");
         setStopConditionXIdea(stopConditionXIdea);
+        const failureConditionXIdea = await getInput("failureConditionXIdea");
+        setFailureConditionXIdea(failureConditionXIdea);
         const agentsXGrounding = await getInput("AgentsXGrounding");
         setAgentsXGrounding(agentsXGrounding);
         const actionsXGrounding = await getInput("ActionsXGrounding");
         setActionsXGrounding(actionsXGrounding);
         const worldXGrounding = await getInput("WorldXGrounding");
         setWorldXGrounding(worldXGrounding);
+        const milestonesXGrounding = await getInput("MilestonesXGrounding");
+        setMilestonesXGrounding(milestonesXGrounding);
         const stopConditionXGrounding = await getInput(
           "StopConditionXGrounding",
         );
         setStopConditionXGrounding(stopConditionXGrounding);
+        const failureConditionXGrounding = await getInput(
+          "failureConditionXGrounding",
+        );
+        setFailureConditionXGrounding(failureConditionXGrounding);
       } catch (error) {
         console.error("Failed to fetch input:", error);
       } finally {
@@ -256,7 +277,41 @@ const SetMatrix = () => {
                       // fontFamily: "monospace",
                     }}
                   >
+                    MILESTONES
+                  </Typography>
+                </TableCell>
+                <TableCell
+                  sx={{
+                    width: "21%",
+                    borderBottom: "none",
+                    verticalAlign: "bottom",
+                  }}
+                >
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      fontWeight: "bold",
+                      // fontFamily: "monospace",
+                    }}
+                  >
                     STOPCONDITION
+                  </Typography>
+                </TableCell>
+                <TableCell
+                  sx={{
+                    width: "21%",
+                    borderBottom: "none",
+                    verticalAlign: "bottom",
+                  }}
+                >
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      fontWeight: "bold",
+                      // fontFamily: "monospace",
+                    }}
+                  >
+                    FAILURECONDITION
                   </Typography>
                 </TableCell>
               </TableRow>
@@ -340,9 +395,43 @@ const SetMatrix = () => {
                       fontWeight: "bold",
                     }}
                   >
+                    {MATRIX_CATEGORY_DESCRIPTIONS["MilestonesXIdea"]}
+                  </Typography>
+                  <Typography variant="body2">{MilestonesXIdea}</Typography>
+                </TableCell>
+                <TableCell
+                  sx={{
+                    borderBottom: "none",
+                    verticalAlign: "top",
+                  }}
+                >
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontWeight: "bold",
+                    }}
+                  >
                     {MATRIX_CATEGORY_DESCRIPTIONS["StopConditionXIdea"]}
                   </Typography>
                   <Typography variant="body2">{StopConditionXIdea}</Typography>
+                </TableCell>
+                <TableCell
+                  sx={{
+                    borderBottom: "none",
+                    verticalAlign: "top",
+                  }}
+                >
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {MATRIX_CATEGORY_DESCRIPTIONS["FailureConditionXIdea"]}
+                  </Typography>
+                  <Typography variant="body2">
+                    {FailureConditionXIdea}
+                  </Typography>
                 </TableCell>
               </TableRow>
               <TableRow>
@@ -423,10 +512,46 @@ const SetMatrix = () => {
                       fontWeight: "bold",
                     }}
                   >
+                    {MATRIX_CATEGORY_DESCRIPTIONS["MilestonesXGrounding"]}
+                  </Typography>
+                  <Typography variant="body2">
+                    {MilestonesXGrounding}
+                  </Typography>
+                </TableCell>
+                <TableCell
+                  sx={{
+                    borderBottom: "none",
+                    verticalAlign: "top",
+                  }}
+                >
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontWeight: "bold",
+                    }}
+                  >
                     {MATRIX_CATEGORY_DESCRIPTIONS["StopConditionXGrounding"]}
                   </Typography>
                   <Typography variant="body2">
                     {StopConditionXGrounding}
+                  </Typography>
+                </TableCell>
+                <TableCell
+                  sx={{
+                    borderBottom: "none",
+                    verticalAlign: "top",
+                  }}
+                >
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {MATRIX_CATEGORY_DESCRIPTIONS["FailureConditionXGrounding"]}
+                  </Typography>
+                  <Typography variant="body2">
+                    {FailureConditionXGrounding}
                   </Typography>
                 </TableCell>
               </TableRow>

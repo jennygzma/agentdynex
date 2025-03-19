@@ -173,9 +173,9 @@ def stop_simulation():
         else:  # macOS / Linux
             # Send SIGINT (Ctrl+C) to stop the current process
             os.kill(current_process.pid, signal.SIGINT)  # Send interrupt signal
-            time.sleep(3)  # Give it a moment to stop the process
+            time.sleep(1)  # Give it a moment to stop the process
             os.kill(current_process.pid, signal.SIGINT)  # Send interrupt signal
-            time.sleep(2)  # Give it a moment to stop the process
+            time.sleep(1)  # Give it a moment to stop the process
 
         print(f"Simulation (PID: {current_process.pid}) stopped.")
         current_process = None  # Reset the global variable

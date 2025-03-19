@@ -1,4 +1,4 @@
-import { Card, Paper, Stack, Tab, Tabs, Typography } from "@mui/material";
+import { Stack } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { TreeNode, useAppContext } from "../../hooks/app-context";
@@ -11,7 +11,6 @@ const ConfigCreation = () => {
     updateIsLoading,
     currentPrototype,
     updateCurrentRunId,
-    currentRunTree,
     updateCurrentRunTree,
   } = useAppContext();
   const [config, setConfig] = useState("");

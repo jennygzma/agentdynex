@@ -15,6 +15,8 @@ export interface AppState {
   updateIsLoading: Dispatch<SetStateAction<Boolean>>;
   currentRunId: string;
   updateCurrentRunId: Dispatch<SetStateAction<string>>;
+  isRunningSimulation: boolean;
+  updateIsRunningSimulation: Dispatch<SetStateAction<boolean>>;
   currentRunTree: TreeNode;
   updateCurrentRunTree: Dispatch<SetStateAction<TreeNode>>;
   prototypes: string[];
@@ -31,7 +33,7 @@ export const AppProvider = ({ children }) => {
   const [currentRunId, updateCurrentRunId] = useState(undefined);
   const [currentRunTree, updateCurrentRunTree] = useState(undefined);
   const [isLoading, updateIsLoading] = useState(false);
-
+  const [isRunningSimulation, updateIsRunningSimulation] = useState(undefined);
   const [prototypes, updatePrototypes] = useState(undefined);
   const [currentPrototype, updateCurrentPrototype] = useState(undefined);
 
@@ -42,6 +44,8 @@ export const AppProvider = ({ children }) => {
         updateIsLoading,
         currentRunId,
         updateCurrentRunId,
+        isRunningSimulation,
+        updateIsRunningSimulation,
         currentRunTree,
         updateCurrentRunTree,
         prototypes,
