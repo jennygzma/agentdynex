@@ -126,7 +126,9 @@ def explore_prototype():
         json.dumps(globals.prototypes),
     )
     folder_path = f"{globals.folder_path}/{prototype}"
-    globals.rubric = rubric_to_dict(json.load(globals.RUBRIC_FILE_NAME))
+    rubric = json.loads(read_file(globals.RUBRIC_FILE_NAME))
+    globals.rubric = rubric_to_dict(rubric)
+    print("hi jenny " + folder_path)
     create_folder(f"{folder_path}")
     create_and_write_file(
         f"{folder_path}/{globals.MATRIX_FILE_NAME}", json.dumps(globals.matrix)

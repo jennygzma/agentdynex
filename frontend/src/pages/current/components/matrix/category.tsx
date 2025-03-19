@@ -36,7 +36,7 @@ const Category = ({
 
   // use input for all but ActionsXIdea
   const [input, setInput] = useState(initialInput);
-  const isActionsXIdea = category === "ActionsXIdea";
+  const isCheckbox = category.includes("Idea");
   const [actionsInput, setActionsInput] = useState(initialActionsInput);
 
   const [brainstorms, setBrainstorms] = useState(initialBrainstorm);
@@ -46,7 +46,7 @@ const Category = ({
   const isGrounding = category.includes("Grounding");
   const ideaPair = category.split("X")[0] + "XIdea";
   const disabled = isGrounding && matrixCategoryInfo[ideaPair].length === 0;
-  const [isActionsXIdeaChanged, setIsActionsXIdeaChanged] = useState(false);
+  const [isCheckboxChanged, setIsCheckboxChanged] = useState(false);
   const [versions, setVersions] = useState([]);
 
   const getInput = () => {
@@ -77,7 +77,7 @@ const Category = ({
       url: `${SERVER_URL}/update_input`,
       data: {
         category: category,
-        input: isActionsXIdea ? actionsInput : input,
+        input: isCheckbox ? actionsInput : input,
       },
     })
       .then((response) => {
@@ -130,7 +130,7 @@ const Category = ({
       } else {
         setActionsInput(actionsInput.filter((value) => value !== name));
       }
-      setIsActionsXIdeaChanged(true);
+      setIsCheckboxChanged(true);
     };
 
   return (
@@ -138,6 +138,7 @@ const Category = ({
       border={0}
       sx={{
         maxWidth: "700px",
+        width: "400px",
         borderColor: isDependency ? "#F8F3CA" : "transparent",
         backgroundColor: isDependency ? "#F8F3CA" : "transparent",
       }}
@@ -189,7 +190,7 @@ const Category = ({
         ) : (
           <></>
         )}
-        {isActionsXIdea ? (
+        {isCheckbox ? (
           <div>
             <Stack direction="column">
               {brainstorms?.map((brainstorm) => (
@@ -250,7 +251,7 @@ const Category = ({
             );
           })
         )}
-        {isActionsXIdea ? (
+        {isCheckbox ? (
           <Button
             onClick={() => {
               updateInput();
@@ -259,9 +260,9 @@ const Category = ({
               if (currentCategory !== category) {
                 updateCurrentCategory(category);
               }
-              setIsActionsXIdeaChanged(false);
+              setIsCheckboxChanged(false);
             }}
-            disabled={disabled || !isActionsXIdeaChanged}
+            disabled={disabled || !isCheckboxChanged}
           >
             Submit
           </Button>

@@ -217,10 +217,10 @@ def get_matrix_description(matrix):
         if matrix["ActionsXGrounding"]:
             description += f" For more details: {matrix['ActionsXGrounding']}"
 
-    if matrix["WorldXIdea"]:
-        description += f"\nThe world that the simulation will exist in should be {matrix['WorldXIdea']}."
-        if matrix["WorldXGrounding"]:
-            description += f" For more details: {matrix['WorldXGrounding']}"
+    if matrix["LocationsXIdea"]:
+        description += f"\nThe locations that the simulation will exist in should be {matrix['LocationsXIdea']}."
+        if matrix["LocationsXGrounding"]:
+            description += f" For more details: {matrix['LocationsXGrounding']}"
 
     if matrix["MilestonesXIdea"]:
         description += f"\nThe chronological milestones in the simulation should be {matrix['MilestonesXIdea']}."

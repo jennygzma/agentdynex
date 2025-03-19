@@ -68,14 +68,14 @@ matrix = {
     "AgentsXGrounding": None,
     "ActionsXIdea": None,
     "ActionsXGrounding": None,
-    "WorldXIdea": None,
-    "WorldXGrounding": None,
+    "LocationsXIdea": None,
+    "LocationsXGrounding": None,
     "MilestonesXIdea": None,
     "MilestonesXGrounding": None,
     "StopConditionXIdea": None,
     "StopConditionXGrounding": None,
-    "FailureConditionsXIdea": None,
-    "FailureConditionsXGrounding": None,
+    "FailureConditionXIdea": None,
+    "FailureConditionXGrounding": None,
 }
 run_tree = None
 config = None

@@ -23,8 +23,8 @@ const MATRIX_CATEGORY_DESCRIPTIONS: Record<CategoryType, string> = {
   ActionsXIdea: "What actions will the agents do?",
   ActionsXGrounding:
     "How can we translate these actions to work in a simulation? What mechanisms are necessary?",
-  WorldXIdea: "What is the world the agents interact in?",
-  WorldXGrounding:
+  LocationsXIdea: "What is the world the agents interact in?",
+  LocationsXGrounding:
     "How should we define each room? What do agents do in each room?",
   MilestonesXIdea: "What are the chronological milestones for the simulation?",
   MilestonesXGrounding:
@@ -242,7 +242,7 @@ const Matrix = () => {
                         fontWeight: "bold",
                       }}
                     >
-                      WORLD
+                      LOCATIONS
                     </Typography>
                   </TableCell>
                   <TableCell
@@ -344,9 +344,11 @@ const Matrix = () => {
                     }}
                   >
                     <Category
-                      category={"WorldXIdea"}
-                      description={MATRIX_CATEGORY_DESCRIPTIONS["WorldXIdea"]}
-                      isDependency={dependencies?.includes("WorldXIdea")}
+                      category={"LocationsXIdea"}
+                      description={
+                        MATRIX_CATEGORY_DESCRIPTIONS["LocationsXIdea"]
+                      }
+                      isDependency={dependencies?.includes("LocationsXIdea")}
                     />
                   </TableCell>
                   <TableCell
@@ -448,11 +450,13 @@ const Matrix = () => {
                     }}
                   >
                     <Category
-                      category="WorldXGrounding"
+                      category="LocationsXGrounding"
                       description={
-                        MATRIX_CATEGORY_DESCRIPTIONS["WorldXGrounding"]
+                        MATRIX_CATEGORY_DESCRIPTIONS["LocationsXGrounding"]
                       }
-                      isDependency={dependencies?.includes("WorldXGrounding")}
+                      isDependency={dependencies?.includes(
+                        "LocationsXGrounding",
+                      )}
                     />
                   </TableCell>
                   <TableCell

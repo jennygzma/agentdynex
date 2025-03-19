@@ -11,8 +11,8 @@ export type CategoryType =
   | "AgentsXGrounding"
   | "ActionsXIdea"
   | "ActionsXGrounding"
-  | "WorldXIdea"
-  | "WorldXGrounding"
+  | "LocationsXIdea"
+  | "LocationsXGrounding"
   | "MilestonesXIdea"
   | "MilestonesXGrounding"
   | "StopConditionXIdea"
@@ -52,8 +52,8 @@ export const MatrixProvider = ({ children }) => {
     AgentsXGrounding: "",
     ActionsXIdea: [],
     ActionsXGrounding: "",
-    WorldXIdea: "",
-    WorldXGrounding: "",
+    LocationsXIdea: "",
+    LocationsXGrounding: "",
     MilestonesXIdea: [],
     MilestonesXGrounding: "",
     StopConditionXIdea: [],

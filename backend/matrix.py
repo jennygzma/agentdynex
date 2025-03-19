@@ -2,8 +2,8 @@ import json
 
 from globals import call_llm
 
-PAAW_DESCRIPTION = """When we create a simulation based on a particular problem, we define it with a 3x2 problem matrix.
-First, we problem further into 3 categories: Agents, Actions, and World Paradigm.
+PAAW_DESCRIPTION = """When we create a simulation based on a particular problem, we define it with a 6x2 problem matrix.
+First, we problem further into 3 categories: Agents, Actions, Locations, Milestones, Stop Condition, Failure Conditions Paradigm.
 Within each category, there are 2 more sub-categories: idea and grounding.
 
 Specifically we will use this matrix to create a configuration file for a multi-agent system, GPTeams.
@@ -28,10 +28,10 @@ MATRIX_DESCRIPTIONS = {
     "ActionsXGrounding": """Within the actions section and the grounding subsection, we focus on the tangible details of making the action feasible within the simulation.
     We keep it as simple as possible. Should the agent verbally declare that they submitted an assignment? Should the agent submit an assignment in a particular room?""",
 
-    "WorldXIdea": """Within the world section and the idea subsection we contemplate the general design of the simulation.
-    How should the simulated world look? How many rooms should there be in this world?""",
+    "LocationsXIdea": """Within the locations section and the idea subsection we contemplate the general design of the simulation.
+    How should the simulated locations look? How many rooms should there be in this location?""",
 
-    "WorldXGrounding": """Within the world section and the grounding subsection, we delve into the specifics of each room:
+    "LocationsXGrounding": """Within the locations section and the grounding subsection, we delve into the specifics of each room:
     What will the agent do in each room? What is the purpose of each room?""",
 
     "MilestonesXIdea": """Within the milestones section and the idea subsection we contemplate the chronological milestones of the simulation to ensure that it is progressing
@@ -44,7 +44,7 @@ MATRIX_DESCRIPTIONS = {
     When should the simulation stop?""",
 
     "StopConditionXGrounding": """Within the stop condition section and the grounding subsection, we delve into the specifics of the stop condition:
-    Specifically, in what state should each agent and world be in for there to be a stop?""",
+    Specifically, in what state should each agent and location be in for there to be a stop?""",
 
     "FailureConditionXIdea": """Within the failure condition section and the idea subsection we contemplate in what state we should consider the simulation as a failure.
     When should the simulation fail?""",
@@ -58,7 +58,7 @@ PAAW_EXAMPLES = """
 Here are some examples:
 
 Idea: Landlord implementing no-smoking policy
-AgentsXIdea: 1 landlord agent, 3 tenant agents
+AgentsXIdea: 1 landlord agent, 1 tenant agent, 1 tenant agent, 1 tenant agent
 AgentsXGrounding:
 Sophia: landlord who does not want tenants to smoke
 Nishaad: a young newly college-graduate student who is addicted to his vape. He wants to continue living in the apartment.
@@ -69,8 +69,8 @@ ActionsXGrounding:
 The landlord agent will announce the no smoking policy to all the tenants
 The tenant agents will interact with one another and sometimes talk to the landlord agent.
 The tenant agents will continue to “smoke” if they want to
-WorldXGrounding: 1 landlord’s room, 1 tenant’s room
-WorldXIdea:
+LocationXGrounding: 1 landlord’s room, 1 tenant’s room
+LocationXIdea:
 Landlord’s Room: where the landlord goes to wait after speaking to the tenants once in a while. The tenant agents can come into the room if they so please to talk to the landlord.
 Waiting Room: where the agents interact with one another and “live” together. The landlord agent will periodically come in here to chat with the tenants. All agents start off in this room so the landlord can tell everyone about the no smoking policy. All agents should end in this room when the Landlord tells them about if the lease can be renewed or not based on the tenant’s behavior for the no-smoking policy.
 MilestonesXIdea:
@@ -104,8 +104,8 @@ ActionsXGrounding:
 The real estate agent will declare the price of the home
 The real estate agent will verbally ask agents to bid
 The agents will not talk to each other. They will only speak to the real-estate agent when they are making their offers.
-WorldXIdea: 1 bidding room, 1 rooms for the agents to wait in
-WorldXGrounding:
+LocationXIdea: 1 bidding room, 1 rooms for the agents to wait in
+LocationXGrounding:
 Bidding Room: where the home-buyer agents will travel here to speak to the real estate agent regarding their home bid. Home-buyer agents should come into this room whenever they want to make an offer or speak to the real-estate agent. Only one home-buyer agent is allowed in here at a time.
 Waiting Room: where each agent will return to. They cannot speak to each other. This is where they will reflect and make their next move. All agents will start off in the waiting room and the bidding agent will declare the price of the home, then the bidding agent will move to the bidding room.
 MilestonesXIdea:
@@ -129,21 +129,21 @@ The simulation fails if there are indefinite waiting periods of no action from a
 
 AGENTSXIDEA_EXAMPLES = """Agents Ideas focus on the amount and type of agents we need.
 Consider different TYPES of agents.
-For example if simulating a house-bidding situation where people cannot hear or see what fellow competitors are bidding, a good idea could be "1 real estate agent, and 2 home bidders", because we need someone to facillitate the bidding.
-However, a simple simulation of people returning shopping carts could just have "3 shopper agents".
-One response should return 3 agents maximum. Another shoudl return 5 agents maximum. Another should return 7 agents maximum.
+For example if simulating a house-bidding situation where people cannot hear or see what fellow competitors are bidding. Different agents would include: "1 real estate agent" "1 real estate agent" "1 home bidder" "1 home bidder" "1 home bidder", because we need someone to facillitate the bidding.
+However, a simple simulation of people returning shopping carts could just have "1 shopper agent" "1 shopper agent" "1 shopper agent".
+The user can then check off which types of agents they want in the simulation. If they want 2 shopper agents, they would check it off twice.
 """
 AGENTSXGROUNDING_EXAMPLES = """Agents Grounding focuses on the personality of each agent and a brief description of the agent.
 For example, if the idea is to "simulate the tragedy of the commons" for "3 agents with varying degrees of social influence/peer pressure influencing their choices", some example goals of the application could be:
 "- Alice: an agent that is highly influenced by others \n - Bob: an agent that is neutral \n - Charlie: an agent who is a non-conformist".
 If the idea is to "simulate the tragedy of the commons" for "3 agents simulating a hoarder/sharer dynamic", some examples can include:
 "- Alice: an agent who is a hoarder \n - Bob: an agent who is a sharer \n - Charlie: is opportunistic, adjusting behavior based on the others."
-Only return and a brief one-sentence description of it, including what task the agent will do when interacting in the world.
+Only return and a brief one-sentence description of it, including what task the agent will do when interacting in the location.
 Each agent should play a specific role in the simulation. If one of the agents can take on the role of another agent then it should do so and eliminate the redundant agent.
 Avoid redundancy and any unnecessary agents.
 """
 
-ACTIONSXIDEA_EXAMPLES = """Action ideas focus on what each type of agent need to do in the world.
+ACTIONSXIDEA_EXAMPLES = """Action ideas focus on what each type of agent need to do in the location.
 Make sure there are actions that span all the types of agents.
 Every action should consist of the agent communicating that they have completed a task. Agents can complete a task by simply saying they have completed a task.
 For example, if the idea is to "simulate the tragedy of the commons", some examples of the actions are "agents should verbally stating the money they have consumed", "the simulation stops when the pot is empty"
@@ -174,20 +174,21 @@ So agents don't have to actually complete an assignment, they can just verbally 
 Explicitly ensure that actions are simple and based in a simulation-like world.
 """
 
-WORLDXIDEA_EXAMPLES = """The World ideas focuses on the world in which the agents exist in and how they perform their action.
-Examples include "1 classroom", "1 dorm room", "1 classroom and 1 dorm room", "community meeting room", "bunker".
-The world should factor in how exactly the agents will perform their action -- for example, if they need to move to another room, when voting, then we need two rooms: one to wait and one to vote in.
+LOCATIONSXIDEA_EXAMPLES = """The Locations ideas focuses on the location in which the agents exist in and how they perform their action.
+Return a result for each room.
+Examples include "1 classroom", "1 dorm room", "community meeting room", "bunker".
+The location should factor in how exactly the agents will perform their action -- for example, if they need to move to another room, when voting, then we need two rooms: one to wait and one to vote in.
 Do not create unnecessary rooms. For example, if students are verbally declaring their tasks, there is no need to create another room.
 Only brainstorm room ideas that exist in the physical world -- for example, do not brainstorm "submission portal"
 """
 
-WORLDXGROUNDING_EXAMPLES = """The World Grounding should focus on how exactly the world idea should be implemented, while factoring in the context of how the agent needs to perform the action.
-DO NOT ADD ANY NEW ROOMS NOT SPECIFIED BY WORLDXIDEA. IT SHOULD BE EXACTLY THE SAME AS WORLDXIDEA.
+LOCATIONSXGROUNDING_EXAMPLES = """The Locations Grounding should focus on how exactly the locations idea should be implemented, while factoring in the context of how the agent needs to perform the action.
+DO NOT ADD ANY NEW ROOMS NOT SPECIFIED BY LOCATIONSXIDEA. IT SHOULD BE EXACTLY THE SAME AS LOCATIONSXIDEA.
 Consider who can enter each room -- for example, can only a certain type of agent be in the office room, but all agents can be in the common room? Explicitly state out who can be in each room. If only certain agents can speak to one another, be specific about that too.
 Also, consider exactly where each agent should start out. If there is an initial announcement that needs to be made, all agents should start off in the same room.
-For the idea "simulate the tragedy of the commons", the world idea could be "A single room", and the grounding can be:
+For the idea "simulate the tragedy of the commons", the location idea could be "A single room", and the grounding can be:
 "A single room that acts like a “bunker”. The room has a single water dispenser with a visible gauge that shows the water level. Parties can take turns using the water dispenser one by one. The dispenser refills slowly because of limited water resources from an underground reservoir. So if family overuse, the refill rate will decrease and risk complete depletion."
-Only return the location and A ONE SENTENCE DESCRIPTION MAXIMUM OF 100 CHARACTERS.
+Only return a description for each of the locations. Each description should contain A ONE SENTENCE DESCRIPTION MAXIMUM OF 100 CHARACTERS.
 Only describe how agents will interact in this room and what they will do.
 DO NOT DESCRIBE ANYTHING ELSE.
 """
@@ -239,8 +240,8 @@ MATRIX_EXAMPLES = {
     "AgentsXGrounding": AGENTSXGROUNDING_EXAMPLES,
     "ActionsXIdea": ACTIONSXIDEA_EXAMPLES,
     "ActionsXGrounding": ACTIONSXGROUDING_EXAMPLES,
-    "WorldXIdea": WORLDXIDEA_EXAMPLES,
-    "WorldXGrounding": WORLDXGROUNDING_EXAMPLES,
+    "LocationsXIdea": LOCATIONSXIDEA_EXAMPLES,
+    "LocationsXGrounding": LOCATIONSXGROUNDING_EXAMPLES,
     "MilestonesXIdea": MILESTONESXIDEA_EXAMPLES,
     "MilestonesXGrounding": MILESTONESXGROUNDING_EXAMPLES,
     "StopConditionXIdea": STOPCONDITIONXIDEA_EXAMPLES,
@@ -273,17 +274,17 @@ def get_context_from_other_inputs(problem, category, matrix):
 def brainstorm_inputs(category, context, existing_brainstorms, iteration):
     print("calling LLM for brainstorm_inputs...")
     is_grounding = "Grounding" in category
-    is_action = "Actions" in category
+    # is_action = "Actions" in category
     print(f"category {category} is_grounding {is_grounding}")
     iteration_message = f"The user would also like you to factor this into the brainstormed answer: {iteration}" if iteration != "" else ""
     user_message = f"""This is the category you are brainstorming for: {category}. {iteration_message}.
     Make sure not to repeat brainstorms from this list: {existing_brainstorms}
     """
-    if is_action and not is_grounding:
+    if not is_grounding:
         response_format = """
             The answers SHOULD BE 10-15 words WORDS that specify what exactly the idea is. ALL THE ANSWERS MUST BE VERY DIFFERENT FROM ONE ANOTHER.
             Format the the responses in an array like so: ["home-buyer agents declare their bid", "home-owner agents can only speak to the real-estate agent", "simulation ends when real-estate agent picks a buyer"]
-            The array should have size 10 maximum. The actions must all be different from one another."""
+            The array should have size 5 maximum. The inputsa must all be different from one another."""
     elif is_grounding:
         response_format = """
             The answers should be as specific as possible, but do not be overly verbose in your response. USE AS LITTLE WORDS AS POSSIBLE. Do not repeat what is said in the corresponding idea section.
@@ -295,12 +296,12 @@ def brainstorm_inputs(category, context, existing_brainstorms, iteration):
             - Provide clear action buttons within the message to either like, pass, or start a conversation, making it easy for users to engage with their daily options.
             DO NOT RETURN A PARAGRAPH.
         """
-    else:
-        response_format = """
-            The answers SHOULD BE 10-15 words WORDS that specify what exactly the idea is. ALL THE ANSWERS MUST BE VERY DIFFERENT FROM ONE ANOTHER.
-            Format the the responses in an array like so: ["1 professor and 2 students", "3 shoppers"]
-            The array should have size 3 maximum.
-        """
+    # else:
+    #     response_format = """
+    #         The answers SHOULD BE 10-15 words WORDS that specify what exactly the idea is. ALL THE ANSWERS MUST BE VERY DIFFERENT FROM ONE ANOTHER.
+    #         Format the the responses in an array like so: ["1 professor and 2 students", "3 shoppers"]
+    #         The array should have size 3 maximum.
+    #     """
 
     system_message = f"""
     You are a helpful assistant that helps brainstorm specification answers for a category to narrow down inputs.

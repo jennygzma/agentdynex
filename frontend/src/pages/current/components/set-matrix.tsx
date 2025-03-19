@@ -23,8 +23,8 @@ const MATRIX_CATEGORY_DESCRIPTIONS: Record<CategoryType, string> = {
   ActionsXIdea: "What actions will the agents do?",
   ActionsXGrounding:
     "How can we translate these actions to work in a simulation? What mechanisms are necessary?",
-  WorldXIdea: "What is the world the agents interact in?",
-  WorldXGrounding:
+  LocationsXIdea: "What are the locations the agents interact in?",
+  LocationsXGrounding:
     "How should we define each room? What do agents do in each room?",
   MilestonesXIdea: "What are the chronological milestones for the simulation?",
   MilestonesXGrounding:
@@ -41,21 +41,20 @@ const SetMatrix = () => {
   const { currentPrototype, updateIsLoading, updatePrototypes } =
     useAppContext();
   const [problem, setProblem] = useState("");
-  const [prototypeName, setPrototypeName] = useState("");
   const [expand, setExpand] = useState(true);
 
   const [AgentsXIdea, setAgentsXIdea] = useState("");
   const [ActionsXIdea, setActionsXIdea] = useState("");
-  const [WorldXIdea, setWorldXIdea] = useState("");
+  const [LocationsXIdea, setLocationsXIdea] = useState("");
   const [MilestonesXIdea, setMilestonesXIdea] = useState("");
   const [StopConditionXIdea, setStopConditionXIdea] = useState("");
   const [FailureConditionXIdea, setFailureConditionXIdea] = useState("");
   const [AgentsXGrounding, setAgentsXGrounding] = useState("");
   const [ActionsXGrounding, setActionsXGrounding] = useState("");
-  const [WorldXGrounding, setWorldXGrounding] = useState("");
+  const [LocationsXGrounding, setLocationsXGrounding] = useState("");
   const [MilestonesXGrounding, setMilestonesXGrounding] = useState("");
   const [StopConditionXGrounding, setStopConditionXGrounding] = useState("");
-  const [FailureConditionXGrounding, setFailureConditionXGrounding] =
+  const [failureConditionXGrounding, setFailureConditionXGrounding] =
     useState("");
 
   const getProblem = () => {
@@ -109,8 +108,8 @@ const SetMatrix = () => {
         setAgentsXIdea(agentsXIdea);
         const actionsXIdea = await getInput("ActionsXIdea");
         setActionsXIdea(actionsXIdea);
-        const worldXIdea = await getInput("WorldXIdea");
-        setWorldXIdea(worldXIdea);
+        const locationsXIdea = await getInput("LocationsXIdea");
+        setLocationsXIdea(locationsXIdea);
         const milestonesXIdea = await getInput("MilestonesXIdea");
         setMilestonesXIdea(milestonesXIdea);
         const stopConditionXIdea = await getInput("StopConditionXIdea");
@@ -121,8 +120,8 @@ const SetMatrix = () => {
         setAgentsXGrounding(agentsXGrounding);
         const actionsXGrounding = await getInput("ActionsXGrounding");
         setActionsXGrounding(actionsXGrounding);
-        const worldXGrounding = await getInput("WorldXGrounding");
-        setWorldXGrounding(worldXGrounding);
+        const locationsXGrounding = await getInput("LocationsXGrounding");
+        setLocationsXGrounding(locationsXGrounding);
         const milestonesXGrounding = await getInput("MilestonesXGrounding");
         setMilestonesXGrounding(milestonesXGrounding);
         const stopConditionXGrounding = await getInput(
@@ -130,7 +129,7 @@ const SetMatrix = () => {
         );
         setStopConditionXGrounding(stopConditionXGrounding);
         const failureConditionXGrounding = await getInput(
-          "failureConditionXGrounding",
+          "FailureConditionXGrounding",
         );
         setFailureConditionXGrounding(failureConditionXGrounding);
       } catch (error) {
@@ -260,7 +259,7 @@ const SetMatrix = () => {
                       // fontFamily: "monospace",
                     }}
                   >
-                    WORLD
+                    LOCATIONS
                   </Typography>
                 </TableCell>
                 <TableCell
@@ -379,9 +378,9 @@ const SetMatrix = () => {
                       fontWeight: "bold",
                     }}
                   >
-                    {MATRIX_CATEGORY_DESCRIPTIONS["WorldXIdea"]}
+                    {MATRIX_CATEGORY_DESCRIPTIONS["LocationsXIdea"]}
                   </Typography>
-                  <Typography variant="body2">{WorldXIdea}</Typography>
+                  <Typography variant="body2">{LocationsXIdea}</Typography>
                 </TableCell>
                 <TableCell
                   sx={{
@@ -496,9 +495,9 @@ const SetMatrix = () => {
                       fontWeight: "bold",
                     }}
                   >
-                    {MATRIX_CATEGORY_DESCRIPTIONS["WorldXGrounding"]}
+                    {MATRIX_CATEGORY_DESCRIPTIONS["LocationsXGrounding"]}
                   </Typography>
-                  <Typography variant="body2">{WorldXGrounding}</Typography>
+                  <Typography variant="body2">{LocationsXGrounding}</Typography>
                 </TableCell>
                 <TableCell
                   sx={{
@@ -551,7 +550,7 @@ const SetMatrix = () => {
                     {MATRIX_CATEGORY_DESCRIPTIONS["FailureConditionXGrounding"]}
                   </Typography>
                   <Typography variant="body2">
-                    {FailureConditionXGrounding}
+                    {failureConditionXGrounding}
                   </Typography>
                 </TableCell>
               </TableRow>
