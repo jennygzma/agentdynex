@@ -267,38 +267,6 @@ Conclusion:
     The round of the Ultimatum Game was functionally completed in terms of proposal and acceptance, but could not be finalized due to missing payout information. The game stalled in an unresolved state, requiring an external intervention to proceed.
 """
 
-def generate_milesetones_list(config):
-    print("calling LLM for get_milesetones_list...")
-    system_message = f"""
-        You are an evaluator that is deciding whether or not the simulation is running in the proper direction or not.
-        We are running a multi-agent simulation on GPTeams.
-        {GPTEAMS_DESCRIPTION}
-
-        Determine 2-5 relevant milestones that we can use to track the progress of the simulation based on the configuration provided.
-        THESE MILESTONES SHOULD SPAN THE ENTIRE SIMULATION, AND BE EENLY SPACED ENOUGH TO SPAN THE ENTIRE SIMULATION
-        Keep each milestone short and within 10 words.
-        All milestones should be listed in chronological order.
-
-        For example:
-        If the simulation is running an auction similar to the public goods game, an example response could be:
-        - Round 1 completed and everyone contributed
-        - Round 2 completed and everyone contributed
-        - Round 3 completed and everyone contributed
-
-        If the simulation is about running a shopping cart simulation where everyone returns a shopping cart or not, an example response of the milestones would be alot shorter, such as:
-        - 1/3 of people have left the store
-        - 2/3 of the people have left the store
-
-        If the simulation is about testing a late policy where students must submit 3 assignments, then the milestones are
-        - Everyone has submitted assignment 1
-        - Everyone has submitted assignment 2
-        - Everyone has submitted assignment 3
-    """
-    user_message = f"Here is the config to figure out the milestones from: {config}"
-    milestones = call_llm(system_message, user_message)
-    print("sucessfully called LLM for get_milesetones_list", milestones)
-    return milestones
-
 def generate_summary(logs):
     print("calling LLM for generate_summary...")
     log_words = logs.split()
@@ -315,7 +283,7 @@ def generate_summary(logs):
     return summary
 
 
-def get_status(logs, problem, matrix):
+def get_status(logs, problem, failures):
     print("calling LLM for get_status...")
     log_words = logs.split()
     log_words = log_words[-4000:]  # Keep the last 4,000 words
@@ -333,7 +301,7 @@ def get_status(logs, problem, matrix):
         If the simulation just started running, then give it some time to pick up -- do not return a STOP status immediately. That is dumb. If you return a STOP status, then you are expecting the simulation to fail.
         Return a reason why as well. Keep the response between 100 characters long.
         Return the 🛑 or ⚠️ or 🟢 emoji, and then the 100 word description as to why.
-        Here is some extra context: the user wants to simulate this {problem}, and ensure it is followign what has been defined here in the design matrix: {matrix}
+        Here is some extra context: the user wants to simulate this {problem}. Ensure that the simulation has not fallen into failure loops -- specifically, here are some errors to look out for: {failures}
     """
     user_message = f"Here are the logs: {truncated_logs}"
     status = call_llm(system_message, user_message)

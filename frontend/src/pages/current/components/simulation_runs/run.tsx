@@ -7,6 +7,7 @@ import Button from "../../../../components/Button";
 import TextField from "../../../../components/TextField";
 import Reflection from "./reflection";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
+import Dynamics from "./dynamics-table";
 
 const Run = () => {
   const {
@@ -191,24 +192,6 @@ const Run = () => {
       });
   };
 
-  const getMilestones = () => {
-    updateIsLoading(true);
-    axios({
-      method: "GET",
-      url: `${SERVER_URL}/get_milestones`,
-    })
-      .then((response) => {
-        console.log("/get_milestones request successful:", response.data);
-        setMilestones(response.data.milestones);
-      })
-      .catch((error) => {
-        console.error("Error calling /get_milestones request:", error);
-      })
-      .finally(() => {
-        updateIsLoading(false);
-      });
-  };
-
   const getStatus = () => {
     // updateIsLoading(true);
     axios({
@@ -376,27 +359,6 @@ const Run = () => {
             )}
             {(isRunningSimulation || logs) && (
               <Stack width="100%" spacing="20px">
-                <Stack direction="row" sx={{ justifyContent: "space-between" }}>
-                  <Typography
-                    variant="h6"
-                    sx={{
-                      fontWeight: "bold",
-                    }}
-                  >
-                    Milestones
-                  </Typography>
-                  <Button onClick={() => getMilestones()}>
-                    GET MILESTONES
-                  </Button>
-                </Stack>
-                <TextField
-                  className={"Milestones"}
-                  rows={5}
-                  value={milestones}
-                  readOnly={true}
-                  code={true}
-                />
-                <Divider />
                 {isRunningSimulation && (
                   <>
                     <Stack
@@ -450,6 +412,18 @@ const Run = () => {
             )}
             {(isRunningSimulation || logs) && (
               <Stack width="100%" spacing="20px">
+                <Stack direction="row" sx={{ justifyContent: "space-between" }}>
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      fontWeight: "bold",
+                    }}
+                  >
+                    Notable Dynamics
+                  </Typography>
+                </Stack>
+                <Dynamics />
+                <Divider />
                 <Stack direction="row" sx={{ justifyContent: "space-between" }}>
                   <Typography
                     variant="h6"

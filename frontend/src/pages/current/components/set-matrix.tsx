@@ -114,7 +114,7 @@ const SetMatrix = () => {
         setMilestonesXIdea(milestonesXIdea);
         const stopConditionXIdea = await getInput("StopConditionXIdea");
         setStopConditionXIdea(stopConditionXIdea);
-        const failureConditionXIdea = await getInput("failureConditionXIdea");
+        const failureConditionXIdea = await getInput("FailureConditionXIdea");
         setFailureConditionXIdea(failureConditionXIdea);
         const agentsXGrounding = await getInput("AgentsXGrounding");
         setAgentsXGrounding(agentsXGrounding);

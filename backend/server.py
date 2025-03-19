@@ -11,7 +11,6 @@ from matrix import brainstorm_inputs as brainstorm_generated_inputs
 from matrix import get_context_from_other_inputs
 from reflection import (
     generate_analysis_and_config,
-    generate_milesetones_list,
     generate_rubric_missing,
 )
 from reflection import generate_summary as generate_LLM_summary
@@ -477,26 +476,6 @@ def delete_run():
     )
 
 
-@app.route("/get_milestones", methods=["GET"])
-def get_milestones():
-    print("calling get_milestones...")
-    current_prototype_folder_path = f"{globals.folder_path}/{globals.current_prototype}"
-    current_run_id_folder_path = find_folder_path(
-        globals.run_id, current_prototype_folder_path
-    )
-    config = read_file(f"{current_run_id_folder_path}/{globals.INITIAL_CONFIG_FILE}")
-    milestones = generate_milesetones_list(config)
-    return (
-        jsonify(
-            {
-                "message": "generated milestones",
-                "milestones": milestones,
-            }
-        ),
-        200,
-    )
-
-
 @app.route("/get_logs", methods=["GET"])
 def get_logs():
     print("calling get_logs...")
@@ -526,7 +505,10 @@ def get_status():
     logs = read_file(f"{current_run_id_folder_path}/{globals.LOGS_FILE}")
     problem = read_file(f"{globals.folder_path}/{globals.PROBLEM_FILE_NAME}")
     matrix = read_file(f"{globals.folder_path}/{globals.MATRIX_FILE_NAME}")
-    status = generate_status(logs, problem, matrix)
+    failures = f"""Here are the failures to look out for: {matrix["FailureConditionXIdea"]}.
+    Here are the specifics: {matrix["FailureConditionXIdea"]}
+    """
+    status = generate_status(logs, problem, failures)
     return (
         jsonify(
             {
