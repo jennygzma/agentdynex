@@ -376,30 +376,27 @@ const Run = () => {
             )}
             {(isRunningSimulation || logs) && (
               <Stack width="100%" spacing="20px">
-                    <Stack
-                      direction="row"
-                      sx={{ justifyContent: "space-between" }}
-                    >
-                      <Typography
-                        variant="h6"
-                        sx={{
-                          fontWeight: "bold",
-                        }}
-                      >
-                        Milestones
-                      </Typography>
-                      <Button onClick={()=> getMilestones()}>
-                        GET MILESTONES
-                      </Button>
-                    </Stack>
-                    <TextField
-                      className={"Milestones"}
-                      rows={5}
-                      value={milestones}
-                      readOnly={true}
-                      code={true}
-                    />
-                    <Divider />
+                <Stack direction="row" sx={{ justifyContent: "space-between" }}>
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      fontWeight: "bold",
+                    }}
+                  >
+                    Milestones
+                  </Typography>
+                  <Button onClick={() => getMilestones()}>
+                    GET MILESTONES
+                  </Button>
+                </Stack>
+                <TextField
+                  className={"Milestones"}
+                  rows={5}
+                  value={milestones}
+                  readOnly={true}
+                  code={true}
+                />
+                <Divider />
                 {isRunningSimulation && (
                   <>
                     <Stack

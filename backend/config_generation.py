@@ -223,9 +223,9 @@ def get_matrix_description(matrix):
             description += f" For more details: {matrix['WorldXGrounding']}"
 
     if matrix["MilestonesXIdea"]:
-            description += f"\nThe chronological milestones in the simulation should be {matrix['MilestonesXIdea']}."
-            if matrix["MilestonesXGrounding"]:
-                description += f" For more details: {matrix['MilestonesXGrounding']}"
+        description += f"\nThe chronological milestones in the simulation should be {matrix['MilestonesXIdea']}."
+        if matrix["MilestonesXGrounding"]:
+            description += f" For more details: {matrix['MilestonesXGrounding']}"
 
     if matrix["StopConditionXIdea"]:
         description += f"\nThe stop condition for when the simulation is over should be {matrix['StopConditionXIdea']}."

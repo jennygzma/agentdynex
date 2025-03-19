@@ -75,7 +75,7 @@ matrix = {
     "StopConditionXIdea": None,
     "StopConditionXGrounding": None,
     "FailureConditionsXIdea": None,
-    "FailureConditionsXGrounding": None
+    "FailureConditionsXGrounding": None,
 }
 run_tree = None
 config = None

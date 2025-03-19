@@ -26,9 +26,15 @@ const MATRIX_CATEGORY_DESCRIPTIONS: Record<CategoryType, string> = {
   WorldXIdea: "What is the world the agents interact in?",
   WorldXGrounding:
     "How should we define each room? What do agents do in each room?",
-  StopConditionXIdea: "What is the stop condition?",
+  MilestonesXIdea: "What are the chronological milestones for the simulation?",
+  MilestonesXGrounding:
+    "What are the specific of each milestone? What muste we ensure happen in the simulation before each milestone?",
+  StopConditionXIdea: "What is the stop condition for the simulation?",
   StopConditionXGrounding:
     "What are the specific of the stop conditions? What muste we ensure happen in the simulation before the stop condition?",
+  FailureConditionXIdea: "What are the failure conditions for the simulation?",
+  FailureConditionXGrounding:
+    "What are the specifics of each failure conditions? Why does this indicate that the simulation has gone wrong?",
 };
 
 const getDependencies = (
@@ -252,7 +258,39 @@ const Matrix = () => {
                         fontWeight: "bold",
                       }}
                     >
+                      MILESTONES
+                    </Typography>
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      width: "21%",
+                      borderBottom: "none",
+                      verticalAlign: "bottom",
+                    }}
+                  >
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        fontWeight: "bold",
+                      }}
+                    >
                       STOP CONDITION
+                    </Typography>
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      width: "21%",
+                      borderBottom: "none",
+                      verticalAlign: "bottom",
+                    }}
+                  >
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        fontWeight: "bold",
+                      }}
+                    >
+                      FAILURE CONDITION
                     </Typography>
                   </TableCell>
                 </TableRow>
@@ -318,12 +356,42 @@ const Matrix = () => {
                     }}
                   >
                     <Category
+                      category={"MilestonesXIdea"}
+                      description={
+                        MATRIX_CATEGORY_DESCRIPTIONS["MilestonesXIdea"]
+                      }
+                      isDependency={dependencies?.includes("MilestonesXIdea")}
+                    />
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      borderBottom: "none",
+                      verticalAlign: "top",
+                    }}
+                  >
+                    <Category
                       category={"StopConditionXIdea"}
                       description={
                         MATRIX_CATEGORY_DESCRIPTIONS["StopConditionXIdea"]
                       }
                       isDependency={dependencies?.includes(
                         "StopConditionXIdea",
+                      )}
+                    />
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      borderBottom: "none",
+                      verticalAlign: "top",
+                    }}
+                  >
+                    <Category
+                      category={"FailureConditionXIdea"}
+                      description={
+                        MATRIX_CATEGORY_DESCRIPTIONS["FailureConditionXIdea"]
+                      }
+                      isDependency={dependencies?.includes(
+                        "FailureConditionXIdea",
                       )}
                     />
                   </TableCell>
@@ -394,12 +462,46 @@ const Matrix = () => {
                     }}
                   >
                     <Category
+                      category="MilestonesXGrounding"
+                      description={
+                        MATRIX_CATEGORY_DESCRIPTIONS["MilestonesXGrounding"]
+                      }
+                      isDependency={dependencies?.includes(
+                        "MilestonesXGrounding",
+                      )}
+                    />
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      borderBottom: "none",
+                      verticalAlign: "top",
+                    }}
+                  >
+                    <Category
                       category="StopConditionXGrounding"
                       description={
                         MATRIX_CATEGORY_DESCRIPTIONS["StopConditionXGrounding"]
                       }
                       isDependency={dependencies?.includes(
                         "StopConditionXGrounding",
+                      )}
+                    />
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      borderBottom: "none",
+                      verticalAlign: "top",
+                    }}
+                  >
+                    <Category
+                      category="FailureConditionXGrounding"
+                      description={
+                        MATRIX_CATEGORY_DESCRIPTIONS[
+                          "FailureConditionXGrounding"
+                        ]
+                      }
+                      isDependency={dependencies?.includes(
+                        "FailureConditionXGrounding",
                       )}
                     />
                   </TableCell>
