@@ -53,7 +53,7 @@ const ContinuousData = () => {
     );
   }
   return (
-    <Stack>
+    <Stack spacing="20px">
       <Stack direction="row" spacing="10px" sx={{ alignItems: "center" }}>
         <Button onClick={() => setExpand(false)} sx={{ width: "30px" }}>
           <ExpandLess fontSize="small" />

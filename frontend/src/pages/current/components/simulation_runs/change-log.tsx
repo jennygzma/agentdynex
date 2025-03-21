@@ -22,10 +22,7 @@ type ChangeLogData = {
 const ChangeLog = () => {
   const [changeLogData, setChangeLogData] = useState<ChangeLogData[]>([]);
 
-  console.log(changeLogData);
   const { isRunningSimulation } = useAppContext();
-
-  console.log(changeLogData);
 
   const fetchChanges = () => {
     // updateIsLoading(true);
@@ -51,6 +48,7 @@ const ChangeLog = () => {
       return () => clearInterval(intervalId);
     }
   }, [isRunningSimulation]);
+
 
   if (!changeLogData) return <></>;
   return (

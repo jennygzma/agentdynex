@@ -213,7 +213,6 @@ const SetMatrix = () => {
                 ></TableCell>
                 <TableCell
                   sx={{
-                    width: "21%",
                     borderBottom: "none",
                     verticalAlign: "bottom",
                   }}
@@ -230,7 +229,6 @@ const SetMatrix = () => {
                 </TableCell>
                 <TableCell
                   sx={{
-                    width: "21%",
                     borderBottom: "none",
                     verticalAlign: "bottom",
                   }}
@@ -247,7 +245,6 @@ const SetMatrix = () => {
                 </TableCell>
                 <TableCell
                   sx={{
-                    width: "21%",
                     borderBottom: "none",
                     verticalAlign: "bottom",
                   }}
@@ -264,7 +261,6 @@ const SetMatrix = () => {
                 </TableCell>
                 <TableCell
                   sx={{
-                    width: "21%",
                     borderBottom: "none",
                     verticalAlign: "bottom",
                   }}
@@ -281,7 +277,6 @@ const SetMatrix = () => {
                 </TableCell>
                 <TableCell
                   sx={{
-                    width: "21%",
                     borderBottom: "none",
                     verticalAlign: "bottom",
                   }}
@@ -298,7 +293,6 @@ const SetMatrix = () => {
                 </TableCell>
                 <TableCell
                   sx={{
-                    width: "21%",
                     borderBottom: "none",
                     verticalAlign: "bottom",
                   }}
