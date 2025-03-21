@@ -7,7 +7,7 @@ import Button from "../../../../components/Button";
 import TextField from "../../../../components/TextField";
 import Reflection from "./reflection";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
-import Dynamics from "./dynamics-table";
+import ContinuousData from "./continuous-data";
 
 const Run = () => {
   const {
@@ -21,8 +21,6 @@ const Run = () => {
   const [config, setConfig] = useState("");
   const [logs, setLogs] = useState("");
   const [summary, setSummary] = useState("");
-  const [status, setStatus] = useState("");
-  const [milestones, setMilestones] = useState("");
   const [updatedConfig, setUpdatedConfig] = useState(false);
   // const [isRunningSimulation, setIsRunningSimulation] = useState(false);
   const [hasReflection, setHasReflection] = useState(false);
@@ -192,24 +190,6 @@ const Run = () => {
       });
   };
 
-  const getStatus = () => {
-    // updateIsLoading(true);
-    axios({
-      method: "GET",
-      url: `${SERVER_URL}/get_status`,
-    })
-      .then((response) => {
-        console.log("/get_status request successful:", response.data);
-        setStatus(response.data.status);
-      })
-      .catch((error) => {
-        console.error("Error calling /get_status request:", error);
-      })
-      .finally(() => {
-        // updateIsLoading(false);
-      });
-  };
-
   const getAnalysis = () => {
     updateIsLoading(true);
     axios({
@@ -235,16 +215,7 @@ const Run = () => {
     getLogs();
     getSummary();
     setExpand(true);
-    setStatus("");
-    setMilestones("");
   }, [currentPrototype, currentRunId]);
-
-  useEffect(() => {
-    if (isRunningSimulation) {
-      const intervalId = setInterval(getStatus, 30000);
-      return () => clearInterval(intervalId);
-    }
-  }, [isRunningSimulation]);
 
   if (!currentPrototype) return <></>;
   return (
@@ -327,131 +298,103 @@ const Run = () => {
               </Button>
             )}
           </Stack>
-          <Stack spacing="20px" width="100%" direction="row">
-            {config && (
-              <Stack spacing="25px" width="100%">
-                <Typography
-                  variant="h6"
-                  sx={{
-                    fontWeight: "bold",
-                  }}
-                >
-                  Original Configuration
-                </Typography>
-                <TextField
-                  className={"code"}
-                  rows={50}
-                  value={config}
-                  onChange={(e) => {
-                    setConfig(e.target.value);
-                    setUpdatedConfig(true);
-                  }}
-                  code={true}
-                />
-                <Button
-                  disabled={!updatedConfig}
-                  onClick={saveConfig}
-                  sx={{ width: "100%" }}
-                >
-                  Update Config
-                </Button>
-              </Stack>
-            )}
-            {(isRunningSimulation || logs) && (
-              <Stack width="100%" spacing="20px">
-                {isRunningSimulation && (
-                  <>
-                    <Stack
-                      direction="row"
-                      sx={{ justifyContent: "space-between" }}
-                    >
-                      <Typography
-                        variant="h6"
-                        sx={{
-                          fontWeight: "bold",
-                        }}
-                      >
-                        Status
-                      </Typography>
-                    </Stack>
-                    <TextField
-                      className={"Status"}
-                      rows={5}
-                      value={status}
-                      readOnly={true}
-                      code={true}
-                    />
-                    <Divider />
-                  </>
-                )}
-                <Stack direction="row" sx={{ justifyContent: "space-between" }}>
+          <Stack spacing="20px">
+            <ContinuousData />
+            <Stack spacing="20px" width="100%" direction="row">
+              {config && (
+                <Stack spacing="25px" width="100%">
                   <Typography
                     variant="h6"
                     sx={{
                       fontWeight: "bold",
                     }}
                   >
-                    Logs
+                    Original Configuration
                   </Typography>
-                  <Button
-                    onClick={() => {
-                      getLogs();
+                  <TextField
+                    className={"code"}
+                    rows={50}
+                    value={config}
+                    onChange={(e) => {
+                      setConfig(e.target.value);
+                      setUpdatedConfig(true);
                     }}
+                    code={true}
+                  />
+                  <Button
+                    disabled={!updatedConfig}
+                    onClick={saveConfig}
+                    sx={{ width: "100%" }}
                   >
-                    Get Logs 📝
+                    Update Config
                   </Button>
                 </Stack>
-                <TextField
-                  className={"Logs"}
-                  rows={45}
-                  value={logs}
-                  readOnly={true}
-                  code={true}
-                />
-              </Stack>
-            )}
-            {(isRunningSimulation || logs) && (
-              <Stack width="100%" spacing="20px">
-                <Stack direction="row" sx={{ justifyContent: "space-between" }}>
-                  <Typography
-                    variant="h6"
-                    sx={{
-                      fontWeight: "bold",
-                    }}
+              )}
+              {(isRunningSimulation || logs) && (
+                <Stack width="100%" spacing="20px">
+                  <Stack
+                    direction="row"
+                    sx={{ justifyContent: "space-between" }}
                   >
-                    Notable Dynamics
-                  </Typography>
-                </Stack>
-                <Dynamics />
-                <Divider />
-                <Stack direction="row" sx={{ justifyContent: "space-between" }}>
-                  <Typography
-                    variant="h6"
-                    sx={{
-                      fontWeight: "bold",
-                    }}
-                  >
-                    Summary
-                  </Typography>
-                  {!isRunningSimulation && logs && (
-                    <Button
-                      onClick={() => {
-                        generateSummary();
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        fontWeight: "bold",
                       }}
                     >
-                      Get Summary ℹ️
+                      Logs
+                    </Typography>
+                    <Button
+                      onClick={() => {
+                        getLogs();
+                      }}
+                    >
+                      Get Logs 📝
                     </Button>
-                  )}
+                  </Stack>
+                  <TextField
+                    className={"Logs"}
+                    rows={45}
+                    value={logs}
+                    readOnly={true}
+                    code={true}
+                  />
                 </Stack>
-                <TextField
-                  className={"Summary"}
-                  rows={50}
-                  value={summary}
-                  readOnly={true}
-                  code={true}
-                />
-              </Stack>
-            )}
+              )}
+              {(isRunningSimulation || logs) && (
+                <Stack width="100%" spacing="20px">
+                  <Stack
+                    direction="row"
+                    sx={{ justifyContent: "space-between" }}
+                  >
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        fontWeight: "bold",
+                      }}
+                    >
+                      Summary
+                    </Typography>
+                    {!isRunningSimulation && logs && (
+                      <Button
+                        onClick={() => {
+                          generateSummary();
+                        }}
+                      >
+                        Get Summary ℹ️
+                      </Button>
+                    )}
+                  </Stack>
+                  <TextField
+                    className={"Summary"}
+                    rows={50}
+                    value={summary}
+                    readOnly={true}
+                    code={true}
+                  />
+                </Stack>
+              )}
+            </Stack>
           </Stack>
         </Stack>
       )}

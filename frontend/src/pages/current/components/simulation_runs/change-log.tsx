@@ -12,29 +12,33 @@ import axios from "axios";
 import { SERVER_URL } from "../..";
 import { useAppContext } from "../../hooks/app-context";
 
-type DynamicsData = {
+type ChangeLogData = {
+  where: string;
+  what: string;
+  change: string;
   milestone: string;
-  dynamic: string;
 };
 
-const Dynamics = () => {
-  const [dynamicsData, setDynamicsData] = useState<DynamicsData[]>([]);
+const ChangeLog = () => {
+  const [changeLogData, setChangeLogData] = useState<ChangeLogData[]>([]);
+
+  console.log(changeLogData);
   const { isRunningSimulation } = useAppContext();
 
-  console.log(dynamicsData);
+  console.log(changeLogData);
 
-  const fetchDynamics = () => {
+  const fetchChanges = () => {
     // updateIsLoading(true);
     axios({
       method: "GET",
-      url: `${SERVER_URL}/fetch_dynamics`,
+      url: `${SERVER_URL}/fetch_changes`,
     })
       .then((response) => {
-        console.log("/fetch_dynamics request successful:", response.data);
-        setDynamicsData(response.data.dynamics_data);
+        console.log("/fetch_changes request successful:", response.data);
+        setChangeLogData(response.data.changes_data);
       })
       .catch((error) => {
-        console.error("Error calling /fetch_dynamics request:", error);
+        console.error("Error calling /fetch_changes request:", error);
       })
       .finally(() => {
         // updateIsLoading(false);
@@ -43,31 +47,35 @@ const Dynamics = () => {
 
   useEffect(() => {
     if (isRunningSimulation) {
-      const intervalId = setInterval(fetchDynamics, 30000);
+      const intervalId = setInterval(fetchChanges, 30000);
       return () => clearInterval(intervalId);
     }
   }, [isRunningSimulation]);
 
+  if (!changeLogData) return <></>;
   return (
     <TableContainer component={Paper}>
       <Table>
         <TableHead>
           <TableRow sx={{ backgroundColor: "#6a4c9cff" }}>
             <TableCell sx={{ color: "white" }}>MILESTONE</TableCell>
-            <TableCell sx={{ color: "white" }}>DYNAMICS</TableCell>
+            <TableCell sx={{ color: "white" }}>WHERE</TableCell>
+            <TableCell sx={{ color: "white" }}>WHAT</TableCell>
+            <TableCell sx={{ color: "white" }}>CHANGE</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {dynamicsData
-            .filter((row) => row.dynamic.trim() !== "")
+          {changeLogData
+            .filter((row) => row.change.trim() !== "")
             .map((row, index, array) => {
               const showMilestone =
                 index === 0 || row.milestone !== array[index - 1].milestone;
-
               return (
                 <TableRow key={index}>
                   <TableCell>{showMilestone ? row.milestone : ""}</TableCell>
-                  <TableCell>{row.dynamic}</TableCell>
+                  <TableCell>{row.where}</TableCell>
+                  <TableCell>{row.what}</TableCell>
+                  <TableCell>{row.change}</TableCell>
                 </TableRow>
               );
             })}
@@ -77,4 +85,4 @@ const Dynamics = () => {
   );
 };
 
-export default Dynamics;
+export default ChangeLog;

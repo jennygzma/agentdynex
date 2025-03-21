@@ -11,10 +11,15 @@ from matrix import brainstorm_inputs as brainstorm_generated_inputs
 from matrix import get_context_from_other_inputs
 from reflection import (
     generate_analysis_and_config,
+    generate_milestones_json,
     generate_rubric_missing,
 )
 from reflection import generate_summary as generate_LLM_summary
 from reflection import get_status as generate_status
+from reflection import (
+    log_changes,
+    log_dynamics,
+)
 from run_simulation import (
     delete_child_runs,
     delete_run_and_children,
@@ -132,6 +137,13 @@ def explore_prototype():
     create_and_write_file(
         f"{folder_path}/{globals.MATRIX_FILE_NAME}", json.dumps(globals.matrix)
     )
+    milestones_json = generate_milestones_json(
+        f"{globals.matrix["MilestonesXIdea"]} {globals.matrix["MilestonesXGrounding"]}"
+    )
+    create_and_write_file(
+        f"{folder_path}/{globals.MILESTONES_FILE_NAME}", json.dumps(milestones_json)
+    )
+    globals.milestones = milestones_json
     return jsonify({"message": "Saved prototype"}), 200
 
 
@@ -504,9 +516,8 @@ def get_status():
     )
     logs = read_file(f"{current_run_id_folder_path}/{globals.LOGS_FILE}")
     problem = read_file(f"{globals.folder_path}/{globals.PROBLEM_FILE_NAME}")
-    matrix = read_file(f"{globals.folder_path}/{globals.MATRIX_FILE_NAME}")
-    failures = f"""Here are the failures to look out for: {matrix["FailureConditionXIdea"]}.
-    Here are the specifics: {matrix["FailureConditionXIdea"]}
+    failures = f"""Here are the failures to look out for: {globals.matrix["FailureConditionXIdea"]}.
+    Here are the specifics: {globals.matrix["FailureConditionXGrounding"]}
     """
     status = generate_status(logs, problem, failures)
     return (
@@ -561,6 +572,75 @@ def get_summary():
         200,
     )
 
+@app.route("/fetch_dynamics", methods=["GET"])
+def fetch_dynamics():
+    print("calling fetch_dynamics...")
+    current_prototype_folder_path = f"{globals.folder_path}/{globals.current_prototype}"
+    current_run_id_folder_path = find_folder_path(
+        globals.run_id, current_prototype_folder_path
+    )
+    logs = read_file(f"{current_run_id_folder_path}/{globals.LOGS_FILE}")
+    dynamic = log_dynamics(logs, globals.current_milestone_id, globals.milestones[globals.current_milestone_id], globals.milestones)
+    if dynamic["milestone_id"] != globals.current_milestone_id:
+        globals.current_milestone_id = str(dynamic["milestone_id"])
+    if file_exists(f"{current_run_id_folder_path}/{globals.DYNAMICS_FILE_NAME}"):
+        dynamics_text = read_file(f"{current_run_id_folder_path}/{globals.DYNAMICS_FILE_NAME}")
+        dynamics_data = json.loads(dynamics_text)
+        dynamics_data.append(dynamic)
+    else:
+        dynamics_data = [dynamic]
+    create_and_write_file(
+        f"{current_run_id_folder_path}/{globals.DYNAMICS_FILE_NAME}", json.dumps(dynamics_data)
+    )
+
+    return (
+        jsonify(
+            {
+                "message": "fetching dynamics",
+                "current_milestone_id": globals.current_milestone_id,
+                "dynamics_data": dynamics_data
+            }
+        ),
+        200,
+    )
+
+@app.route("/fetch_changes", methods=["GET"])
+def fetch_changes():
+    print("calling fetch_changes...")
+    current_prototype_folder_path = f"{globals.folder_path}/{globals.current_prototype}"
+    current_run_id_folder_path = find_folder_path(
+        globals.run_id, current_prototype_folder_path
+    )
+    logs = read_file(f"{current_run_id_folder_path}/{globals.LOGS_FILE}")
+    if file_exists(f"{current_run_id_folder_path}/{globals.CHANGES_FILE_NAME}"):
+        changes_text = read_file(f"{current_run_id_folder_path}/{globals.CHANGES_FILE_NAME}")
+        changes_data = json.loads(changes_text)
+    else:
+        changes_data = []
+    previous = changes_data[-1] if len(changes_data) > 0 else ""
+    change = log_changes(logs, previous)
+    change_with_milestone = {
+        "milestone_id": globals.current_milestone_id,
+        "milestone": globals.milestones[str(globals.current_milestone_id)],
+        "where": change["where"],
+        "what": change["what"],
+        "change": change["change"]
+    }
+    changes_data.append(change_with_milestone)
+    create_and_write_file(
+        f"{current_run_id_folder_path}/{globals.CHANGES_FILE_NAME}", json.dumps(changes_data)
+    )
+
+    return (
+        jsonify(
+            {
+                "message": "fetching changes",
+                "current_milestone_id": globals.current_milestone_id,
+                "changes_data": changes_data
+            }
+        ),
+        200,
+    )
 
 @app.route("/get_missing_rubric", methods=["GET"])
 def get_missing_rubric():
@@ -713,6 +793,9 @@ def set_globals_for_uuid(generated_uuid):
     )
     globals.run_tree = json.loads(
         read_file(f"{globals.folder_path}/{globals.RUN_TREE}")
+    )
+    globals.milestones = json.loads(
+        read_file(f"{globals.folder_path}/{globals.MILESTONES_FILE_NAME}")
     )
     rubric = json.loads(read_file(globals.RUBRIC_FILE_NAME))
     globals.rubric = rubric_to_dict(rubric)

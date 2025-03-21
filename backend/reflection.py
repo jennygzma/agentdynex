@@ -267,6 +267,103 @@ Conclusion:
     The round of the Ultimatum Game was functionally completed in terms of proposal and acceptance, but could not be finalized due to missing payout information. The game stalled in an unresolved state, requiring an external intervention to proceed.
 """
 
+def generate_milestones_json(milestones):
+    print("calling LLM for generate_milestones_json...")
+    system_message = """
+        Turn this text into a JSON file that will track the milestones numerically.
+        For example, if the text is:
+        First assignment announced and completedSecond assignment announced and completedThird assignment announced and completed
+        - Assignment 1 Completion: All student agents, including Alice, Bob, and Charlie, must declare their submission of Assignment 1 in the classroom. - Assignment 2 Completion: Each student agent needs to announce their submission of Assignment 2, indicating its completion. - Assignment 3 Completion: Final assignment should be considered as completed when all student agents have declared their final submissions.
+
+        The JSON will be
+        {{
+            "1": First assignment announced and completed,
+            "2": Second assignment announced and completed,
+            "3": Third assignment announced and completed
+        }}
+    """
+    user_message = f"Here is the text: {milestones}"
+    milestone_json = call_llm(system_message, user_message)
+    try:
+        data = json.loads(milestone_json)  # Try parsing JSON
+    except json.JSONDecodeError:
+        generate_milestones_json(milestones)
+    print("sucessfully called LLM for generate_milestones_json", milestones)
+    return data
+
+def log_dynamics(logs, current_milestone, current_milestone_id, milestones):
+    print("calling LLM for log_dynamics...")
+    log_words = logs.split()
+    log_words = log_words[-4000:]  # Keep the last 4,000 words
+    truncated_logs = " ".join(log_words)
+    system_message = f"""
+        {GPTEAMS_DESCRIPTION}
+        Read these logs and say if there are some interesting social dynamics that have emerged from these agent's behavior.
+        For example, if some agents have changed their personality because some other agent has convinced them, or some new opinions have emerged, note them down.
+        Keep the dynamic within 20 words.
+        IT MUST BE INTERESTING. WAITING IS BORING. SOMEONE DOING SOMETHING EXPECTED IS BORING. WE ARE TRYING TO STUDY SOCIAL DYNAMICS. ONLY RETURN SOMETHING IF IT IS INTERESTING.
+        Also, the user will provide the list of milestones the simulation will hit chronologically.
+        They will also provide the current milestone it is under.
+        For the most part, the current milestone will be correct, but if you realize that the next milestone has been hit,
+        make sure to update the current milestone to the next one.
+
+        Make sure that the response returned is a json response similar to this:
+        {{
+            "milestone_id": current_milestone_id,
+            "milestone": current_milestone,
+            "dynamic": "Bob (the bad student) convinces Alice (the good student) to cheat on the assignment"
+        }}
+        IF THERE IS NO NOTABLE DYNAMIC, KEEP THE DYNAMIC EMPTY
+        ONLY RETURN THE JSON AND NOTHING ELSE!!
+    """
+    user_message = f"Here are the logs: {truncated_logs}. Here is the current milestone: {current_milestone}. Here is the current milestone_id: {current_milestone_id}. Here are the milestones: {milestones}"
+    dynamic = call_llm(system_message, user_message)
+    print("sucessfully called LLM for log_dynamics", dynamic)
+    try:
+        data = json.loads(dynamic)
+        required_keys = {"milestone_id", "milestone", "dynamic"}
+        if not required_keys.issubset(data.keys()):
+            log_dynamics(logs, current_milestone, current_milestone_id, milestones)
+    except json.JSONDecodeError:
+        log_dynamics(logs, current_milestone, current_milestone_id, milestones)
+    return json.loads(dynamic)
+
+
+def log_changes(logs, previous):
+    print("calling LLM for log_changes...")
+    log_words = logs.split()
+    log_words = log_words[-4000:]  # Keep the last 4,000 words
+    truncated_logs = " ".join(log_words)
+    system_message = f"""
+        {GPTEAMS_DESCRIPTION}
+        Read these logs and tell us where each agent is and what they are doing compared to the previous instance.
+        The key thing is also to note WHAT CHANGE was made. The user will provide the previous change log. Detect what has changed from that.
+        If the previous change log is empty, then that means this is the INITIAL change, so just write what is happening.
+        Make sure that the response returned is a json response similar to this:
+        {{
+            "where": ""Bob - dorms, Alex - classroom, Professor - classroom",
+            "what": "Bob - studying for assignment 1, Alex - talking to professor, Professor - talking to Alex",
+            "change": "Bob has moved from classroom to the dorms to study"
+        }}
+        the "where" field should track where each agent is.
+        the "what" field should track what each agent is DOING
+        the "change" field tracks any notable changes from the previous time, ie: if the agent moved rooms.
+        If there is no change, keep the CHANGE field empty.
+
+        ONLY RETURN THE JSON AND NOTHING ELSE!!
+    """
+    user_message = f"Here are the logs: {truncated_logs}. Here is the previous change log: {previous}."
+    change = call_llm(system_message, user_message)
+    print("sucessfully called LLM for log_dynamics", change)
+    try:
+        data = json.loads(change)
+        required_keys = {"where", "what", "change"}
+        if not required_keys.issubset(data.keys()):
+            log_changes(logs, previous)
+    except json.JSONDecodeError:
+        log_changes(logs, previous)
+    return json.loads(change)
+
 def generate_summary(logs):
     print("calling LLM for generate_summary...")
     log_words = logs.split()

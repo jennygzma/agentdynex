@@ -48,6 +48,9 @@ PROBLEM_FILE_NAME = "problem.txt"
 PROTOTYPES = "prototypes.txt"
 MATRIX_FILE_NAME = "matrix.txt"
 CONFIG_FILE_NAME = "config.txt"
+MILESTONES_FILE_NAME = "milestones.txt"
+DYNAMICS_FILE_NAME = "dynamics.json"
+CHANGES_FILE_NAME = "changes.json"
 RUBRIC_FILE_NAME = "rubric.json"
 RUN_TREE = "run_tree.json"
 
@@ -80,6 +83,9 @@ matrix = {
 run_tree = None
 config = None
 run_id = None
+milestones = None
+current_milestone_id = "1"
+
 # all prototypes to explore
 prototypes = []
 current_prototype = None

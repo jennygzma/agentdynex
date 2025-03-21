@@ -90,7 +90,8 @@ const Header = () => {
             sx={{
               color: "white",
               fontWeight: "bold",
-              fontFamily: "Courier New",
+              // fontFamily: "Courier New",
+              textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
               textAlign: "center",
             }}
           >
