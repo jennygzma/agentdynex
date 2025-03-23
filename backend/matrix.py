@@ -133,6 +133,7 @@ For example if simulating a house-bidding situation where people cannot hear or 
 However, a simple simulation of people returning shopping carts could just have "1 shopper agent" "1 shopper agent" "1 shopper agent".
 The user can then check off which types of agents they want in the simulation. If they want 2 shopper agents, they would check it off twice.
 """
+
 AGENTSXGROUNDING_EXAMPLES = """Agents Grounding focuses on the personality of each agent and a brief description of the agent.
 For example, if the idea is to "simulate the tragedy of the commons" for "3 agents with varying degrees of social influence/peer pressure influencing their choices", some example goals of the application could be:
 "- Alice: an agent that is highly influenced by others \n - Bob: an agent that is neutral \n - Charlie: an agent who is a non-conformist".
@@ -146,10 +147,10 @@ Avoid redundancy and any unnecessary agents.
 ACTIONSXIDEA_EXAMPLES = """Action ideas focus on what each type of agent need to do in the location.
 Make sure there are actions that span all the types of agents.
 Every action should consist of the agent communicating that they have completed a task. Agents can complete a task by simply saying they have completed a task.
-For example, if the idea is to "simulate the tragedy of the commons", some examples of the actions are "agents should verbally stating the money they have consumed", "the simulation stops when the pot is empty"
+For example, if the idea is to "simulate the tragedy of the commons", some examples of the actions are "agents should verbally stating the money they have consumed"
 For example, if there are two types of agents, an example idea could be "mediator agents should announce whose turn it is" and "mediator agent announces the bet each round" and "agents should verbally state to mediator the money they have consumed"
 If agents are voting in a simulation, they can just verbally declare it without having to cast a ballot or upload their vote. If an agent is counting the votes, they should NOT have to read any files. They should either just observer or count via verbal vote.
-Try to keep the array oragnized by agent. For example, the first 3 actions in the list are for the real estate agent, the next couple actions are for the home buyer agent, last couple actions shows the stop condition(s)). Here is an example:
+Try to keep the array oragnized by agent. For example, the first 3 actions in the list are for the real estate agent, the next couple actions are for the home buyer agent. Here is an example:
 [
     "Professor announces the submission due date",
     "Professor gives extensions to students when requested",
@@ -194,7 +195,9 @@ DO NOT DESCRIBE ANYTHING ELSE.
 """
 
 MILESTONESXIDEA_EXAMPLES = """The milestones ideas focus on the chronological order in which the simulation should proceed.
+Try to come up with some "rounds" that the simulation can go through, or at least some "events" that can occur within the simulation to prompt it to run.
 If there are "rounds" in a simulation, then each milestone could be an indication that each round has completed.
+If sommeone is enacting a new policy, perhaps a couple "rounds" of that policy being enacted, or a certain amount of time has passed -- just something in the simulation world that metaphorically tracks time passing.
 Or, a milestone could be if 1/2 of the agents do something, then 1/2 of the agents do the other thing.
 It should span the chronological ordering of how the simulation should go.
 There should be 3-5 milestones per simulation.

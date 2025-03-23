@@ -286,7 +286,7 @@ const Run = () => {
                 />
               </Button>
             )}
-            {!isRunningSimulation && logs && summary && (
+            {!isRunningSimulation && logs && (
               <Button
                 onClick={() => {
                   setHasReflection(true);

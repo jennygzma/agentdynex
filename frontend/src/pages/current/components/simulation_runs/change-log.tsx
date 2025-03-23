@@ -22,7 +22,8 @@ type ChangeLogData = {
 const ChangeLog = () => {
   const [changeLogData, setChangeLogData] = useState<ChangeLogData[]>([]);
 
-  const { isRunningSimulation } = useAppContext();
+  const { isRunningSimulation, currentPrototype, currentRunId } =
+    useAppContext();
 
   const fetchChanges = () => {
     // updateIsLoading(true);
@@ -49,6 +50,9 @@ const ChangeLog = () => {
     }
   }, [isRunningSimulation]);
 
+  useEffect(() => {
+    fetchChanges();
+  }, [currentRunId, currentPrototype]);
 
   if (!changeLogData) return <></>;
   return (

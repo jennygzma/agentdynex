@@ -266,6 +266,20 @@ Why the Simulation Ended:
 Conclusion:
     The round of the Ultimatum Game was functionally completed in terms of proposal and acceptance, but could not be finalized due to missing payout information. The game stalled in an unresolved state, requiring an external intervention to proceed.
 """
+# WE RUN THIS IF THERE ARE NO MILESTONES
+def generate_milestones_text(config):
+    print("calling LLM for generate_milestones_text")
+    system_message = f"""
+        {GPTEAMS_DESCRIPTION}
+        Based on a configuration file, you will generate chronological milestones for a multi-agent simulation.
+        They basically frame the direction of the simulation.
+        For example, for a classroom simulation where teams must be formed for each assignment, here are the milestones and the JSON format...This is the format that they must be returned in:
+        {{"1": "Professor announces team formation guidelines", "2": "First team formation and completion of Assignment 1", "3": "Second team reshuffles and completion of Assignment 2", "4": "Final team formation and completion of Assignment 3"}}
+        Return ONLY the JSON file.
+    """
+    user_message = f"Here is the config: {config}"
+    milestone_txt = call_llm(system_message, user_message)
+    return milestone_txt
 
 def generate_milestones_json(milestones):
     print("calling LLM for generate_milestones_json...")
@@ -291,7 +305,7 @@ def generate_milestones_json(milestones):
     print("sucessfully called LLM for generate_milestones_json", milestones)
     return data
 
-def log_dynamics(logs, current_milestone, current_milestone_id, milestones):
+def log_dynamics(logs, current_milestone, current_milestone_id, milestones, previous_dynamic):
     print("calling LLM for log_dynamics...")
     log_words = logs.split()
     log_words = log_words[-4000:]  # Keep the last 4,000 words
@@ -302,6 +316,9 @@ def log_dynamics(logs, current_milestone, current_milestone_id, milestones):
         For example, if some agents have changed their personality because some other agent has convinced them, or some new opinions have emerged, note them down.
         Keep the dynamic within 20 words.
         IT MUST BE INTERESTING. WAITING IS BORING. SOMEONE DOING SOMETHING EXPECTED IS BORING. WE ARE TRYING TO STUDY SOCIAL DYNAMICS. ONLY RETURN SOMETHING IF IT IS INTERESTING.
+        For example, do not return anything if Alice, the good student, has started studying. That is to be expected. Return something if Alice REFUSES to study because Bob has convinced her not to.
+        The previous dynamic will also be returned. If the current dynamic is too similar to the previous dynamic, leave the dynamic field empty. Only return something if it is a new dynamic.
+
         Also, the user will provide the list of milestones the simulation will hit chronologically.
         They will also provide the current milestone it is under.
         For the most part, the current milestone will be correct, but if you realize that the next milestone has been hit,
@@ -316,16 +333,16 @@ def log_dynamics(logs, current_milestone, current_milestone_id, milestones):
         IF THERE IS NO NOTABLE DYNAMIC, KEEP THE DYNAMIC EMPTY
         ONLY RETURN THE JSON AND NOTHING ELSE!!
     """
-    user_message = f"Here are the logs: {truncated_logs}. Here is the current milestone: {current_milestone}. Here is the current milestone_id: {current_milestone_id}. Here are the milestones: {milestones}"
+    user_message = f"Here are the logs: {truncated_logs}. Here is the previous dynamic {previous_dynamic}. Here is the current milestone: {current_milestone}. Here is the current milestone_id: {current_milestone_id}. Here are the milestones: {milestones}"
     dynamic = call_llm(system_message, user_message)
     print("sucessfully called LLM for log_dynamics", dynamic)
     try:
         data = json.loads(dynamic)
         required_keys = {"milestone_id", "milestone", "dynamic"}
         if not required_keys.issubset(data.keys()):
-            log_dynamics(logs, current_milestone, current_milestone_id, milestones)
+            log_dynamics(logs, current_milestone, current_milestone_id, milestones, previous_dynamic)
     except json.JSONDecodeError:
-        log_dynamics(logs, current_milestone, current_milestone_id, milestones)
+        log_dynamics(logs, current_milestone, current_milestone_id, milestones, previous_dynamic)
     return json.loads(dynamic)
 
 
@@ -388,7 +405,6 @@ def get_status(logs, problem, failures):
     system_message = f"""
         You are an evaluator that is deciding whether or not the simulation is running in the proper direction or not. We are running a multi-agent simulation on GPTeams.
         {GPTEAMS_DESCRIPTION}
-        Sometimes, simulations get stuck in a loop that cannot be fixed due to some logical error.
         Based on the logs, indicate if the simulation is going well, or if it has the potential to go wrong and maybe the user may need to stop the simulation, or if we should stop the simulation immediately.
         We only say STOP the simulation if you believe there is no hope for the simulation to work. Be conservative with this. Here are some examples:
         - Agents have been stuck in a waiting loop with no hope of recovery. For example, if the professor keeps waiting for a student to respond, but the student has no intention of responding
@@ -398,7 +414,7 @@ def get_status(logs, problem, failures):
         If the simulation just started running, then give it some time to pick up -- do not return a STOP status immediately. That is dumb. If you return a STOP status, then you are expecting the simulation to fail.
         Return a reason why as well. Keep the response between 100 characters long.
         Return the 🛑 or ⚠️ or 🟢 emoji, and then the 100 word description as to why.
-        Here is some extra context: the user wants to simulate this {problem}. Ensure that the simulation has not fallen into failure loops -- specifically, here are some errors to look out for: {failures}
+        Here is some extra context: the user wants to simulate this {problem}. Ensure that the simulation has not fallen into failure loops -- specifically, here are some errors to look out for: {failures}.
     """
     user_message = f"Here are the logs: {truncated_logs}"
     status = call_llm(system_message, user_message)
