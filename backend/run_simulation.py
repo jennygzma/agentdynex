@@ -59,8 +59,8 @@ from utils import create_and_write_file
 # }
 
 # user needs to fill this out themselves
-GPTEAM_PATH = "/Users/jennyma/Projects/GPTeam"
-PROJECT_PATH = "/Users/jennyma/Projects/agents-design-prototype/backend"
+GPTEAM_PATH = "/Users/riya/Desktop/GPTeam/GPTeam"
+PROJECT_PATH = "/Users/riya/Desktop/AgentsDynex/agents-design-prototype/backend"
 CONFIG_FILE_NAME = "config.json"
 
 
@@ -147,7 +147,7 @@ def run_simulation(current_run_path, config):
             f'poetry run world > "{log_file}" 2>&1',
         ]
     else:  # macOS / Linux (More portable approach)
-        shell_cmd = f'cd /Users/jennyma/Projects/GPTeam && poetry run db-reset && poetry run db-reset && poetry run world > "{log_file}" 2>&1'
+        shell_cmd = f'cd /Users/riya/Desktop/GPTeam/GPTeam && poetry run db-reset && poetry run db-reset && poetry run world > "{log_file}" 2>&1'
         shell_cmd_escaped = shell_cmd.replace('"', '\\"')
         # macOS Terminal command
         cmd = [

@@ -95,4 +95,4 @@ dependencies:
       - tqdm==4.66.1
       - typing-extensions==4.8.0
       - werkzeug==3.0.1
-prefix: /Users/jennyma/anaconda3/envs/UIDesignProto
+prefix: /Users/riya/Desktop/AgentsDynex/agents-design-prototype/backend
