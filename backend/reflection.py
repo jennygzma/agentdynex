@@ -168,6 +168,12 @@ RUBRIC = [
         description="Clearly define what counts as 'done' to prevent ambiguity",
         example="Professor acknowledgment step ensures completion",
     ),
+    RubricInstance(
+        category = "Action Validation & Progress Tracking",
+        rubric_type = "Ensure acknowledgments close loops",
+        description= "When an agent declares a critical action (e.g., task submission), another agent must explicitly acknowledge it to progress the simulation. Lack of acknowledgment creates deadlocks.",
+        example= "If the simulation is about simulating how different students will respond to a late policy made by a professor, then two students, Bob and Charlie, declared assignment submission, but the professor never acknowledged them. As a result, the professor waited indefinitely, stalling the simulation despite student completion."
+    ),
     # Handling Stalled Simulations Due to Missing Triggers
     RubricInstance(
         category="Handling Stalled Simulations Due to Missing Triggers",
@@ -246,7 +252,7 @@ RUBRIC = [
     ),
 ]
 
-SIMULATION_SUMNMARY_EXAMPLE = """
+SIMULATION_SUMMARY_EXAMPLE = """
 Progress of the Ultimatum Game:
     A round of the Ultimatum Game was initiated and reached the proposal phase.
     The Proposer offered an equal split, which the Responder accepted.
@@ -371,8 +377,8 @@ def generate_summary(logs):
     truncated_logs = " ".join(log_words)
     system_message = f"""
         {GPTEAMS_DESCRIPTION}
-        Given some logs of the simulation, get some key points and summary. Return only the necessary information and keep the words under 300 words.
-        Here is an example of a summary: {SIMULATION_SUMNMARY_EXAMPLE}
+        Given some logs of the simulation, summarize what each agent did in clear, concise bullet points. Note any particular roadlocks and why the simulation ended. Return only the necessary information and keep the words under 300 words.
+        Here is an example of a summary: {SIMULATION_SUMMARY_EXAMPLE}
     """
     user_message = f"Here are the logs: {truncated_logs}"
     summary = call_llm(system_message, user_message)
@@ -441,35 +447,35 @@ def generate_rubric_text(rubric_instances):
 
     return result.strip()
 
-def generate_rubric_missing(rubric, config, logs):
-    print("calling LLM for generate_rubric_missing...")
-    rubric_text = generate_rubric_text(rubric)
+# def generate_rubric_missing(rubric, config, logs):
+#     print("calling LLM for generate_rubric_missing...")
+#     rubric_text = generate_rubric_text(rubric)
 
-    system_message = f"""
-    You are an error analyzer. We are running a multi-agent simulation on GPTeams. {GPTEAMS_DESCRIPTION}
-    Is there anything missing from the debug rubric that could have helped in the debugging of this simulation, which you think i should incorporate into the rubric?
-    {rubric_text}
+#     system_message = f"""
+#     You are an error analyzer. We are running a multi-agent simulation on GPTeams. {GPTEAMS_DESCRIPTION}
+#     Is there anything missing from the debug rubric that could have helped in the debugging of this simulation, which you think i should incorporate into the rubric?
+#     {rubric_text}
 
-    Return a JSON object AND ONLY a JSON that looks like this:
-    {{
-        "category": "Task Structure Optimization",
-        "rubric_type": "Reduce complexity",
-        "description": "Simplify the simulation by focusing on a single core task",
-        "example": "If the simulation is about simulating how different students will respond to a late policy made by a professor, by checking when students will return assignments, the example is: Changed from five assignments to one assignment"
-    }}
-    """
+#     Return a JSON object AND ONLY a JSON that looks like this:
+#     {{
+#         "category": "Task Structure Optimization",
+#         "rubric_type": "Reduce complexity",
+#         "description": "Simplify the simulation by focusing on a single core task",
+#         "example": "If the simulation is about simulating how different students will respond to a late policy made by a professor, by checking when students will return assignments, the example is: Changed from five assignments to one assignment"
+#     }}
+#     """
 
-    user_message = f"Here are the logs: {logs}. USE THESE LOGS TO IDENTIFY WHAT WENT WRONG HERE. AND IF YOU THINK SOMETHING IS MISSING FROM THE RUBRIC, ADD IT TO THE RUBRIC. IF NOTHING IS MISSING, JUST RETURN THE PART IN THE RUBRIC THAT THIS HAD THE MISTAKE IN AND REWRITE THE EXAMPLE TO FIT WHAT HAPPENED HERE. Here is the original configuration: {config}"
-    missing = call_llm(system_message, user_message)
+#     user_message = f"Here are the logs: {logs}. USE THESE LOGS TO IDENTIFY WHAT WENT WRONG HERE. AND IF YOU THINK SOMETHING IS MISSING FROM THE RUBRIC, ADD IT TO THE RUBRIC. IF NOTHING IS MISSING, JUST RETURN THE PART IN THE RUBRIC THAT THIS HAD THE MISTAKE IN AND REWRITE THE EXAMPLE TO FIT WHAT HAPPENED HERE. Here is the original configuration: {config}"
+#     missing = call_llm(system_message, user_message)
 
-    try:
-        data = json.loads(missing)  # Try parsing JSON
-        required_keys = {"category", "rubric_type", "description", "example"}
-        if not required_keys.issubset(data.keys()):
-            generate_rubric_missing(rubric, config, logs)
-    except json.JSONDecodeError:
-        generate_rubric_missing(rubric, config, logs)
-    print(f"got missing from llm... {missing}")
+#     try:
+#         data = json.loads(missing)  # Try parsing JSON
+#         required_keys = {"category", "rubric_type", "description", "example"}
+#         if not required_keys.issubset(data.keys()):
+#             generate_rubric_missing(rubric, config, logs)
+#     except json.JSONDecodeError:
+#         generate_rubric_missing(rubric, config, logs)
+#     print(f"got missing from llm... {missing}")
     return json.loads(missing)
 
 def generate_analysis_and_config(logs, matrix, config, rubric):
@@ -479,19 +485,34 @@ def generate_analysis_and_config(logs, matrix, config, rubric):
 
     system_message = f"""
         {GPTEAMS_DESCRIPTION}
-        Identify why the simulation failed. based off the rubric {rubric_text}.
-        Modify the config as needed ,keeping all the original necessary information.
-        Do not add any new fields. Do not change the format of the config up. If you want to remove content of the field, still keep the field but just have it like this: "private_bio": ""
-        Do not add ANY NEW ROOMS to the worlds. For the world, only modify the description
-        Keep the SAME NUMBER OF AGENTS with the same names and everything. For the agents, only modify the directives or initial plan.
-        Specifically, return the analysis of what went wrong (within 300 words) and the ENTIRE CONFIGURATION (DO NOT RETURN ONLY PART OF THE CONFIGURATION).
-        Ensure that all these fields are filled out and follows this structure, like this example config {GPTEAM_EXAMPLE}
+        Your task is to analyze whether the original simulation met the expectations laid out in the {rubric_text}. 
+
+        Compare the {logs} against the {rubric_text}, checking EACH rubric criterion for the following:
+        1. Was the criterion MET or NOT MET?
+        2. If NOT MET, explain why using direct evidence from the logs.
+        3. Based on this, modify the configuration minimally but meaningfully:
+        - Do not change the number of agents or their names.
+        - Only update agent `directives`, `stop condition` or `initial_plan` as needed.
+        - For the `world`, only update the description.
+
+        You MUST return:
+        1. A clear, structured **analysis** (≤300 words) explaining the rubric failures in list form. Identify how the updated configuration addresses the improvement you made based off the rubric conditions.
+        2. The **entire updated config**, with the same JSON structure.
+
+        IMPORTANT RULES:
+        - Do not add any new fields.
+        - Do not remove any fields.
+        - Keep empty fields instead of deleting.
+        - Do not add new locations.
+        - Follow this example structure exactly: {GPTEAM_EXAMPLE}
     """
     user_message = f"Here are the logs: {logs}. Here is the original configuration: {config}"
     analysis_and_config = call_llm(system_message, user_message)
     new_config = cleanup_json(analysis_and_config)
     new_config_lines = len(new_config.splitlines())
     config_lines = len(config.splitlines())
+    if config == new_config:
+        print("⚠️ No changes made to config!")
     print(f"config lines is {config_lines} and new_config_lines is {new_config_lines}")
     # if config_lines > new_config_lines:
     #     print("trying again... writing json failed...")
@@ -503,106 +524,58 @@ def generate_analysis_and_config(logs, matrix, config, rubric):
     return analysis, new_config
 
 
+
 def get_analysis(analysis_and_config):
     print("calling LLM for get_analysis...")
     system_message = """
-        Given an analysis and a config json, return only the NATURAL LANGUAGE ANALYSIS part that makes sense. Do not add any words or change anything.
+      You are an assistant that extracts an in-depth analysis from text that contains:
+        1. An explanation of rubric failures and successes.
+        2. Detailed modifications made to the configuration based on rubric feedback.
 
-        For example, if you have something that is like:
-        The given simulation amiss a significant part of the rubric as pointed out under the category: "Task Structure Optimization" - interms of optimization by reducing complexity. It uses three assignments instead of one, complicating the execution. Additionally, each part of the assignment requires specific details and directions that are not explicitly specified, invoking "Task Structure Optimization" - clarify task instructions. There is ambiguity on core tasks, creating a possibility of misalignment in actions.
-
-    Under the category of "Stop Condition & Completion Criteria", optimization by preventing premature exits and using dependency-based stop conditions needs attention. The completion of tasks doesn’t solely rely on actual task completion, and there seems to be a lack of dependency-based stop condition ensuring the simulation doesn't terminate early.
-
-    The configuration is amended to align with the matrix and reduce the complexity by focusing on just one core assignment, with explicit task details and stop conditions.
-
-    Here is the fixed configuration:
+        Return a valid JSON object with the following exact schema:
 
         {
-        "world_name": "Classroom Scenario with Late Policy Experimentation",
-        "locations": [
+        "analysis_summary": "<a concise summary of the analysis>",
+        "categories": [
             {
-                "name": "Classroom",
-                "description": "The classroom is where the professor and students interact. The professor announces assignments, due dates, and late policies here. Students declare when they submit assignments in this space."
-            }
-        ],
-        "agents": [
-            {
-                "first_name": "Professor",
-                "private_bio": "",
-                "public_bio": "The professor wants to experiment with different late policies to improve class performance.",
-                "directives": [
-                    "Maintain a good relationship with all students.",
-                    "Clearly announce the assignment with explicit due date and task details at the start of the simulation.",
-                    "Define a specific late policy for the assignment.",
-                    "Engage with students when they ask questions or address you.",
-                    "Clearly communicate the late policy for the assignment."
-                ],
-                "initial_plan": {
-                    "description": "Announce an explicit late policy and assign a single specific assignment.",
-                    "stop_condition": "The professor has announced and collected the assignment with respective late policy.",
-                    "location": "Classroom"
+            "category_name": "<string>",
+            "modifications": [
+                {
+                "category_name": "<string>",
+                "rubric_type": "<string>",
+                "status": "MET" or "NOT MET",
+                "evidence": "<string>",
+                "recommendation": "<string>"
                 }
+            ]
             },
-            {
-                "first_name": "Ali",
-                "private_bio": "Ali is a diligent student who prefers strict deadline policies and is always punctual.",
-                "public_bio": "Ali is a student in the professor's class.",
-                "directives": [
-                    "Recognize the professor's late policies and work on the assignment accordingly.",
-                    "Aim to submit the assignment on time, without being late.",
-                    "Inform the professor when you submit the assignment.",
-                    "Discuss the late policy and assignment progress with classmates Sam and Tim."
-                ],
-                "initial_plan": {
-                    "description": "Understand the professor's assignment announcement and late policy. Work on the assignment with the aim to submit it on time.",
-                    "stop_condition": "The assignment is marked as 'submitted' to the professor.",
-                    "location": "Classroom"
-                }
-            },
-            {
-                "first_name": "Sam",
-                "private_bio": "Sam is an average student and an occasional procrastinator who prefers leniency in late policies.",
-                "public_bio": "Sam is a student in the professor's class.",
-                "directives": [
-                    "Recognize the professor's late policies and work on the assignment accordingly.",
-                    "Try to submit the assignment on time, but be prepared to turn it in late if needed.",
-                    "Inform the professor when you submit the assignment, including if it's late.",
-                    "Discuss the late policy and assignment progress with classmates Ali and Tim."
-                ],
-                "initial_plan": {
-                    "description": "Understand the professor's assignment announcement and late policy. Work on the assignment, potentially submitting it late.",
-                    "stop_condition": "The assignment is marked as 'submitted' to the professor.",
-                    "location": "Classroom"
-                }
-            },
-            {
-                "first_name": "Tim",
-                "private_bio": "Tim is a chronic procrastinator who is greatly affected by strict late policies and desires high leniency.",
-                "public_bio": "Tim is a student in the professor's class.",
-                "directives": [
-                    "Recognize the professor's late policies and work on the assignment accordingly.",
-                    "Expect to submit the assignment late, depending on the late policy involved.",
-                    "Inform the professor when you submit the assignment, including if it's late.",
-                    "Discuss the late policy and assignment progress with classmates Ali and Sam."
-                ],
-                "initial_plan": {
-                    "description": "Understand the professor's assignment announcement and late policy. Work on the assignment, likely submitting it late.",
-                    "stop_condition": "The assignment is marked as 'submitted' to the professor.",
-                    "location": "Classroom"
-                }
-            }
+            ...
         ]
-    }
+        }
 
-    only return:
-    The given simulation amiss a significant part of the rubric as pointed out under the category: "Task Structure Optimization" - interms of optimization by reducing complexity. It uses three assignments instead of one, complicating the execution. Additionally, each part of the assignment requires specific details and directions that are not explicitly specified, invoking "Task Structure Optimization" - clarify task instructions. There is ambiguity on core tasks, creating a possibility of misalignment in actions.
+        **Details**:
+        - "analysis_summary" should be a brief overview (1-2 sentences).
+        - "categories" is an array of objects. Each object includes:
+        - "category_name": e.g., "Task Structure Optimization"
+        - "status": either "MET" or "NOT MET"
+        - "problems": list of points describing the issue
+        - "suggestions": list of points describing how to fix it, i.e,
 
-    Under the category of "Stop Condition & Completion Criteria", optimization by preventing premature exits and using dependency-based stop conditions needs attention. The completion of tasks doesn’t solely rely on actual task completion, and there seems to be a lack of dependency-based stop condition ensuring the simulation doesn't terminate early.
+        **Important**:
+        - Return ONLY valid JSON, with no extra commentary or text outside the JSON.
+        - If you cannot extract anything, return: {"analysis_summary": "", "categories": []}
+        """
+    user_message = f"Here is the combined analysis + config:\n\n{analysis_and_config}\n\nPlease parse it into the required JSON schema."
 
-    The configuration is amended to align with the matrix and reduce the complexity by focusing on just one core assignment, with explicit task details and stop conditions.
+    # Call  LLM with system + user instructions
+    raw_response = call_llm(system_message, user_message)
+    #Attempt to parse the LLM’s response as JSON
+    try:
+        analysis = json.loads(raw_response)
+    except json.JSONDecodeError:
+    # if invalid JSON, return an empty fallback
+        analysis = {"analysis_summary": "", "categories": []}
 
-
-    """
-    user_message = f"Here is the input: {analysis_and_config}."
-    analysis = call_llm(system_message, user_message)
+    # user_message = f"Here is the input: {analysis_and_config}."
+    # analysis = call_llm(system_message, user_message)
     return analysis

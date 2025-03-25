@@ -3,6 +3,7 @@
 import datetime
 import json
 import uuid
+import os
 
 import globals
 from config_generation import generate_config as get_generated_config
@@ -12,7 +13,7 @@ from matrix import get_context_from_other_inputs
 from reflection import (
     generate_analysis_and_config,
     generate_milestones_json,
-    generate_rubric_missing,
+    generate_rubric_text,
 )
 from reflection import generate_summary as generate_LLM_summary
 from reflection import get_status as generate_status
@@ -130,7 +131,10 @@ def explore_prototype():
         json.dumps(globals.prototypes),
     )
     folder_path = f"{globals.folder_path}/{prototype}"
-    rubric = json.loads(read_file(globals.RUBRIC_FILE_NAME))
+    file = read_file(globals.RUBRIC_FILE_NAME)
+    print("file after read_file: ", file)
+    rubric = json.loads(file)
+    print("rubric: ", rubric)
     globals.rubric = rubric_to_dict(rubric)
     print("hi jenny " + folder_path)
     create_folder(f"{folder_path}")
@@ -268,6 +272,7 @@ def get_config():
         globals.run_id, current_prototype_folder_path
     )
     if config_type == "updated":
+        print("generated updated config")
         config = read_file(f"{current_run_id_folder_path}/{globals.UPDATED_CONFIG}")
     elif config_type == "initial":
         config = read_file(
@@ -329,7 +334,6 @@ def set_current_run_id():
         200,
     )
 
-
 @app.route("/create_new_run", methods=["POST"])
 def create_new_run():
     print("calling create_new_run...")
@@ -343,44 +347,89 @@ def create_new_run():
     )
 
     current_prototype_folder_path = f"{globals.folder_path}/{globals.current_prototype}"
-    current_run_id_folder_path = find_folder_path(
-        globals.run_id, current_prototype_folder_path
-    )
-    if globals.run_id == "0":
-        config_to_run_file_path = (
-            f"{current_run_id_folder_path}/{globals.CONFIG_FILE_NAME}"
-        )
+    current_run_id_folder_path = find_folder_path(globals.run_id, current_prototype_folder_path)
+    
+    # Determine which config file to use by checking if an updated config exists
+    updated_config_path = f"{current_run_id_folder_path}/{globals.UPDATED_CONFIG}"
+    original_config_path = f"{current_run_id_folder_path}/{globals.CONFIG_FILE_NAME}"
+    
+    if os.path.exists(updated_config_path):
+        config_to_run_file_path = updated_config_path
     else:
-        config_to_run_file_path = (
-            f"{current_run_id_folder_path}/{globals.UPDATED_CONFIG}"
-        )
+        config_to_run_file_path = original_config_path
+
     config_to_run = read_file(config_to_run_file_path)
     print(config_to_run_file_path + " config_to_run_file_path")
-    # create_folder(f"{current_run_id_folder_path}/{next_run_id})
+
+    # Create a new run folder and write the config into it.
     if globals.run_id == "0":
-        create_folder(
-            f"{current_run_id_folder_path}/{globals.CONFIG_ITERATIONS_FOLDER_NAME}/{next_run_id}"
-        )
+        new_run_folder = f"{current_run_id_folder_path}/{globals.CONFIG_ITERATIONS_FOLDER_NAME}/{next_run_id}"
+        create_folder(new_run_folder)
         create_and_write_file(
-            f"{current_run_id_folder_path}/{globals.CONFIG_ITERATIONS_FOLDER_NAME}/{next_run_id}/{globals.INITIAL_CONFIG_FILE}",
+            f"{new_run_folder}/{globals.INITIAL_CONFIG_FILE}",
             config_to_run,
         )
     else:
-        create_folder(f"{current_run_id_folder_path}/{next_run_id}")
+        new_run_folder = f"{current_run_id_folder_path}/{next_run_id}"
+        create_folder(new_run_folder)
         create_and_write_file(
-            f"{current_run_id_folder_path}/{next_run_id}/{globals.INITIAL_CONFIG_FILE}",
+            f"{new_run_folder}/{globals.INITIAL_CONFIG_FILE}",
             config_to_run,
         )
     globals.run_id = next_run_id
-    return (
-        jsonify(
-            {
-                "message": "created new run",
-                "new_run_id": next_run_id,
-            }
-        ),
-        200,
-    )
+    return jsonify({"message": "created new run", "new_run_id": next_run_id}), 200
+
+# @app.route("/create_new_run", methods=["POST"])
+# def create_new_run():
+#     print("calling create_new_run...")
+#     next_run_id, globals.run_tree = get_next_run_id(globals.run_id, globals.run_tree)
+#     create_and_write_file(
+#         f"{globals.folder_path}/{globals.RUN_TREE}", json.dumps(globals.run_tree)
+#     )
+#     create_and_write_file(
+#         f"{globals.folder_path}/{globals.current_prototype}/{globals.RUN_TREE}",
+#         json.dumps(globals.run_tree),
+#     )
+
+#     current_prototype_folder_path = f"{globals.folder_path}/{globals.current_prototype}"
+#     current_run_id_folder_path = find_folder_path(
+#         globals.run_id, current_prototype_folder_path
+#     )
+#     if globals.run_id == "0":
+#         config_to_run_file_path = (
+#             f"{current_run_id_folder_path}/{globals.CONFIG_FILE_NAME}"
+#         )
+#     else:
+#         config_to_run_file_path = (
+#             f"{current_run_id_folder_path}/{globals.UPDATED_CONFIG}"
+#         )
+#     config_to_run = read_file(config_to_run_file_path)
+#     print(config_to_run_file_path + " config_to_run_file_path")
+#     # create_folder(f"{current_run_id_folder_path}/{next_run_id})
+#     if globals.run_id == "0":
+#         create_folder(
+#             f"{current_run_id_folder_path}/{globals.CONFIG_ITERATIONS_FOLDER_NAME}/{next_run_id}"
+#         )
+#         create_and_write_file(
+#             f"{current_run_id_folder_path}/{globals.CONFIG_ITERATIONS_FOLDER_NAME}/{next_run_id}/{globals.INITIAL_CONFIG_FILE}",
+#             config_to_run,
+#         )
+#     else:
+#         create_folder(f"{current_run_id_folder_path}/{next_run_id}")
+#         create_and_write_file(
+#             f"{current_run_id_folder_path}/{next_run_id}/{globals.INITIAL_CONFIG_FILE}",
+#             config_to_run,
+#         )
+#     globals.run_id = next_run_id
+#     return (
+#         jsonify(
+#             {
+#                 "message": "created new run",
+#                 "new_run_id": next_run_id,
+#             }
+#         ),
+#         200,
+#     )
 
 
 @app.route("/get_run_tree", methods=["GET"])
@@ -642,56 +691,166 @@ def fetch_changes():
         200,
     )
 
-@app.route("/get_missing_rubric", methods=["GET"])
-def get_missing_rubric():
-    print("calling get_missing_rubric...")
-    current_prototype_folder_path = f"{globals.folder_path}/{globals.current_prototype}"
-    current_run_id_folder_path = find_folder_path(
-        globals.run_id, current_prototype_folder_path
-    )
-    config = read_file(f"{current_prototype_folder_path}/{globals.CONFIG_FILE_NAME}")
-    logs = read_file(f"{current_run_id_folder_path}/{globals.LOGS_FILE}")
-    log_words = logs.split()
-    log_words = log_words[-1000:]
-    missing = generate_rubric_missing(globals.rubric, config, log_words)
-    return (
-        jsonify(
-            {
-                "message": "got missing rubric",
-                "category": missing["category"],
-                "rubric_type": missing["rubric_type"],
-                "description": missing["description"],
-                "example": missing["example"],
-            }
-        ),
-        200,
-    )
+# @app.route("/get_missing_rubric", methods=["GET"])
+# def get_missing_rubric():
+#     print("calling get_missing_rubric...")
+#     current_prototype_folder_path = f"{globals.folder_path}/{globals.current_prototype}"
+#     current_run_id_folder_path = find_folder_path(
+#         globals.run_id, current_prototype_folder_path
+#     )
+#     config = read_file(f"{current_prototype_folder_path}/{globals.CONFIG_FILE_NAME}")
+#     logs = read_file(f"{current_run_id_folder_path}/{globals.LOGS_FILE}")
+#     log_words = logs.split()
+#     log_words = log_words[-1000:]
+#     missing = generate_rubric_missing(globals.rubric, config, log_words)
+#     return (
+#         jsonify(
+#             {
+#                 "message": "got missing rubric",
+#                 "category": missing["category"],
+#                 "rubric_type": missing["rubric_type"],
+#                 "description": missing["description"],
+#                 "example": missing["example"],
+#             }
+#         ),
+#         200,
+#     )
 
+
+def generate_rubric_suggestions(logs, config, current_rubric):
+    """
+    Uses the LLM to generate a list of potential new rubric entries.
+    Each suggestion should be a JSON object with:
+      - category: <string>
+      - rubric_type: <string>
+      - description: <string>
+      - example: <string>
+      - score (an integer between 0 and 100 indicating how confident you are that this entry will significantly improve future configurations). a higher score should reflect a more impactful, unique, and scalable addition that this entry would be to the existing rubric 
+    Returns a list of suggestions.
+    """
+    system_message = """
+        You are a debugging assistant that analyzes simulation logs and configuration,
+        and proposes improvements to the debugging rubric. For each suggestion, provide:
+        - category (e.g., "Task Structure Optimization")
+        - rubric_type (e.g., "Reduce complexity")
+        - description (what improvement is needed)
+        - example (an illustrative change)
+        - score (an integer between 0 and 100 indicating how confident you are that this entry will significantly improve future configurations). a higher score should reflect a more impactful, unique, and scalable addition that this entry would be to the existing rubric.
+        Return your output as a JSON array of such objects, and nothing else.
+        """
+    user_message = f"Simulation Logs: {logs}\nConfiguration: {config}\nCurrent Rubric: {current_rubric}\nPlease provide a list of suggestions."
+    raw_response = globals.call_llm(system_message, user_message)
+    try:
+        suggestions = json.loads(raw_response)
+        if isinstance(suggestions, list):
+            return suggestions
+        else:
+            return []
+    except json.JSONDecodeError:
+        return []
+
+
+def filter_duplicate_suggestions(suggestions, current_rubric):
+    """
+    Filters out suggestions that duplicate an existing rubric entry.
+    Duplicate checking is based on matching category, rubric_type, and description.
+    """
+    filtered = []
+    for suggestion in suggestions:
+        duplicate = False
+        for entry in current_rubric:
+            if (
+                entry.get("category") == suggestion.get("category")
+                and entry.get("rubric_type") == suggestion.get("rubric_type")
+                and entry.get("description") == suggestion.get("description")
+            ):
+                duplicate = True
+                break
+        if not duplicate:
+            filtered.append(suggestion)
+    return filtered
 
 @app.route("/add_to_rubric", methods=["POST"])
 def add_to_rubric():
     data = request.json
-    category = data["run_id"]
-    rubric_type = data["rubric_type"]
-    description = data["description"]
-    example = data["example"]
-    globals.rubric.append(
-        {
+    action = data.get("action", "add")  # Default action is "add"
+
+    if action == "suggest":
+        # Optionally, logs and config could be passed from the client
+        logs = data.get("logs", "")
+        config = data.get("config", "")
+        # Use the current rubric from globals for context
+        current_rubric = globals.rubric  
+        suggestions = generate_rubric_suggestions(logs, config, current_rubric)
+        suggestions = filter_duplicate_suggestions(suggestions, current_rubric)
+        return jsonify({
+            "message": "rubric suggestions",
+            "suggestions": suggestions
+        }), 200
+
+    elif action == "add":
+        # Add the provided rubric suggestion
+        category = data["run_id"]
+        rubric_type = data["rubric_type"]
+        description = data["description"]
+        example = data["example"]
+        raw_score = data.get("score", 0)
+        try:
+            score = int(float(raw_score) * 100) if float(raw_score) <= 1 else int(float(raw_score))
+        except (ValueError, TypeError):
+            score = 0  # fallback if parsing fails
+
+        # Optionally include the score in the saved entry for reference.
+        new_entry = {
             "category": category,
             "rubric_type": rubric_type,
             "description": description,
             "example": example,
+            "score": score,
         }
-    )
-    create_and_write_file(globals.RUBRIC_FILE_NAME, globals.rubric)
-    return (
-        jsonify(
-            {
-                "message": "added rubric",
-            }
-        ),
-        200,
-    )
+
+        # Prevent duplicate entries:
+        duplicate = any(
+            entry.get("category") == new_entry["category"]
+            and entry.get("rubric_type") == new_entry["rubric_type"]
+            and entry.get("description") == new_entry["description"]
+            for entry in globals.rubric
+        )
+        if duplicate:
+            return jsonify({"message": "This rubric entry already exists."}), 200
+
+        globals.rubric.append(new_entry)
+        create_and_write_file(globals.RUBRIC_FILE_NAME, json.dumps(globals.rubric, indent=2))
+        return jsonify({"message": "added rubric"}), 200
+
+    else:
+        return jsonify({"error": "Invalid action"}), 400
+    
+
+# @app.route("/add_to_rubric", methods=["POST"])
+# def add_to_rubric():
+#     data = request.json
+#     category = data["run_id"]
+#     rubric_type = data["rubric_type"]
+#     description = data["description"]
+#     example = data["example"]
+#     globals.rubric.append(
+#         {
+#             "category": category,
+#             "rubric_type": rubric_type,
+#             "description": description,
+#             "example": example,
+#         }
+#     )
+#     create_and_write_file(globals.RUBRIC_FILE_NAME, globals.rubric)
+#     return (
+#         jsonify(
+#             {
+#                 "message": "added rubric",
+#             }
+#         ),
+#         200,
+#     )
 
 
 @app.route("/get_rubric", methods=["GET"])
@@ -741,8 +900,10 @@ def generate_analysis():
         log_words, matrix, config, globals.rubric
     )
     create_and_write_file(
-        f"{current_run_id_folder_path}/{globals.ANALYSIS_FILE}", analysis
+        f"{current_run_id_folder_path}/{globals.ANALYSIS_FILE}", 
+        json.dumps(analysis, indent=2)
     )
+    print("(riya) Generated Updated Config:\n", updated_config)
     create_and_write_file(
         f"{current_run_id_folder_path}/{globals.UPDATED_CONFIG}",
         updated_config,

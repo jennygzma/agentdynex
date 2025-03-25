@@ -1,4 +1,4 @@
-import { Stack, Typography } from "@mui/material";
+import { Stack, Typography, Tooltip } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { TreeNode, useAppContext } from "../../hooks/app-context";
@@ -13,6 +13,7 @@ type Rubric = {
   rubric_type: string;
   description: string;
   example: string;
+  score: number;
 };
 
 const Reflection = () => {
@@ -27,7 +28,8 @@ const Reflection = () => {
   const [analysis, setAnalysis] = useState("");
   const [updatedConfig, setUpdatedConfig] = useState(false);
   const [expand, setExpand] = useState(true);
-  const [missingRubric, setMissingRubric] = useState<Rubric>(undefined);
+  const [missingRubric, setMissingRubric] = useState<Rubric | null>(null);
+  const [rubricSuggestions, setRubricSuggestions] = useState<Rubric[]>([]);
 
   const saveConfig = () => {
     updateIsLoading(true);
@@ -160,28 +162,78 @@ const Reflection = () => {
       });
   };
 
-  const getMissingRubric = () => {
+  const getRubricSuggestions = () => {
     updateIsLoading(true);
     axios({
-      method: "GET",
-      url: `${SERVER_URL}/get_missing_rubric`,
+      method: "POST",
+      url: `${SERVER_URL}/add_to_rubric`,
+      data: {
+        action: "suggest",
+        logs: config,       // or whichever logs/config context you want to pass
+        config: config,
+      },
     })
       .then((response) => {
-        console.log("/get_missing_rubric request successful:", response.data);
-        setMissingRubric({
-          category: response.data.category,
-          rubric_type: response.data.rubric_type,
-          description: response.data.description,
-          example: response.data.example,
-        });
+        console.log("Rubric suggestions:", response.data);
+        setRubricSuggestions(response.data.suggestions|| []);
       })
       .catch((error) => {
-        console.error("Error calling /get_missing_rubric request:", error);
+        console.error("Error fetching rubric suggestions:", error);
       })
       .finally(() => {
         updateIsLoading(false);
       });
   };
+ // Function to add a selected suggestion to the rubric
+ const addSuggestionToRubric = (suggestion: Rubric) => {
+  updateIsLoading(true);
+  axios({
+    method: "POST",
+    url: `${SERVER_URL}/add_to_rubric`,
+    data: {
+      action: "add",
+      run_id: suggestion.category, // Using "run_id" as category, per backend
+      rubric_type: suggestion.rubric_type,
+      description: suggestion.description,
+      example: suggestion.example,
+      score: suggestion.score, // include the confidence score!
+    },
+  })
+    .then((res) => {
+      console.log("Suggestion added:", res.data);
+      // Optionally, clear suggestions after adding one
+      setRubricSuggestions([]);
+    })
+    .catch((error) => {
+      console.error("Error adding suggestion:", error);
+    })
+    .finally(() => {
+      updateIsLoading(false);
+    });
+};
+
+  // const getMissingRubric = () => {
+  //   updateIsLoading(true);
+  //   axios({
+  //     method: "GET",
+  //     url: `${SERVER_URL}/get_missing_rubric`,
+  //   })
+  //     .then((response) => {
+  //       console.log("/get_missing_rubric request successful:", response.data);
+  //       setMissingRubric({
+  //         category: response.data.category,
+  //         rubric_type: response.data.rubric_type,
+  //         description: response.data.description,
+  //         example: response.data.example,
+  //       });
+  //     })
+  //     .catch((error) => {
+  //       console.error("Error calling /get_missing_rubric request:", error);
+  //     })
+  //     .finally(() => {
+  //       updateIsLoading(false);
+  //     });
+  // };
 
   const saveMissingRubric = () => {
     updateIsLoading(true);
@@ -319,7 +371,56 @@ const Reflection = () => {
           </Stack>
         </Stack>
         <Stack>
-          <Stack
+          {/* Rubric Suggestions Panel */}
+      <Stack spacing="20px">
+        <Stack
+          direction="row"
+          sx={{ justifyContent: "space-between", paddingBottom: "20px" }}
+        >
+          <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+            Add To Rubric (optional)
+          </Typography>
+          <Button onClick={getRubricSuggestions}>Get Rubric Suggestions</Button>
+        </Stack>
+        {rubricSuggestions.length > 0 ? (
+          <Stack spacing="10px">
+            {rubricSuggestions.map((suggestion, index) => (
+              <Tooltip
+              title={
+                <pre style={{ whiteSpace: "pre-wrap", wordWrap: "break-word" }}>
+                  {JSON.stringify(suggestion, null, 2)}
+                </pre>
+              }
+              arrow
+              placement="top"
+              slotProps={{
+                tooltip: {
+                  sx: {
+                    maxWidth: 400, // or whatever width fits your layout
+                    whiteSpace: 'normal', // for good wrapping
+                    fontSize: '0.875rem',
+                    fontFamily: 'monospace',
+                    padding: 1,
+                  },
+                },
+              }}
+            >
+              <Button
+                variant="outlined"
+                onClick={() => addSuggestionToRubric(suggestion)}
+              >
+                {`${suggestion.category} - ${suggestion.rubric_type} (${Math.round(suggestion.score)}%)`}
+              </Button>
+            </Tooltip>
+            ))}
+          </Stack>
+        ) : (
+          <Typography variant="body2" color="textSecondary">
+            No suggestions available.
+          </Typography>
+        )}
+        </Stack>
+          {/* <Stack
             direction="row"
             sx={{ justifyContent: "space-between", paddingBottom: "20px" }}
           >
@@ -338,8 +439,8 @@ const Reflection = () => {
             >
               Get Missing Rubric
             </Button>
-          </Stack>
-          {missingRubric && (
+          </Stack> */}
+          {/* {missingRubric && (
             <Stack spacing="10px">
               <Typography variant="h6">CATEGORY:</Typography>
               <TextField
@@ -377,7 +478,7 @@ const Reflection = () => {
                 Save to Rubric
               </Button>
             </Stack>
-          )}
+          )} */}
         </Stack>
       </Stack>
     </Stack>

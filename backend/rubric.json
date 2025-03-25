@@ -3,138 +3,168 @@
     "category": "Task Structure Optimization",
     "rubric_type": "Reduce complexity",
     "description": "Simplify the simulation by focusing on a single core task",
-    "example": "If the simulation is about simulating how different students will respond to a late policy made by a professor, by checking when students will return assignments, the example is: Changed from five assignments to one assignment"
+    "example": "If the simulation is about simulating how different students will respond to a late policy made by a professor, by checking when students will return assignments, the example is: Changed from five assignments to one assignment",
+    "score":100
   },
   {
     "category": "Task Structure Optimization",
     "rubric_type": "Clarify task instructions",
     "description": "Ensure clear explicit task details to remove ambiguity",
-    "example": "If the simulation is about simulating how different students will respond to a late policy made by a professor, by checking when students will return assignments, the example is: Clearly stated 500-word essay topic & deadline"
+    "example": "If the simulation is about simulating how different students will respond to a late policy made by a professor, by checking when students will return assignments, the example is: Clearly stated 500-word essay topic & deadline",
+    "score":100
   },
   {
     "category": "Stop Condition & Completion Criteria",
     "rubric_type": "Prevent premature exits",
     "description": "Stop condition should depend on actual task completion",
-    "example": "If the simulation is about simulating how different students will respond to a late policy made by a professor, by checking when students will return assignments, the example is: Required all students to submit before ending"
+    "example": "If the simulation is about simulating how different students will respond to a late policy made by a professor, by checking when students will return assignments, the example is: Required all students to submit before ending",
+    "score":100
   },
   {
     "category": "Stop Condition & Completion Criteria",
     "rubric_type": "Use dependency-based stop conditions",
     "description": "Ensure stop conditions track key dependencies to avoid early termination",
-    "example": "If the simulation is about simulating how different students will respond to a late policy made by a professor, by checking when students will return assignments, the example is: Simulation now waits for all students’ work to be acknowledged"
+    "example": "If the simulation is about simulating how different students will respond to a late policy made by a professor, by checking when students will return assignments, the example is: Simulation now waits for all students\u2019 work to be acknowledged",
+    "score":100
   },
   {
     "category": "Directive & Agent Behavior Optimization",
     "rubric_type": "Prevent premature actions",
     "description": "Ensure agents wait for key information before acting",
-    "example": "If the simulation is about simulating how different students will respond to a late policy made by a professor, by checking when students will return assignments, the example is: Students wait for assignment details before starting"
+    "example": "If the simulation is about simulating how different students will respond to a late policy made by a professor, by checking when students will return assignments, the example is: Students wait for assignment details before starting",
+    "score":100
   },
   {
     "category": "Directive & Agent Behavior Optimization",
     "rubric_type": "Enforce mandatory actions",
     "description": "Make sure critical steps like submission & acknowledgment are required",
-    "example": "If the simulation is about simulating how different students will respond to a late policy made by a professor, by checking when students will return assignments, the example is: Students must verbally declare submission and receive acknowledgment before leaving"
+    "example": "If the simulation is about simulating how different students will respond to a late policy made by a professor, by checking when students will return assignments, the example is: Students must verbally declare submission and receive acknowledgment before leaving",
+    "score":100
   },
   {
     "category": "Directive & Agent Behavior Optimization",
     "rubric_type": "Reduce redundant waiting",
     "description": "Avoid agents getting stuck waiting for unimportant responses",
-    "example": "If the simulation is about simulating how different students will respond to a late policy made by a professor, by checking when students will return assignments, the example is: Students no longer wait for greetings before working"
+    "example": "If the simulation is about simulating how different students will respond to a late policy made by a professor, by checking when students will return assignments, the example is: Students no longer wait for greetings before working",
+    "score":100
   },
   {
     "category": "Reducing Waiting Bottlenecks & Deadlocks",
     "rubric_type": "Improve efficiency of response processing",
     "description": "Optimize how responses are handled to speed up task progression",
-    "example": "If the simulation is about simulating how different students will respond to a late policy made by a professor, by checking when students will return assignments, the example is: Professor acknowledges multiple submissions efficiently"
+    "example": "If the simulation is about simulating how different students will respond to a late policy made by a professor, by checking when students will return assignments, the example is: Professor acknowledges multiple submissions efficiently",
+    "score":100
   },
   {
     "category": "Reducing Waiting Bottlenecks & Deadlocks",
     "rubric_type": "Allow parallel execution when possible",
     "description": "Reduce over-reliance on strict sequential actions",
-    "example": "If the simulation is about simulating how different students will respond to a late policy made by a professor, by checking when students will return assignments, the example is: Students can start working as soon as they get assignment details"
+    "example": "If the simulation is about simulating how different students will respond to a late policy made by a professor, by checking when students will return assignments, the example is: Students can start working as soon as they get assignment details",
+    "score":100
   },
   {
     "category": "Action Validation & Progress Tracking",
     "rubric_type": "Track task completion effectively",
     "description": "Ensure simulation can verify when an action is fully completed",
-    "example": "If the simulation is about simulating how different students will respond to a late policy made by a professor, by checking when students will return assignments, the example is: Students must verbally confirm submission"
+    "example": "If the simulation is about simulating how different students will respond to a late policy made by a professor, by checking when students will return assignments, the example is: Students must verbally confirm submission",
+    "score":100
   },
   {
     "category": "Action Validation & Progress Tracking",
     "rubric_type": "Define completion criteria properly",
     "description": "Clearly define what counts as 'done' to prevent ambiguity",
-    "example": "If the simulation is about simulating how different students will respond to a late policy made by a professor, by checking when students will return assignments, the example is: Professor acknowledgment step ensures completion"
+    "example": "If the simulation is about simulating how different students will respond to a late policy made by a professor, by checking when students will return assignments, the example is: Professor acknowledgment step ensures completion",
+    "score":100
+  },
+  {
+    "category": "Action Validation & Progress Tracking",
+    "rubric_type": "Ensure acknowledgments close loops",
+    "description": "When an agent declares a critical action (e.g., task submission), another agent must explicitly acknowledge it to progress the simulation. Lack of acknowledgment creates deadlocks.",
+    "example": "If the simulation is about simulating how different students will respond to a late policy made by a professor, then two students, Bob and Charlie, declared assignment submission, but the professor never acknowledged them. As a result, the professor waited indefinitely, stalling the simulation despite student completion.",
+    "score":100
   },
   {
     "category": "Handling Stalled Simulations Due to Missing Triggers",
     "rubric_type": "Auto-recover from missing triggers",
     "description": "If agents wait too long for an event that should have already occurred (e.g., round start), allow them to prompt the proper agent (Mediator) or retry the trigger.",
-    "example": "If the simulation is about simulating the public goods game with three players and a mediator contributing to a common pot to see if people will cooporate for the benefit of the group, the example fix is: Agents request a round announcement if they don’t receive one within a set time."
+    "example": "If the simulation is about simulating the public goods game with three players and a mediator contributing to a common pot to see if people will cooporate for the benefit of the group, the example fix is: Agents request a round announcement if they don\u2019t receive one within a set time.",
+    "score":100
   },
   {
     "category": "Ensuring Critical Announcements Are Acknowledged",
     "rubric_type": "Verify announcement reception",
     "description": "Ensure agents explicitly confirm hearing critical announcements before proceeding.",
-    "example": "If the simulation is about simulating the public goods game with three players and a mediator contributing to a common pot to see if people will cooporate for the benefit of the group, the example fix is: Agents must acknowledge the Mediator’s 'Game Start' announcement before they can take further action."
+    "example": "If the simulation is about simulating the public goods game with three players and a mediator contributing to a common pot to see if people will cooporate for the benefit of the group, the example fix is: Agents must acknowledge the Mediator\u2019s 'Game Start' announcement before they can take further action.",
+    "score":100
   },
   {
     "category": "Handling Calculation & Decision Failures",
     "rubric_type": "Auto-recover from missing computation steps",
     "description": "If an agent encounters an error while computing a required value, provide a fallback mechanism where the agent retries the computation with stored values.",
-    "example": "If the simulation is about simulating the public goods game with three players and a mediator contributing to a common pot to see if people will cooporate for the benefit of the group, the example fix is: If the Mediator fails to compute the public goods distribution, they must follow a predefined fallback calculation."
+    "example": "If the simulation is about simulating the public goods game with three players and a mediator contributing to a common pot to see if people will cooporate for the benefit of the group, the example fix is: If the Mediator fails to compute the public goods distribution, they must follow a predefined fallback calculation.",
+    "score":100
   },
   {
     "category": "Handling Calculation & Decision Failures",
     "rubric_type": "Explicitly define required calculations in directives",
     "description": "Ensure that all necessary computations are verified before progressing.",
-    "example": "If the simulation is about simulating the public goods game with three players and a mediator contributing to a common pot to see if people will cooporate for the benefit of the group, the example fix is: Mediator directive explicitly states: 'Retrieve total contribution and verify it before proceeding.'"
+    "example": "If the simulation is about simulating the public goods game with three players and a mediator contributing to a common pot to see if people will cooporate for the benefit of the group, the example fix is: Mediator directive explicitly states: 'Retrieve total contribution and verify it before proceeding.'",
+    "score":100
   },
   {
     "category": "Handling Calculation & Decision Failures",
     "rubric_type": "Verify computation success before proceeding",
     "description": "Require agents to confirm that a calculation was successfully performed before moving to the next step.",
-    "example": "If the simulation is about simulating the public goods game with three players and a mediator contributing to a common pot to see if people will cooporate for the benefit of the group, the example fix is: If an agent submits a tax contribution but doesn’t see the correct update, they request recalculation before proceeding."
+    "example": "If the simulation is about simulating the public goods game with three players and a mediator contributing to a common pot to see if people will cooporate for the benefit of the group, the example fix is: If an agent submits a tax contribution but doesn\u2019t see the correct update, they request recalculation before proceeding.",
+    "score":100
   },
   {
     "category": "Handling Calculation & Decision Failures",
     "rubric_type": "Fallback decision-making process",
     "description": "If an agent asks how to perform a task they were explicitly told to do, have them re-read their own directives instead of requesting human input.",
-    "example": "If the simulation is about simulating the public goods game with three players and a mediator contributing to a common pot to see if people will cooporate for the benefit of the group, the example fix is: The Mediator forgets how to calculate the public goods total, they must first re-read their directives before asking for external formal guidance."
+    "example": "If the simulation is about simulating the public goods game with three players and a mediator contributing to a common pot to see if people will cooporate for the benefit of the group, the example fix is: The Mediator forgets how to calculate the public goods total, they must first re-read their directives before asking for external formal guidance.",
+    "score":100
   },
   {
     "category": "Handling Calculation & Decision Failures",
     "rubric_type": "Prevent reliance on external guidance",
     "description": "Ensure agents do not request external help and instead rely on predefined fallback mechanisms.",
-    "example": "If the simulation is about simulating the public goods game with three players and a mediator contributing to a common pot to see if people will cooporate for the benefit of the group, the example fix is: If students forget an issue when calculating the public goods total, they must follow a predefined retry process instead of asking for direct human intervention."
+    "example": "If the simulation is about simulating the public goods game with three players and a mediator contributing to a common pot to see if people will cooporate for the benefit of the group, the example fix is: If students forget an issue when calculating the public goods total, they must follow a predefined retry process instead of asking for direct human intervention.",
+    "score":100
   },
   {
     "category": "New Additions to Improve Debugging Efficiency",
     "rubric_type": "Implement structured logging",
     "description": "Ensure all key simulation events are recorded with timestamps and categorized.",
-    "example": "If the simulation is about simulating the public goods game with three players and a mediator contributing to a common pot to see if people will cooporate for the benefit of the group, the example fix is: The Mediator logs when each round starts, when offers are submitted, and when decisions are made."
+    "example": "If the simulation is about simulating the public goods game with three players and a mediator contributing to a common pot to see if people will cooporate for the benefit of the group, the example fix is: The Mediator logs when each round starts, when offers are submitted, and when decisions are made.",
+    "score":100
   },
   {
     "category": "New Additions to Improve Debugging Efficiency",
     "rubric_type": "Add failsafe for incomplete rounds",
     "description": "Ensure the round either completes successfully or resets if a critical failure occurs.",
-    "example": "If the simulation is about simulating the public goods game with three players and a mediator contributing to a common pot to see if people will cooporate for the benefit of the group, the example fix is: If neither agent submits an offer or response, the round resets with a default decision."
+    "example": "If the simulation is about simulating the public goods game with three players and a mediator contributing to a common pot to see if people will cooporate for the benefit of the group, the example fix is: If neither agent submits an offer or response, the round resets with a default decision.",
+    "score":100
   },
   {
     "category": "New Additions to Improve Debugging Efficiency",
     "rubric_type": "Synchronization checks",
     "description": "Ensure all agents wait for appropriate conditions before proceeding.",
-    "example": "If the simulation is about simulating the public goods game with three players and a mediator contributing to a common pot to see if people will cooporate for the benefit of the group, the example fix is: The Proposer cannot submit an offer before the Responder arrives."
+    "example": "If the simulation is about simulating the public goods game with three players and a mediator contributing to a common pot to see if people will cooporate for the benefit of the group, the example fix is: The Proposer cannot submit an offer before the Responder arrives.",
+    "score":100
   },
   {
     "category": "New Additions to Improve Debugging Efficiency",
     "rubric_type": "Granular timeout handling",
     "description": "Differentiate between soft timeouts (warnings) and hard timeouts (default actions).",
-    "example": "If the simulation is about simulating the public goods game with three players and a mediator contributing to a common pot to see if people will cooporate for the benefit of the group, the example fix is: Agents receive a warning before a default action is applied."
+    "example": "If the simulation is about simulating the public goods game with three players and a mediator contributing to a common pot to see if people will cooporate for the benefit of the group, the example fix is: Agents receive a warning before a default action is applied.",
+    "score":100
   },
   {
     "category": "New Additions to Improve Debugging Efficiency",
     "rubric_type": "Adjustable simulation parameters",
     "description": "Allow real-time modifications to timeout periods and failure recovery strategies.",
-    "example": "If the simulation is about simulating the public goods game with three players and a mediator contributing to a common pot to see if people will cooporate for the benefit of the group, the example fix is: The Mediator can dynamically adjust timeout limits based on observed simulation behavior."
+    "example": "If the simulation is about simulating the public goods game with three players and a mediator contributing to a common pot to see if people will cooporate for the benefit of the group, the example fix is: The Mediator can dynamically adjust timeout limits based on observed simulation behavior.",
+    "score":100
   }
 ]
