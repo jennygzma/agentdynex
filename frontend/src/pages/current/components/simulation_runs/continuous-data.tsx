@@ -37,6 +37,8 @@ const ContinuousData = () => {
     if (isRunningSimulation) {
       const intervalId = setInterval(getStatus, 30000);
       return () => clearInterval(intervalId);
+    } else {
+      setStatus("");
     }
   }, [isRunningSimulation]);
 

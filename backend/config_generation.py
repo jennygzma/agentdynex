@@ -198,8 +198,9 @@ annotated_config_example = """
 config_rules = """
 Please follow these rules while creating the JSON
         1. Please only return the JSON and nothing else.
-        2. Do not specify any date or time in the config. For example, do not say “wait for 5 minutes”, or “submit before March 16”, or “submit a day early”.
-        3. Everything in the action column (ActionsXIdea, ActionsXGrounding) should be incorporated in the directives for each agent. If it has to do with when the simulation stops, it should be in the stop condition.
+        2. MAKE SURE THAT EACH MILESTONE HAPPENS FOR ABOUT 2 MINUTES BEFORE MOVING ON TO THE NEW MILESTONE. AVOID LONG DISCUSSIONS IN THE CONFIG. THINGS NEED TO BE HAPPENING.
+        3. Do not specify any date or time in the config. For example, do not say “wait for 5 minutes”, or “submit before March 16”, or “submit a day early”.
+        4. Everything in the action column (ActionsXIdea, ActionsXGrounding) should be incorporated in the directives for each agent. If it has to do with when the simulation stops, it should be in the stop condition.
         """
 
 

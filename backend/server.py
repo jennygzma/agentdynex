@@ -625,7 +625,11 @@ def fetch_dynamics():
         dynamics_data = json.loads(dynamics_text)
     else:
         dynamics_data = []
-    previous = dynamics_data[-1] if len(dynamics_data) > 0 else ""
+    previous = (
+        next((log for log in reversed(dynamics_data) if log.get("dynamic")), "")
+        if dynamics_data
+        else ""
+    )
     dynamic = log_dynamics(
         logs,
         globals.current_milestone_id,
@@ -640,13 +644,14 @@ def fetch_dynamics():
             f"{current_run_id_folder_path}/{globals.DYNAMICS_FILE_NAME}"
         )
         dynamics_data = json.loads(dynamics_text)
-        dynamics_data.append(dynamic)
     else:
-        dynamics_data = [dynamic]
-    create_and_write_file(
-        f"{current_run_id_folder_path}/{globals.DYNAMICS_FILE_NAME}",
-        json.dumps(dynamics_data),
-    )
+        dynamics_data = []
+    if dynamic["dynamic"] != "":
+        dynamics_data.append(dynamic)
+        create_and_write_file(
+            f"{current_run_id_folder_path}/{globals.DYNAMICS_FILE_NAME}",
+            json.dumps(dynamics_data),
+        )
 
     return (
         jsonify(
@@ -675,7 +680,12 @@ def fetch_changes():
         changes_data = json.loads(changes_text)
     else:
         changes_data = []
-    previous = changes_data[-1] if len(changes_data) > 0 else ""
+    previous = (
+        next((log for log in reversed(changes_data) if log.get("change")), "")
+        if changes_data
+        else ""
+    )
+
     change = log_changes(logs, previous)
     change_with_milestone = {
         "milestone_id": globals.current_milestone_id,
@@ -684,11 +694,12 @@ def fetch_changes():
         "what": change["what"],
         "change": change["change"],
     }
-    changes_data.append(change_with_milestone)
-    create_and_write_file(
-        f"{current_run_id_folder_path}/{globals.CHANGES_FILE_NAME}",
-        json.dumps(changes_data),
-    )
+    if change["change"] != "":
+        changes_data.append(change_with_milestone)
+        create_and_write_file(
+            f"{current_run_id_folder_path}/{globals.CHANGES_FILE_NAME}",
+            json.dumps(changes_data),
+        )
 
     return (
         jsonify(

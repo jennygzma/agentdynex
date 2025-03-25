@@ -44,7 +44,7 @@ const Dynamics = () => {
 
   useEffect(() => {
     if (isRunningSimulation) {
-      const intervalId = setInterval(fetchDynamics, 30000);
+      const intervalId = setInterval(fetchDynamics, 60000);
       return () => clearInterval(intervalId);
     }
   }, [isRunningSimulation]);

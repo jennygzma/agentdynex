@@ -45,7 +45,7 @@ const ChangeLog = () => {
 
   useEffect(() => {
     if (isRunningSimulation) {
-      const intervalId = setInterval(fetchChanges, 30000);
+      const intervalId = setInterval(fetchChanges, 60000);
       return () => clearInterval(intervalId);
     }
   }, [isRunningSimulation]);
