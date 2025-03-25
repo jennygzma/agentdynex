@@ -60,7 +60,12 @@ const Category = ({
     })
       .then((response) => {
         console.log("/get_input request successful:", response.data);
-        setInput(response.data.input);
+        if (isGrounding) {
+          setInput(response.data.input);
+        } else {
+          setBrainstorms(response.data.input ?? []);
+          setActionsInput(response.data.input ?? []);
+        }
       })
       .catch((error) => {
         console.error("Error calling /get_input request:", error);
@@ -105,6 +110,7 @@ const Category = ({
     })
       .then((response) => {
         console.log("/brainstorm_inputs request successful:", response.data);
+        console.log("initial brainstorms, ", brainstorms);
         if (isGrounding) {
           setInput(response.data.brainstorms);
         } else {
@@ -121,7 +127,9 @@ const Category = ({
 
   useEffect(() => {}, [submittedProblem]);
 
-  useEffect(() => {}, [currentPrototype]);
+  useEffect(() => {
+    getInput();
+  }, [currentPrototype]);
 
   const handleCheckBoxChange =
     (name: string) => (event: React.ChangeEvent<HTMLInputElement>) => {

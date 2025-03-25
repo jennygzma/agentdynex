@@ -23,7 +23,7 @@ def call_llm(system_message, user_message, llm=globals.LLM):
     if llm == "anthropic":
         temperature = secrets.randbelow(10**6) / 10**6
         message = anthropic_client.messages.create(
-            model="claude-3-sonnet-20240229",
+            model="claude-3-7-sonnet-20250219",
             max_tokens=4096,
             temperature=temperature,
             system=system_message,

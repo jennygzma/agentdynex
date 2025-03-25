@@ -10,6 +10,7 @@ const INITIAL = "initial";
 const RunsNavBar = () => {
   const {
     updateIsLoading,
+    currentPrototype,
     currentRunId,
     updateCurrentRunId,
     currentRunTree,
@@ -101,6 +102,10 @@ const RunsNavBar = () => {
       }));
     }
   }, [currentRunTree, currentRunId]);
+
+  useEffect(() => {
+    getRunTree();
+  }, [currentPrototype]);
 
   const toggleNode = (nodeRunId: string) => {
     setExpandedNodes((prev) => ({

@@ -129,10 +129,14 @@ The simulation fails if there are indefinite waiting periods of no action from a
 
 AGENTSXIDEA_EXAMPLES = """Agents Ideas focus on the amount and type of agents we need.
 Consider different TYPES of agents.
-For example if simulating a house-bidding situation where people cannot hear or see what fellow competitors are bidding. Different agents would include: "1 real estate agent" "1 real estate agent" "1 home bidder" "1 home bidder" "1 home bidder", because we need someone to facillitate the bidding.
-However, a simple simulation of people returning shopping carts could just have "1 shopper agent" "1 shopper agent" "1 shopper agent".
-The user can then check off which types of agents they want in the simulation. If they want 2 shopper agents, they would check it off twice.
+For example if simulating a house-bidding situation where people cannot hear or see what fellow competitors are bidding.
+Each response in the response array can only contain 1 TYPE of agent:
+["1 real estate agent", "2 real estate agents", "1 home bidder", "4 home bidders", "6 home bidders"]. We need different types of agents so the user can decide what they want.
+If there are no types of agents required, return different quantities as well like ["3 shopper agents", "1 shopper agent", "5 shopper agents"]
+The user can then check off which types of agents they want in the simulation.
+DO NOT RETURN STUFF LIKE "1 home bidder and 1 real estate agent"... KEEP ALL THE TYPES OF AGENTS SEPARATED.
 """
+
 AGENTSXGROUNDING_EXAMPLES = """Agents Grounding focuses on the personality of each agent and a brief description of the agent.
 For example, if the idea is to "simulate the tragedy of the commons" for "3 agents with varying degrees of social influence/peer pressure influencing their choices", some example goals of the application could be:
 "- Alice: an agent that is highly influenced by others \n - Bob: an agent that is neutral \n - Charlie: an agent who is a non-conformist".
@@ -146,10 +150,10 @@ Avoid redundancy and any unnecessary agents.
 ACTIONSXIDEA_EXAMPLES = """Action ideas focus on what each type of agent need to do in the location.
 Make sure there are actions that span all the types of agents.
 Every action should consist of the agent communicating that they have completed a task. Agents can complete a task by simply saying they have completed a task.
-For example, if the idea is to "simulate the tragedy of the commons", some examples of the actions are "agents should verbally stating the money they have consumed", "the simulation stops when the pot is empty"
+For example, if the idea is to "simulate the tragedy of the commons", some examples of the actions are "agents should verbally stating the money they have consumed"
 For example, if there are two types of agents, an example idea could be "mediator agents should announce whose turn it is" and "mediator agent announces the bet each round" and "agents should verbally state to mediator the money they have consumed"
 If agents are voting in a simulation, they can just verbally declare it without having to cast a ballot or upload their vote. If an agent is counting the votes, they should NOT have to read any files. They should either just observer or count via verbal vote.
-Try to keep the array oragnized by agent. For example, the first 3 actions in the list are for the real estate agent, the next couple actions are for the home buyer agent, last couple actions shows the stop condition(s)). Here is an example:
+Try to keep the array oragnized by agent. For example, the first 3 actions in the list are for the real estate agent, the next couple actions are for the home buyer agent. Here is an example:
 [
     "Professor announces the submission due date",
     "Professor gives extensions to students when requested",
@@ -193,20 +197,44 @@ Only describe how agents will interact in this room and what they will do.
 DO NOT DESCRIBE ANYTHING ELSE.
 """
 
-MILESTONESXIDEA_EXAMPLES = """The milestones ideas focus on the chronological order in which the simulation should proceed.
-If there are "rounds" in a simulation, then each milestone could be an indication that each round has completed.
-Or, a milestone could be if 1/2 of the agents do something, then 1/2 of the agents do the other thing.
-It should span the chronological ordering of how the simulation should go.
-There should be 3-5 milestones per simulation.
-For example:
-1. Assignment 1 has been completed
-2. Assignment 2 has been completed
-3. Assignment 3 has been completed
+MILESTONESXIDEA_EXAMPLES = """
+The milestones ideas focus on the chronological order in which the simulation should proceed.
+It also provides a way for the user to quantitatively measure things.
 
+Some of the milestones are obvious -- for example, for a professor simulating how students will respond to a late policy, something we can quantitatively measure is how many students will turn assignments on time?
+Thus, the milestones should reflect this, and we can guide the simulation towards assignments. The milstones will then be:
+For example:
+1. Late policy is announced
+2. Assignment 1 has been completed
+3. Assignment 2 has been completed
+4. Assignment 3 has been completed
+
+For example, if a coach is implementing a new practice schedule, something quantitative we can measure is how many agents will attend practice given the new policy. Some milestones that you can consider can be:
+1. Coach declares new practice schedule
+2. Practice 1 starts
+3. Practice 1 is completed
+4. Practice 2 starts
+5. Practice 2 is completed.
+
+If the simulation idea is to test to see how a friend group reacts to a breakup, the quantitative things you can measure can be:
+1)  how many people know about the breakup after X amount of time?
+In this case, the miletsones will be:
+1. X and Y announce breakup to 1 person
+2. 1/2 of the friends know
+3. all of the friends know
+2) how many people subgroups form after X amount of time?
+1. X and Y announce breakup to the group
+2. One school day passes
+3. Another school day passes.
+
+The response should include ALL of these options.
+
+Essentially, we want you to just come up with logical "milestones" that the simulation should go through.
+There should be 3-8 milestones per simulation.
 Each milestone should be no more than 10 words.
 """
 
-MILESTONESXGROUNDING_EXAMPLES = """The Milestones Grounding should focus on the specifics of the milestone.
+MILESTONESXGROUNDING_EXAMPLES = """The Milestones Grounding should focus on the specifics of the milestone
 What should have occured for each milestone?
 For example:
 1. Assignment 1 has been completed - all student agents have submitted assignment 1
@@ -284,7 +312,7 @@ def brainstorm_inputs(category, context, existing_brainstorms, iteration):
         response_format = """
             The answers SHOULD BE 10-15 words WORDS that specify what exactly the idea is. ALL THE ANSWERS MUST BE VERY DIFFERENT FROM ONE ANOTHER.
             Format the the responses in an array like so: ["home-buyer agents declare their bid", "home-owner agents can only speak to the real-estate agent", "simulation ends when real-estate agent picks a buyer"]
-            The array should have size 5 maximum. The inputsa must all be different from one another."""
+            The array should have size 10 maximum. The inputsa must all be different from one another."""
     elif is_grounding:
         response_format = """
             The answers should be as specific as possible, but do not be overly verbose in your response. USE AS LITTLE WORDS AS POSSIBLE. Do not repeat what is said in the corresponding idea section.

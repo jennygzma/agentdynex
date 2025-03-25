@@ -22,7 +22,8 @@ type ChangeLogData = {
 const ChangeLog = () => {
   const [changeLogData, setChangeLogData] = useState<ChangeLogData[]>([]);
 
-  const { isRunningSimulation } = useAppContext();
+  const { isRunningSimulation, currentPrototype, currentRunId } =
+    useAppContext();
 
   const fetchChanges = () => {
     // updateIsLoading(true);
@@ -44,11 +45,14 @@ const ChangeLog = () => {
 
   useEffect(() => {
     if (isRunningSimulation) {
-      const intervalId = setInterval(fetchChanges, 30000);
+      const intervalId = setInterval(fetchChanges, 60000);
       return () => clearInterval(intervalId);
     }
   }, [isRunningSimulation]);
 
+  useEffect(() => {
+    fetchChanges();
+  }, [currentRunId, currentPrototype]);
 
   if (!changeLogData) return <></>;
   return (

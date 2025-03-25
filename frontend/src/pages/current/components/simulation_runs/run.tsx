@@ -22,7 +22,6 @@ const Run = () => {
   const [logs, setLogs] = useState("");
   const [summary, setSummary] = useState("");
   const [updatedConfig, setUpdatedConfig] = useState(false);
-  // const [isRunningSimulation, setIsRunningSimulation] = useState(false);
   const [hasReflection, setHasReflection] = useState(false);
   const [expand, setExpand] = useState(true);
 
@@ -286,7 +285,7 @@ const Run = () => {
                 />
               </Button>
             )}
-            {!isRunningSimulation && logs && summary && (
+            {!isRunningSimulation && logs && (
               <Button
                 onClick={() => {
                   setHasReflection(true);

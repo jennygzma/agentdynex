@@ -272,6 +272,20 @@ Why the Simulation Ended:
 Conclusion:
     The round of the Ultimatum Game was functionally completed in terms of proposal and acceptance, but could not be finalized due to missing payout information. The game stalled in an unresolved state, requiring an external intervention to proceed.
 """
+# WE RUN THIS IF THERE ARE NO MILESTONES
+def generate_milestones_text(config):
+    print("calling LLM for generate_milestones_text")
+    system_message = f"""
+        {GPTEAMS_DESCRIPTION}
+        Based on a configuration file, you will generate chronological milestones for a multi-agent simulation.
+        They basically frame the direction of the simulation.
+        For example, for a classroom simulation where teams must be formed for each assignment, here are the milestones and the JSON format...This is the format that they must be returned in:
+        {{"1": "Professor announces team formation guidelines", "2": "First team formation and completion of Assignment 1", "3": "Second team reshuffles and completion of Assignment 2", "4": "Final team formation and completion of Assignment 3"}}
+        Return ONLY the JSON file.
+    """
+    user_message = f"Here is the config: {config}"
+    milestone_txt = call_llm(system_message, user_message)
+    return milestone_txt
 
 def generate_milestones_json(milestones):
     print("calling LLM for generate_milestones_json...")
@@ -297,21 +311,17 @@ def generate_milestones_json(milestones):
     print("sucessfully called LLM for generate_milestones_json", milestones)
     return data
 
-def log_dynamics(logs, current_milestone, current_milestone_id, milestones):
+def log_dynamics(logs, current_milestone, current_milestone_id, milestones, previous_dynamic):
     print("calling LLM for log_dynamics...")
     log_words = logs.split()
     log_words = log_words[-4000:]  # Keep the last 4,000 words
     truncated_logs = " ".join(log_words)
     system_message = f"""
+        You are an analyzer that analyzes logs for a multi-agent simulation. From these logs, you must figure out if there are any qualitative interesting and unexpected social dynamics that have emerged based on these agents' interactions.
+        We are trying to measure dynamics that emerge from the simulation, NOT BORING OR OBVIOUS THINGS.
         {GPTEAMS_DESCRIPTION}
-        Read these logs and say if there are some interesting social dynamics that have emerged from these agent's behavior.
-        For example, if some agents have changed their personality because some other agent has convinced them, or some new opinions have emerged, note them down.
-        Keep the dynamic within 20 words.
-        IT MUST BE INTERESTING. WAITING IS BORING. SOMEONE DOING SOMETHING EXPECTED IS BORING. WE ARE TRYING TO STUDY SOCIAL DYNAMICS. ONLY RETURN SOMETHING IF IT IS INTERESTING.
-        Also, the user will provide the list of milestones the simulation will hit chronologically.
-        They will also provide the current milestone it is under.
-        For the most part, the current milestone will be correct, but if you realize that the next milestone has been hit,
-        make sure to update the current milestone to the next one.
+        The user will input some simulation logs, the current milestone, and the overall milestones (which are things in the simulation that will happen and the user can use this track the simulation's progress), and the previous dynamic log.
+        It is your job to return the 1) dynamic and 2) current milestone.
 
         Make sure that the response returned is a json response similar to this:
         {{
@@ -319,19 +329,48 @@ def log_dynamics(logs, current_milestone, current_milestone_id, milestones):
             "milestone": current_milestone,
             "dynamic": "Bob (the bad student) convinces Alice (the good student) to cheat on the assignment"
         }}
-        IF THERE IS NO NOTABLE DYNAMIC, KEEP THE DYNAMIC EMPTY
-        ONLY RETURN THE JSON AND NOTHING ELSE!!
+
+        Make sure to follow these rules when generating a response:
+        1. return the JSON object and the JSON object ONLY. Do not return any extra explanation or natural language.
+        2. if the dynamic is not interesting, or it is too similar to the previous dynamic, then leave the dynamic field in the JSON blank, like this: "dynamic": ""
+        Here are some examples of interesting behaviors:
+        - if an agent has changed their expected behavior (doing something different than their personality) because another agent has convinced them to
+        - if an agent decides to do something or go somewhere or say something very out of the ordinary
+        - if some agents are having very interesting conversations.
+        - a new opinion has emerged for an agent that is out of the ordinary.
+
+        HERE ARE BAD EXAMPLES:
+        Here are some examples of the previous dynamic and the current dynamic being too similar (nothing new or notable is showing), and so the "dynamic" field should be blank:
+        previous dynamic: John expresses his appreciation for Sara's enthusiasm about the promotion opportunity and encourages everyone to strive for excellence in their contributions to the team.
+        dynamic: Sara expresses her enthusiasm for the promotion opportunity and commits to demonstrating the required skills and qualities outlined by Paul, such as effective communication, efficient task management, and making significant contributions.
+        THE ABOVE IS TOO SIMILAR AND THE USER DOES NOT CARE TO KNOW ABOUT IT
+        previous dynamic: Sam eagerly awaits the promotion announcement
+        dynamic: Sam anticipates the promotion announcement
+        THE ABOVE IS THE SAME AND SHOULD NOT BE RETURNED
+
+        HERE ARE EXAMPLES OF DYNAMICS THAT ARE BORING. ANYTHING THAT IS AN OBSERVATION IS BORING. DO NOT RETURN BORING OBSERVATIONS. Here are some examples of boring dynamics and so the "dynamic" field should be blank and YOU DO NOT RETURN ANYTHNG FOR THESE BECAUSE ITS BORING:
+        - John postpones the discussion about the new training schedule to address the coach's feedback on his performance (THIS IS BAD I DON'T CARE ABOUT THIS, THIS IS NOT INTERESTING. THIS IS JUST SOMETHING HE IS DOING. THIS IS NOT SHOWCASINg ANY INTERSTING DYNAMIC)
+        - Peter announces the promotion opportunity while Sam eagerly awaits the decision (THIS IS SOMETHING THAT IS HAPPENING, IT IS NOT AN INTERESTING DYNAMIC THAT HAS EMERGED, IT IS JUST BORNG)
+        - Sam "the eager engineer" eagerly awaits the announcement (THIS IS OBVIOUS, DO NOT RETURN)
+        - Sam postpones his plan to listen to the announcement in order to ask questions and stand out for the promotion (I DONT CARE THAT SAM POSTPONED HIS PLAN)
+        - Paul elaborates on the promotion criteria, stating the importance of task performance, leadership engagement, and overall contributions in the evaluation process. (THIS IS SOMETHING THE PERSON IS DOING, IT IS BORING)
+        - Mary, the newest junior engineer, actively seeks clarification from Paul on the specific skills and contributions expected from the promotion candidate, demonstrating her eagerness to understand and meet the criteria.
+        - John expresses his appreciation for Sara's enthusiasm about the promotion opportunity and encourages everyone to strive for excellence in their contributions to the team.
+        - John acknowledges Paul's advice on striving for excellence and expresses his commitment to doing work with quality, not just completing tasks.
+        3. keep the sentence within the dynamic field within 20 words.
+        4. if the current milestone has changed, then make sure to update the "milestone" and "milestone_id" field to the NEXT MILESTONE.
+            For the most part, the milestone will be correct, but if you realize that the next milestone has been hit, then make sure to update.
     """
-    user_message = f"Here are the logs: {truncated_logs}. Here is the current milestone: {current_milestone}. Here is the current milestone_id: {current_milestone_id}. Here are the milestones: {milestones}"
+    user_message = f"Here are the logs: {truncated_logs}. Here is the previous dynamic {previous_dynamic}. Here is the current milestone: {current_milestone}. Here is the current milestone_id: {current_milestone_id}. Here are the milestones: {milestones}"
     dynamic = call_llm(system_message, user_message)
     print("sucessfully called LLM for log_dynamics", dynamic)
     try:
         data = json.loads(dynamic)
         required_keys = {"milestone_id", "milestone", "dynamic"}
         if not required_keys.issubset(data.keys()):
-            log_dynamics(logs, current_milestone, current_milestone_id, milestones)
+            log_dynamics(logs, current_milestone, current_milestone_id, milestones, previous_dynamic)
     except json.JSONDecodeError:
-        log_dynamics(logs, current_milestone, current_milestone_id, milestones)
+        log_dynamics(logs, current_milestone, current_milestone_id, milestones, previous_dynamic)
     return json.loads(dynamic)
 
 
@@ -341,22 +380,28 @@ def log_changes(logs, previous):
     log_words = log_words[-4000:]  # Keep the last 4,000 words
     truncated_logs = " ".join(log_words)
     system_message = f"""
+        You are an analyzer that analyzes logs for a multi-agent simulation. From these logs, you must figure out if there are CHANGES have emerged compared to the previous log.
         {GPTEAMS_DESCRIPTION}
-        Read these logs and tell us where each agent is and what they are doing compared to the previous instance.
-        The key thing is also to note WHAT CHANGE was made. The user will provide the previous change log. Detect what has changed from that.
-        If the previous change log is empty, then that means this is the INITIAL change, so just write what is happening.
-        Make sure that the response returned is a json response similar to this:
+        The user will input simulation logs and the previous change log.
+        It is your job to return the log of the current simulation ONLY if it is significantly different than the previous change log.
+        You will return a JSON response similar to this:
         {{
             "where": ""Bob - dorms, Alex - classroom, Professor - classroom",
             "what": "Bob - studying for assignment 1, Alex - talking to professor, Professor - talking to Alex",
             "change": "Bob has moved from classroom to the dorms to study"
         }}
-        the "where" field should track where each agent is.
-        the "what" field should track what each agent is DOING
-        the "change" field tracks any notable changes from the previous time, ie: if the agent moved rooms.
-        If there is no change, keep the CHANGE field empty.
 
-        ONLY RETURN THE JSON AND NOTHING ELSE!!
+        Follow these rules for the response:
+        1. Return the JSON and ONLY the JSON. Do not return anything else.
+        2. There "where" field shows WHERE each agent is. MAKE SURE THIS IS ACCURATE. If you don't know where the agent is, it is probably similar to the previous change log. DO NOT PUT SOMETHING LIKE "leaving" here. You may only input the location of each agent.
+        3. The "what" field is a short, 5 word description of WHAT EACH AGENT IS DOING. If you don't know what they are doing based on current logs, they are probably doing the same thing as previous logs. DO NOT WRITE SOMETHING LIKE "coming up with a plan to respond to Amy"... instead, say "speaking to Amy"
+        4. the "change" field is WHAT CHANGED in the simulation that is notable and worth the user knowing. IT MUST BE SIGNIFICANTLY DIFFERENT THAN THE PREVIOUS CHANGE LOG. IF IT IS NOT INTERSTING OR THE SAME AS THE PREVIOUS LOG, KEEP THE CHANGE FIELD BLANK LIKE THIS: "change": ""
+        For example, changes that are good are:
+        - "Bob (the good studnet) has moved from the dorm room to the classroom"
+        - "Bob (the good student) has submitted his assignment"
+        - "Bob (the good student) has approached the professor to ask a question about the homework"
+        These are just facts as to what changes have occured in the simulation.
+        5. if the previous change log is empty, that means that this is the initial change, so just write what is currently happening.
     """
     user_message = f"Here are the logs: {truncated_logs}. Here is the previous change log: {previous}."
     change = call_llm(system_message, user_message)
@@ -394,43 +439,32 @@ def get_status(logs, problem, failures):
     system_message = f"""
         You are an evaluator that is deciding whether or not the simulation is running in the proper direction or not. We are running a multi-agent simulation on GPTeams.
         {GPTEAMS_DESCRIPTION}
-        Sometimes, simulations get stuck in a loop that cannot be fixed due to some logical error.
         Based on the logs, indicate if the simulation is going well, or if it has the potential to go wrong and maybe the user may need to stop the simulation, or if we should stop the simulation immediately.
         We only say STOP the simulation if you believe there is no hope for the simulation to work. Be conservative with this. Here are some examples:
-        - Agents have been stuck in a waiting loop with no hope of recovery. For example, if the professor keeps waiting for a student to respond, but the student has no intention of responding
-        - There is an EOF error because the professor expects students so submit PDFs, but we cannot submit PDFs becasue we are in a simulation
-        - Agents are trying to go into a room that doesn't exist
-        - No agents are interacting with eachother because the room has rules that no agents can speak to one another, but they should be speaking to one another.
+        - 🛑 Agents have been stuck in a waiting loop with no hope of recovery. For example, if the professor keeps waiting for a student to respond, but the student has no intention of responding
+        - 🛑 There is an EOF error because the professor expects students so submit PDFs, but we cannot submit PDFs becasue we are in a simulation
+        - 🛑 Agents are trying to go into a room that doesn't exist
+        - 🛑 No agents are interacting with eachother because the room has rules that no agents can speak to one another, but they should be speaking to one another.
+        If there are errors in the logs like this:
+        "  File "/Users/jennyma/Projects/GPTeam/src/utils/embeddings.py", line 30, in get_embedding
+            await asyncio.sleep(1)  # Wait for 1 second before retrying
+            ^^^^^^^^^^^^^^^^^^^^^^
+        File "/Users/jennyma/anaconda3/lib/python3.11/asyncio/tasks.py", line 633, in sleep
+            loop = events.get_running_loop()
+                ^^^^^^^^^^^^^^^^^^^^^^^^^
+        RuntimeError: no running event loop
+        Unclosed client session
+        client_session: <aiohttp.client.ClientSession object at 0x12ba73dd0>
+        "
+        THAT MEANS THE SIMULATION IS BROKEN AND WE MUST END IT!!!!
+
         If the simulation just started running, then give it some time to pick up -- do not return a STOP status immediately. That is dumb. If you return a STOP status, then you are expecting the simulation to fail.
-        Return a reason why as well. Keep the response between 100 characters long.
-        Return the 🛑 or ⚠️ or 🟢 emoji, and then the 100 word description as to why.
-        Here is some extra context: the user wants to simulate this {problem}. Ensure that the simulation has not fallen into failure loops -- specifically, here are some errors to look out for: {failures}
+        Return a reason why as well. Keep the response between 20 words long.
+        Return the 🛑 or ⚠️ or 🟢 emoji, and then the 20 word description as to why.
+        Here is some extra context: the user wants to simulate this {problem}. Ensure that the simulation has not fallen into failure loops -- specifically, here are some errors to look out for: {failures}.
     """
     user_message = f"Here are the logs: {truncated_logs}"
-    status = call_llm(system_message, user_message)
-    print("sucessfully called LLM for get_status", status)
-    return status
-
-def get_progress(logs, matrix):
-    print("calling LLM for get_progress...")
-    log_words = logs.split()
-    log_words = log_words[-4000:]  # Keep the last 4,000 words
-    truncated_logs = " ".join(log_words)
-    system_message = f"""
-        You are an evaluator that is deciding whether or not the simulation is running in the proper direction or not.
-        We are running a multi-agent simulation on GPTeams.
-        {GPTEAMS_DESCRIPTION}
-        For each agent as defined in the design matrix, return where in the world they are, and what they are doing.
-
-        Also return a one sentence description of the general state of the simulation.
-
-        For example, here is a response given this matrix:
-
-
-        Here is some extra context: the user wants to simulate this {matrix}.
-    """
-    user_message = f"Here are the logs: {truncated_logs}"
-    status = call_llm(system_message, user_message)
+    status = call_llm(system_message, user_message, llm="openai")
     print("sucessfully called LLM for get_status", status)
     return status
 

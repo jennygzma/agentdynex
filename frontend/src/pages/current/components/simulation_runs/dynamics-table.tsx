@@ -19,7 +19,8 @@ type DynamicsData = {
 
 const Dynamics = () => {
   const [dynamicsData, setDynamicsData] = useState<DynamicsData[]>([]);
-  const { isRunningSimulation } = useAppContext();
+  const { isRunningSimulation, currentRunId, currentPrototype } =
+    useAppContext();
 
   console.log(dynamicsData);
 
@@ -43,10 +44,14 @@ const Dynamics = () => {
 
   useEffect(() => {
     if (isRunningSimulation) {
-      const intervalId = setInterval(fetchDynamics, 30000);
+      const intervalId = setInterval(fetchDynamics, 60000);
       return () => clearInterval(intervalId);
     }
   }, [isRunningSimulation]);
+
+  useEffect(() => {
+    fetchDynamics();
+  }, [currentRunId, currentPrototype]);
 
   return (
     <TableContainer component={Paper}>
@@ -59,7 +64,7 @@ const Dynamics = () => {
         </TableHead>
         <TableBody>
           {dynamicsData
-            .filter((row) => row.dynamic.trim() !== "")
+            .filter((row) => row?.dynamic?.trim() !== "")
             .map((row, index, array) => {
               const showMilestone =
                 index === 0 || row.milestone !== array[index - 1].milestone;
