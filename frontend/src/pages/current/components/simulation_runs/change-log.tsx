@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Table,
   TableBody,
@@ -19,7 +19,7 @@ type ChangeLogData = {
   milestone: string;
 };
 
-const ChangeLog = () => {
+const ChangeLog = ({ expand }: { expand: boolean }) => {
   const [changeLogData, setChangeLogData] = useState<ChangeLogData[]>([]);
 
   const { isRunningSimulation, currentPrototype, currentRunId } =
@@ -43,16 +43,51 @@ const ChangeLog = () => {
       });
   };
 
+  const getChanges = () => {
+    // updateIsLoading(true);
+    axios({
+      method: "GET",
+      url: `${SERVER_URL}/get_changes`,
+    })
+      .then((response) => {
+        console.log("/get_changes request successful:", response.data);
+        setChangeLogData(response.data.changes_data);
+      })
+      .catch((error) => {
+        console.error("Error calling /get_changes request:", error);
+      })
+      .finally(() => {
+        // updateIsLoading(false);
+      });
+  };
+
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
   useEffect(() => {
     if (isRunningSimulation) {
-      const intervalId = setInterval(fetchChanges, 60000);
-      return () => clearInterval(intervalId);
+      intervalRef.current = setInterval(fetchChanges, 60000);
+    } else {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null; // Ensure it's reset
+      }
     }
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
   }, [isRunningSimulation]);
 
   useEffect(() => {
-    fetchChanges();
-  }, [currentRunId, currentPrototype]);
+    if (expand) getChanges();
+  }, [expand, currentRunId, currentPrototype]);
+
+  useEffect(() => {
+    getChanges();
+  }, []);
 
   if (!changeLogData) return <></>;
   return (

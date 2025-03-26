@@ -33,7 +33,7 @@ export const AppProvider = ({ children }) => {
   const [currentRunId, updateCurrentRunId] = useState(undefined);
   const [currentRunTree, updateCurrentRunTree] = useState(undefined);
   const [isLoading, updateIsLoading] = useState(false);
-  const [isRunningSimulation, updateIsRunningSimulation] = useState(undefined);
+  const [isRunningSimulation, updateIsRunningSimulation] = useState(false);
   const [prototypes, updatePrototypes] = useState(undefined);
   const [currentPrototype, updateCurrentPrototype] = useState(undefined);
 

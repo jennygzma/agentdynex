@@ -51,7 +51,10 @@ CONFIG_FILE_NAME = "config.txt"
 MILESTONES_FILE_NAME = "milestones.txt"
 DYNAMICS_FILE_NAME = "dynamics.json"
 CHANGES_FILE_NAME = "changes.json"
-RUBRIC_FILE_NAME = "rubric.json"
+STATIC_LIST_FILE_NAME = "static_list.json"
+ITERATIVE_LIST_FILE_NAME = "iterative_list.json"
+EXISTING_FIXES_TO_APPLY_FILE_NAME = "existing_fixes_to_apply.json"
+USER_SPECIFIED_FIXES_TO_APPLY_FILE_NAME = "user_specified_fixes_to_apply.json"
 RUN_TREE = "run_tree.json"
 
 # config iteration logic
@@ -85,10 +88,13 @@ config = None
 run_id = None
 milestones = None
 current_milestone_id = "1"
+iterative_list = None
+static_list = None
+existing_fixes_to_apply = []
+user_specified_fixes_to_apply = []
 
 # all prototypes to explore
 prototypes = []
 current_prototype = None
 # folder for this code generation, in the form of a UUID
 folder_path = None
-rubric = None

@@ -18,6 +18,7 @@ const Run = () => {
     updateIsRunningSimulation,
     updateCurrentRunTree,
   } = useAppContext();
+  console.log("hi jenny isRunningSimulatoin " + isRunningSimulation);
   const [config, setConfig] = useState("");
   const [logs, setLogs] = useState("");
   const [summary, setSummary] = useState("");
@@ -189,28 +190,9 @@ const Run = () => {
       });
   };
 
-  const getAnalysis = () => {
-    updateIsLoading(true);
-    axios({
-      method: "GET",
-      url: `${SERVER_URL}/get_analysis`,
-    })
-      .then((response) => {
-        console.log("/get_analysis request successful:", response.data);
-        setHasReflection(response.data.analysis ? true : false);
-      })
-      .catch((error) => {
-        console.error("Error calling /get_analysis request:", error);
-      })
-      .finally(() => {
-        updateIsLoading(false);
-      });
-  };
-
   useEffect(() => {
     if (!currentPrototype) return;
     getConfig();
-    getAnalysis();
     getLogs();
     getSummary();
     setExpand(true);
@@ -298,7 +280,7 @@ const Run = () => {
             )}
           </Stack>
           <Stack spacing="20px">
-            <ContinuousData />
+            <ContinuousData parentExpand={expand} />
             <Stack spacing="20px" width="100%" direction="row">
               {config && (
                 <Stack spacing="25px" width="100%">
@@ -398,7 +380,7 @@ const Run = () => {
         </Stack>
       )}
       <Divider />
-      {hasReflection && <Reflection />}
+      <Reflection />
     </Stack>
   );
 };

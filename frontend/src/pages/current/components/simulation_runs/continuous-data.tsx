@@ -9,12 +9,12 @@ import TextField from "../../../../components/TextField";
 import Button from "../../../../components/Button";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
 
-const ContinuousData = () => {
-  const [expand, setExpand] = useState(true);
+const ContinuousData = ({ parentExpand }: { parentExpand: boolean }) => {
+  const [expand, setExpand] = useState(parentExpand);
 
   const [status, setStatus] = useState("");
 
-  const { isRunningSimulation } = useAppContext();
+  const { isRunningSimulation, updateIsRunningSimulation } = useAppContext();
   const getStatus = () => {
     // updateIsLoading(true);
     axios({
@@ -34,7 +34,7 @@ const ContinuousData = () => {
   };
 
   useEffect(() => {
-    if (isRunningSimulation) {
+    if (isRunningSimulation && expand) {
       const intervalId = setInterval(getStatus, 30000);
       return () => clearInterval(intervalId);
     } else {
@@ -97,7 +97,7 @@ const ContinuousData = () => {
           >
             Change Log
           </Typography>
-          <ChangeLog />
+          <ChangeLog expand={expand} />
         </Stack>
         <Stack width="34%">
           <Typography
@@ -108,7 +108,7 @@ const ContinuousData = () => {
           >
             Notable Dynamics
           </Typography>
-          <Dynamics />
+          <Dynamics expand={expand} />
         </Stack>
       </Stack>
 

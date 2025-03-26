@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Table,
   TableBody,
@@ -17,7 +17,7 @@ type DynamicsData = {
   dynamic: string;
 };
 
-const Dynamics = () => {
+const Dynamics = ({ expand }: { expand: boolean }) => {
   const [dynamicsData, setDynamicsData] = useState<DynamicsData[]>([]);
   const { isRunningSimulation, currentRunId, currentPrototype } =
     useAppContext();
@@ -42,16 +42,49 @@ const Dynamics = () => {
       });
   };
 
+  const getDynamics = () => {
+    // updateIsLoading(true);
+    axios({
+      method: "GET",
+      url: `${SERVER_URL}/get_dynamics`,
+    })
+      .then((response) => {
+        console.log("/get_dynamics request successful:", response.data);
+        setDynamicsData(response.data.dynamics_data);
+      })
+      .catch((error) => {
+        console.error("Error calling /get_dynamics request:", error);
+      })
+      .finally(() => {
+        // updateIsLoading(false);
+      });
+  };
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
   useEffect(() => {
     if (isRunningSimulation) {
-      const intervalId = setInterval(fetchDynamics, 60000);
-      return () => clearInterval(intervalId);
+      intervalRef.current = setInterval(fetchDynamics, 60000);
+    } else {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null; // Ensure it's reset
+      }
     }
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
   }, [isRunningSimulation]);
 
   useEffect(() => {
-    fetchDynamics();
+    if (expand) getDynamics();
   }, [currentRunId, currentPrototype]);
+
+  useEffect(() => {
+    getDynamics();
+  }, []);
 
   return (
     <TableContainer component={Paper}>

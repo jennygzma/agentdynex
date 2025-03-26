@@ -6,14 +6,8 @@ import { SERVER_URL } from "../..";
 import Button from "../../../../components/Button";
 import TextField from "../../../../components/TextField";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
-import InputWithButton from "../../../../components/InputWithButton";
-
-type Rubric = {
-  category: string;
-  rubric_type: string;
-  description: string;
-  example: string;
-};
+import Fixes from "./fixes";
+import UserSpecifiedFixes from "./user-specified-fixes";
 
 const Reflection = () => {
   const {
@@ -24,10 +18,8 @@ const Reflection = () => {
     updateCurrentRunTree,
   } = useAppContext();
   const [config, setConfig] = useState("");
-  const [analysis, setAnalysis] = useState("");
   const [updatedConfig, setUpdatedConfig] = useState(false);
   const [expand, setExpand] = useState(true);
-  const [missingRubric, setMissingRubric] = useState<Rubric>(undefined);
 
   const saveConfig = () => {
     updateIsLoading(true);
@@ -123,87 +115,24 @@ const Reflection = () => {
       });
   };
 
-  const getAnalysis = () => {
-    updateIsLoading(true);
-    axios({
-      method: "GET",
-      url: `${SERVER_URL}/get_analysis`,
-    })
-      .then((response) => {
-        console.log("/get_analysis request successful:", response.data);
-        setAnalysis(response.data.analysis);
-      })
-      .catch((error) => {
-        console.error("Error calling /get_analysis request:", error);
-      })
-      .finally(() => {
-        updateIsLoading(false);
-      });
-  };
-
-  const generateAnalysis = () => {
+  const generateUpdatedConfig = () => {
     updateIsLoading(true);
     axios({
       method: "POST",
-      url: `${SERVER_URL}/generate_analysis`,
+      url: `${SERVER_URL}/generate_updated_config`,
     })
       .then((response) => {
-        console.log("/generate_analysis request successful:", response.data);
+        console.log(
+          "/generate_updated_config request successful:",
+          response.data,
+        );
       })
       .catch((error) => {
-        console.error("Error calling /generate_analysis request:", error);
+        console.error("Error calling /generate_updated_config request:", error);
       })
       .finally(() => {
         updateIsLoading(false);
-        getAnalysis();
         getConfig();
-      });
-  };
-
-  const getMissingRubric = () => {
-    updateIsLoading(true);
-    axios({
-      method: "GET",
-      url: `${SERVER_URL}/get_missing_rubric`,
-    })
-      .then((response) => {
-        console.log("/get_missing_rubric request successful:", response.data);
-        setMissingRubric({
-          category: response.data.category,
-          rubric_type: response.data.rubric_type,
-          description: response.data.description,
-          example: response.data.example,
-        });
-      })
-      .catch((error) => {
-        console.error("Error calling /get_missing_rubric request:", error);
-      })
-      .finally(() => {
-        updateIsLoading(false);
-      });
-  };
-
-  const saveMissingRubric = () => {
-    updateIsLoading(true);
-    axios({
-      method: "POST",
-      url: `${SERVER_URL}/add_to_rubric`,
-      data: {
-        config,
-        category: missingRubric.category,
-        rubric_type: missingRubric.rubric_type,
-        description: missingRubric.description,
-        example: missingRubric.example,
-      },
-    })
-      .then((response) => {
-        console.log("/add_to_rubric request successful:", response.data);
-      })
-      .catch((error) => {
-        console.error("Error calling /add_to_rubric request:", error);
-      })
-      .finally(() => {
-        updateIsLoading(false);
       });
   };
 
@@ -211,19 +140,9 @@ const Reflection = () => {
     if (!currentPrototype) return;
     getRunTree();
     getConfig();
-    getAnalysis();
   }, [currentPrototype, currentRunId]);
 
-  const reflection = true;
-
-  const handleRubricChange = (field: keyof Rubric, value: string) => {
-    setMissingRubric((prev) => ({
-      ...prev, // Preserve existing fields
-      [field]: value, // Update only the specified field
-    }));
-  };
-
-  if (!reflection) return <></>;
+  // if (!config) return <></>;
   if (!expand) {
     return (
       <Stack direction="row" spacing="10px">
@@ -252,33 +171,29 @@ const Reflection = () => {
         </Typography>
       </Stack>
       <Stack spacing="20px" direction="row">
-        <Stack width="50%" spacing="20px">
-          <Stack direction="row" sx={{ justifyContent: "space-between" }}>
-            <Typography
-              variant="h6"
-              sx={{
-                fontWeight: "bold",
-              }}
-            >
-              Analysis
-            </Typography>
-            <Button
-              onClick={() => {
-                generateAnalysis();
-              }}
-            >
-              Get Analysis 🤯
-            </Button>
-          </Stack>
-          <TextField
-            className={"Analysis"}
-            value={analysis}
-            readOnly={true}
-            code={true}
-            rows="50"
-          />
+        <Stack width="33%" spacing="20px">
+          <Typography
+            variant="h6"
+            sx={{
+              fontWeight: "bold",
+            }}
+          >
+            Recommended Fixes
+          </Typography>
+          <Fixes />
         </Stack>
-        <Stack width="50%" spacing="20px">
+        <Stack spacing={"10px"} width="33%">
+          <Typography
+            variant="h6"
+            sx={{
+              fontWeight: "bold",
+            }}
+          >
+            User Specified Errors
+          </Typography>
+          <UserSpecifiedFixes />
+        </Stack>
+        <Stack width="33%" spacing="20px">
           <Stack direction="row" sx={{ justifyContent: "space-between" }}>
             <Typography
               variant="h6"
@@ -299,6 +214,13 @@ const Reflection = () => {
             )}
           </Stack>
           <Stack spacing="10px">
+            <Button
+              onClick={() => {
+                generateUpdatedConfig();
+              }}
+            >
+              APPLY FIXES AND GENERATE NEW CONFIG
+            </Button>
             <TextField
               className={"updated_config"}
               rows={50}
@@ -317,67 +239,6 @@ const Reflection = () => {
               Update Config
             </Button>
           </Stack>
-        </Stack>
-        <Stack>
-          <Stack
-            direction="row"
-            sx={{ justifyContent: "space-between", paddingBottom: "20px" }}
-          >
-            <Typography
-              variant="h6"
-              sx={{
-                fontWeight: "bold",
-              }}
-            >
-              Add To Rubric (optional)
-            </Typography>
-            <Button
-              onClick={() => {
-                getMissingRubric();
-              }}
-            >
-              Get Missing Rubric
-            </Button>
-          </Stack>
-          {missingRubric && (
-            <Stack spacing="10px">
-              <Typography variant="h6">CATEGORY:</Typography>
-              <TextField
-                rows={1}
-                value={missingRubric.category}
-                onChange={(e) => {
-                  handleRubricChange("category", e.target.value);
-                }}
-              />
-              <Typography variant="h6">RUBRIC TYPE:</Typography>
-              <TextField
-                rows={1}
-                value={missingRubric.rubric_type}
-                onChange={(e) => {
-                  handleRubricChange("rubric_type", e.target.value);
-                }}
-              />
-              <Typography variant="h6">DESCRIPTION:</Typography>
-              <TextField
-                rows={5}
-                value={missingRubric.description}
-                onChange={(e) => {
-                  handleRubricChange("description", e.target.value);
-                }}
-              />
-              <Typography variant="h6">EXAMPLE:</Typography>
-              <TextField
-                rows={10}
-                value={missingRubric.example}
-                onChange={(e) => {
-                  handleRubricChange("example", e.target.value);
-                }}
-              />
-              <Button onClick={() => saveMissingRubric()}>
-                Save to Rubric
-              </Button>
-            </Stack>
-          )}
         </Stack>
       </Stack>
     </Stack>
