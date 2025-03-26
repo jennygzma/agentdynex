@@ -70,6 +70,7 @@ const Fixes = () => {
       url: `${SERVER_URL}/set_fixes_to_apply`,
       data: {
         fixes: Array.from(selectedFixes),
+        user_specified: false,
       },
     })
       .then((response) => {
@@ -88,6 +89,9 @@ const Fixes = () => {
     axios({
       method: "GET",
       url: `${SERVER_URL}/get_fixes_to_apply`,
+      params: {
+        user_specified: false,
+      },
     })
       .then((response) => {
         console.log("/get_fixes_to_apply request successful:", response.data);

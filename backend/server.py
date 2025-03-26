@@ -719,6 +719,7 @@ def fetch_changes():
         200,
     )
 
+
 @app.route("/get_iterative_list", methods=["GET"])
 def get_iterative_list():
     print("calling get_static_list...")
@@ -834,17 +835,32 @@ def set_fixes_to_apply():
         globals.run_id, current_prototype_folder_path
     )
     data = request.json
-    globals.fixes_to_apply = globals.fixes_to_apply + json.loads(json.dumps(data["fixes"]))
-    print(f"hi jenny from api fixes_to_apply {data["fixes"]}")
-    print(f"hi jenny from json fixes_to_apply {globals.fixes_to_apply}")
-    create_and_write_file(
-        f"{current_run_id_folder_path}/{globals.FIXES_TO_APPLY_FILE_NAME}",
-        json.dumps(globals.fixes_to_apply),
-    )
-    create_and_write_file(
-        f"{globals.folder_path}/{globals.FIXES_TO_APPLY_FILE_NAME}",
-        json.dumps(globals.fixes_to_apply),
-    )
+    user_specified = data["user_specified"]
+    if user_specified:
+        globals.user_specified_fixes_to_apply = (
+            globals.user_specified_fixes_to_apply
+            + json.loads(json.dumps(data["fixes"]))
+        )
+        create_and_write_file(
+            f"{current_run_id_folder_path}/{globals.USER_SPECIFIED_FIXES_TO_APPLY_FILE_NAME}",
+            json.dumps(globals.user_specified_fixes_to_apply),
+        )
+        create_and_write_file(
+            f"{globals.folder_path}/{globals.USER_SPECIFIED_FIXES_TO_APPLY_FILE_NAME}",
+            json.dumps(globals.user_specified_fixes_to_apply),
+        )
+    else:
+        globals.existing_fixes_to_apply = globals.existing_fixes_to_apply + json.loads(
+            json.dumps(data["fixes"])
+        )
+        create_and_write_file(
+            f"{current_run_id_folder_path}/{globals.EXISTING_FIXES_TO_APPLY_FILE_NAME}",
+            json.dumps(globals.existing_fixes_to_apply),
+        )
+        create_and_write_file(
+            f"{globals.folder_path}/{globals.EXISTING_FIXES_TO_APPLY_FILE_NAME}",
+            json.dumps(globals.existing_fixes_to_apply),
+        )
     return (
         jsonify(
             {
@@ -858,11 +874,17 @@ def set_fixes_to_apply():
 @app.route("/get_fixes_to_apply", methods=["GET"])
 def get_fixes_to_apply():
     print("calling get_fixes_to_apply...")
+    user_specified = request.args.get("user_specified")
+    fixes_to_apply = (
+        globals.user_specified_fixes_to_apply
+        if user_specified
+        else globals.existing_fixes_to_apply
+    )
     return (
         jsonify(
             {
                 "message": "got fixes to apply",
-                "fixes_to_apply": globals.fixes_to_apply,
+                "fixes_to_apply": fixes_to_apply,
             }
         ),
         200,
@@ -908,6 +930,7 @@ def generate_updated_config():
         jsonify({"message": "added list entry", "updated_config": updated_config}),
         200,
     )
+
 
 #####################################################################################################################################################################################
 # For testing only. Run curl http://127.0.0.1:5000/set_globals_for_uuid/uuid
