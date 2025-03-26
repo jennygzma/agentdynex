@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Table,
   TableBody,
@@ -17,7 +17,7 @@ type DynamicsData = {
   dynamic: string;
 };
 
-const Dynamics = () => {
+const Dynamics = ({ expand }: { expand: boolean }) => {
   const [dynamicsData, setDynamicsData] = useState<DynamicsData[]>([]);
   const { isRunningSimulation, currentRunId, currentPrototype } =
     useAppContext();
@@ -41,16 +41,27 @@ const Dynamics = () => {
         // updateIsLoading(false);
       });
   };
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (isRunningSimulation) {
-      const intervalId = setInterval(fetchDynamics, 60000);
-      return () => clearInterval(intervalId);
+      intervalRef.current = setInterval(fetchDynamics, 60000);
+    } else {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null; // Ensure it's reset
+      }
     }
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
   }, [isRunningSimulation]);
 
   useEffect(() => {
-    fetchDynamics();
+    if (expand) fetchDynamics();
   }, [currentRunId, currentPrototype]);
 
   return (

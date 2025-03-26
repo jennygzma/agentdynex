@@ -10,13 +10,13 @@ from flask import Flask, jsonify, request
 from matrix import brainstorm_inputs as brainstorm_generated_inputs
 from matrix import get_context_from_other_inputs
 from reflection import (
-    generate_analysis_and_config,
     generate_milestones_json,
     generate_milestones_text,
+    generate_new_specific_problems_and_solutions,
     generate_problems_and_solutions,
-    generate_rubric_missing,
 )
 from reflection import generate_summary as generate_LLM_summary
+from reflection import generate_updated_config as generate_updated_config_from_fixes
 from reflection import get_status as generate_status
 from reflection import (
     log_changes,
@@ -37,7 +37,6 @@ from utils import (
     delete_folder,
     file_exists,
     read_file,
-    rubric_to_dict,
 )
 
 # Initializing flask app
@@ -132,8 +131,6 @@ def explore_prototype():
         json.dumps(globals.prototypes),
     )
     folder_path = f"{globals.folder_path}/{prototype}"
-    rubric = json.loads(read_file(globals.RUBRIC_FILE_NAME))
-    globals.rubric = rubric_to_dict(rubric)
     print("hi jenny " + folder_path)
     create_folder(f"{folder_path}")
     create_and_write_file(
@@ -722,167 +719,32 @@ def fetch_changes():
         200,
     )
 
-
-@app.route("/get_missing_rubric", methods=["GET"])
-def get_missing_rubric():
-    print("calling get_missing_rubric...")
-    current_prototype_folder_path = f"{globals.folder_path}/{globals.current_prototype}"
-    current_run_id_folder_path = find_folder_path(
-        globals.run_id, current_prototype_folder_path
-    )
-    config = read_file(f"{current_prototype_folder_path}/{globals.CONFIG_FILE_NAME}")
-    logs = read_file(f"{current_run_id_folder_path}/{globals.LOGS_FILE}")
-    log_words = logs.split()
-    log_words = log_words[-1000:]
-    missing = generate_rubric_missing(globals.rubric, config, log_words)
-    return (
-        jsonify(
-            {
-                "message": "got missing rubric",
-                "category": missing["category"],
-                "rubric_type": missing["rubric_type"],
-                "description": missing["description"],
-                "example": missing["example"],
-            }
-        ),
-        200,
-    )
-
-
-@app.route("/add_to_rubric", methods=["POST"])
-def add_to_rubric():
-    data = request.json
-    category = data["run_id"]
-    rubric_type = data["rubric_type"]
-    description = data["description"]
-    example = data["example"]
-    globals.rubric.append(
-        {
-            "category": category,
-            "rubric_type": rubric_type,
-            "description": description,
-            "example": example,
-        }
-    )
-    create_and_write_file(globals.RUBRIC_FILE_NAME, globals.rubric)
-    return (
-        jsonify(
-            {
-                "message": "added rubric",
-            }
-        ),
-        200,
-    )
-
-
-@app.route("/get_rubric", methods=["GET"])
-def get_rubric():
-    return (
-        jsonify({"message": "got rubric", "rubric": globals.rubric}),
-        200,
-    )
-
-@app.route("/add_to_iterative_list", methods=["POST"])
-def add_to_list():
-    print("calling add_to_iterative_list...")
-    data = request.json
-    problem = data["problem"]
-    problem_example = data["problem_example"]
-    solution = data["solution"]
-    solution_example = data["solution"]
-    current_prototype_folder_path = f"{globals.folder_path}/{globals.current_prototype}"
-    globals.iterative_list.append(
-        {
-            "problem": problem,
-            "problem_example": problem_example,
-            "solution": solution,
-            "solution_example": solution_example,
-        }
-    )
-    create_and_write_file(f"{current_prototype_folder_path}/{globals.ITERATIVE_LIST_FILE_NAME}", json.dumps(globals.iterative_list))
-    return (
-        jsonify(
-            {
-                "message": "added list entry"
-            }
-        ),
-        200,
-    )
-
-
 @app.route("/get_iterative_list", methods=["GET"])
 def get_iterative_list():
     print("calling get_static_list...")
     return (
-        jsonify({"message": "got rubric", "list": globals.iterative_list if globals.iterative_list is not None else []}),
+        jsonify(
+            {
+                "message": "got iterative list",
+                "list": (
+                    globals.iterative_list if globals.iterative_list is not None else []
+                ),
+            }
+        ),
         200,
     )
+
 
 @app.route("/get_static_list", methods=["GET"])
 def get_static_list():
     print("calling get_static_list...")
     return (
-        jsonify({"message": "got rubric", "list": globals.static_list}),
+        jsonify({"message": "got static list", "list": globals.static_list}),
         200,
     )
 
 
-@app.route("/generate_analysis", methods=["POST"])
-def generate_analysis():
-    print("calling generate_analysis...")
-    current_prototype_folder_path = f"{globals.folder_path}/{globals.current_prototype}"
-    current_run_id_folder_path = find_folder_path(
-        globals.run_id, current_prototype_folder_path
-    )
-
-    has_children = (
-        bool(globals.run_tree.get(globals.run_id, {}))
-        if isinstance(globals.run_tree.get(globals.run_id), dict)
-        else False
-    )
-    print(f"has_children {has_children}, run_id {globals.run_id}")
-    if has_children:
-        to_delete, globals.run_tree = delete_child_runs(
-            globals.run_id, globals.run_tree
-        )
-        print(f"to_delete {to_delete}")
-        print(f"new run tree {globals.run_tree}")
-        for curr_run_id in to_delete:
-            delete_folder(f"{current_run_id_folder_path}/{curr_run_id}")
-        create_and_write_file(
-            f"{globals.folder_path}/{globals.RUN_TREE}", json.dumps(globals.run_tree)
-        )
-        create_and_write_file(
-            f"{globals.folder_path}/{globals.current_prototype}/{globals.RUN_TREE}",
-            json.dumps(globals.run_tree),
-        )
-
-    logs = read_file(f"{current_run_id_folder_path}/{globals.LOGS_FILE}")
-    log_words = logs.split()
-    log_words = log_words[-1000:]
-    matrix = read_file(f"{current_prototype_folder_path}/{globals.MATRIX_FILE_NAME}")
-    config = read_file(f"{current_prototype_folder_path}/{globals.CONFIG_FILE_NAME}")
-    analysis, updated_config = generate_analysis_and_config(
-        log_words, matrix, config, globals.rubric
-    )
-    create_and_write_file(
-        f"{current_run_id_folder_path}/{globals.ANALYSIS_FILE}", analysis
-    )
-    create_and_write_file(
-        f"{current_run_id_folder_path}/{globals.UPDATED_CONFIG}",
-        updated_config,
-    )
-    return (
-        jsonify(
-            {
-                "message": "generated analysis",
-                "analysis": analysis,
-            }
-        ),
-        200,
-    )
-
-@app.route("/generate_fixes", methods=["POST"])
+@app.route("/generate_fixes", methods=["GET"])
 def generate_fixes():
     print("calling generate_fixes...")
     current_prototype_folder_path = f"{globals.folder_path}/{globals.current_prototype}"
@@ -916,7 +778,9 @@ def generate_fixes():
     log_words = logs.split()
     log_words = log_words[-4000:]
     config = read_file(f"{current_prototype_folder_path}/{globals.CONFIG_FILE_NAME}")
-    fixes = generate_problems_and_solutions(globals.static_list, globals.iterative_list, log_words, config)
+    fixes = generate_problems_and_solutions(
+        globals.static_list, globals.iterative_list, log_words, config
+    )
     # create_and_write_file(
     #     f"{current_run_id_folder_path}/{globals.ANALYSIS_FILE}", analysis
     # )
@@ -935,24 +799,115 @@ def generate_fixes():
     )
 
 
-@app.route("/get_analysis", methods=["GET"])
-def get_analysis():
-    print("calling get_analysis...")
+@app.route("/identify_new_list_entry", methods=["POST"])
+def identify_new_list_entry():
+    print("calling identify_new_list_entry...")
+    data = request.json
+    user_input = data["input"]
     current_prototype_folder_path = f"{globals.folder_path}/{globals.current_prototype}"
     current_run_id_folder_path = find_folder_path(
         globals.run_id, current_prototype_folder_path
     )
-    analysis = read_file(f"{current_run_id_folder_path}/{globals.ANALYSIS_FILE}")
+    logs = read_file(f"{current_run_id_folder_path}/{globals.LOGS_FILE}")
+    log_words = logs.split()
+    log_words = log_words[-4000:]
+    config = read_file(f"{current_prototype_folder_path}/{globals.CONFIG_FILE_NAME}")
+    new_fixes = generate_new_specific_problems_and_solutions(
+        user_input, globals.static_list, globals.iterative_list, log_words, config
+    )
     return (
         jsonify(
             {
-                "message": "got analysis",
-                "analysis": analysis,
+                "message": "generated fixes",
+                "new_fixes": new_fixes,
             }
         ),
         200,
     )
 
+
+@app.route("/set_fixes_to_apply", methods=["POST"])
+def set_fixes_to_apply():
+    print("calling set_fixes_to_apply...")
+    current_prototype_folder_path = f"{globals.folder_path}/{globals.current_prototype}"
+    current_run_id_folder_path = find_folder_path(
+        globals.run_id, current_prototype_folder_path
+    )
+    data = request.json
+    globals.fixes_to_apply = globals.fixes_to_apply + json.loads(json.dumps(data["fixes"]))
+    print(f"hi jenny from api fixes_to_apply {data["fixes"]}")
+    print(f"hi jenny from json fixes_to_apply {globals.fixes_to_apply}")
+    create_and_write_file(
+        f"{current_run_id_folder_path}/{globals.FIXES_TO_APPLY_FILE_NAME}",
+        json.dumps(globals.fixes_to_apply),
+    )
+    create_and_write_file(
+        f"{globals.folder_path}/{globals.FIXES_TO_APPLY_FILE_NAME}",
+        json.dumps(globals.fixes_to_apply),
+    )
+    return (
+        jsonify(
+            {
+                "message": "set fixes to apply",
+            }
+        ),
+        200,
+    )
+
+
+@app.route("/get_fixes_to_apply", methods=["GET"])
+def get_fixes_to_apply():
+    print("calling get_fixes_to_apply...")
+    return (
+        jsonify(
+            {
+                "message": "got fixes to apply",
+                "fixes_to_apply": globals.fixes_to_apply,
+            }
+        ),
+        200,
+    )
+
+
+@app.route("/add_to_iterative_list", methods=["POST"])
+def add_to_iterative_list():
+    print("calling add_to_iterative_list...")
+    new_elements = json.loads(json.dumps(request.json["elements"]))
+    print(f"hi jenny current iterative list {globals.iterative_list}")
+    print(f"hi jenny current new_elements list {new_elements}")
+    globals.iterative_list = globals.iterative_list + new_elements
+    create_and_write_file(
+        f"{globals.folder_path}/{globals.ITERATIVE_LIST_FILE_NAME}",
+        json.dumps(globals.iterative_list),
+    )
+    return (
+        jsonify({"message": "added list entry"}),
+        200,
+    )
+
+
+@app.route("/generate_updated_config", methods=["POST"])
+def generate_updated_config():
+    print("calling generate_updated_config...")
+    current_prototype_folder_path = f"{globals.folder_path}/{globals.current_prototype}"
+    current_run_id_folder_path = find_folder_path(
+        globals.run_id, current_prototype_folder_path
+    )
+    logs = read_file(f"{current_run_id_folder_path}/{globals.LOGS_FILE}")
+    log_words = logs.split()
+    log_words = log_words[-3000:]
+    config = read_file(f"{current_prototype_folder_path}/{globals.CONFIG_FILE_NAME}")
+    updated_config = generate_updated_config_from_fixes(
+        globals.fixes_to_apply, logs, config
+    )
+    create_and_write_file(
+        f"{current_run_id_folder_path}/{globals.UPDATED_CONFIG}",
+        updated_config,
+    )
+    return (
+        jsonify({"message": "added list entry", "updated_config": updated_config}),
+        200,
+    )
 
 #####################################################################################################################################################################################
 # For testing only. Run curl http://127.0.0.1:5000/set_globals_for_uuid/uuid
@@ -974,7 +929,9 @@ def set_globals_for_uuid(generated_uuid):
         else {}
     )
     globals.iterative_list = (
-        json.loads(read_file(f"{globals.folder_path}/{globals.ITERATIVE_LIST_FILE_NAME}"))
+        json.loads(
+            read_file(f"{globals.folder_path}/{globals.ITERATIVE_LIST_FILE_NAME}")
+        )
         if file_exists(f"{globals.folder_path}/{globals.ITERATIVE_LIST_FILE_NAME}")
         else None
     )
@@ -985,8 +942,13 @@ def set_globals_for_uuid(generated_uuid):
         if file_exists(file_path_milestone)
         else {}
     )
-    rubric = json.loads(read_file(globals.RUBRIC_FILE_NAME))
-    globals.rubric = rubric_to_dict(rubric)
+    globals.fixes_to_apply = (
+        json.loads(
+            read_file(f"{globals.folder_path}/{globals.FIXES_TO_APPLY_FILE_NAME}")
+        )
+        if file_exists(f"{globals.folder_path}/{globals.FIXES_TO_APPLY_FILE_NAME}")
+        else []
+    )
     globals.run_id = "0"
     globals.problem = read_file(f"{globals.folder_path}/{globals.PROBLEM_FILE_NAME}")
     return jsonify({"message": "Successfully set global fields"}), 200

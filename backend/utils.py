@@ -1,18 +1,6 @@
 import os
 
 
-def rubric_to_dict(rubric):
-    return [
-        {
-            "category": r["category"],
-            "rubric_type": r["rubric_type"],
-            "description": r["description"],
-            "example": r["example"],
-        }
-        for r in rubric
-    ]
-
-
 def create_folder(folder_path):
     try:
         if not os.path.exists(folder_path):

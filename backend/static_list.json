@@ -1,8 +1,14 @@
 [
-    {
-        "problem": "problem",
-        "problem_example": "problem_example",
-        "solution": "solution",
-        "solution_example": "solution_example"
-    }
+  {
+    "problem": "Simulation is too complex due to too many iterations/rounds that cause agents to lose track of what they are doing.",
+    "problem_example": "If simulating a classroom late policy made by a professor (where a professor assigns work to students and enforces a penalty for late submissions), then a simulation where the professor assigns 10 rounds of assignments to the students to complete might take too long to run (the program might crash after some amount of time before each student agent can complete each task), and students can lose track of the simulation goal. Thus, resulting in a failed simulation",
+    "solution": "Reduce the number of rounds in the simulation.",
+    "solution_example": "If we simulate a classroom late policy made by a professor, a simulation that has 10 rounds of assignments, we can reduce it to 5 rounds of assignments."
+  },
+  {
+    "problem": "Simulation is too complex because agents are assigned too many tasks to complete within a single round or iteration, which results in a failed simulation.",
+    "problem_example": "If simulating a classroom late policy made by a professor (where a professor assigns work to students and enforces a penalty for late submissions), a simulation that has 10 homework problems in a single assignment might take too long to run (if the simulation has multiple assignments for the students to complete then having each assignment be very lengthy) so students might lose track of the simulation goal or the simulation might crash because it exceed a certain run time.",
+    "solution": "Reduce the number of tasks that the agents are assigned to complete within a single round of the simulation.",
+    "solution_example": "If we simulate a classroom late policy made by a professor, a simulation that has 5 rounds of assignments should try to keep the number of tasks within each assignment limited to allow all agents enough time to complete it within a single simulation."
+  }
 ]

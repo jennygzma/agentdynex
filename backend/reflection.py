@@ -266,6 +266,8 @@ Why the Simulation Ended:
 Conclusion:
     The round of the Ultimatum Game was functionally completed in terms of proposal and acceptance, but could not be finalized due to missing payout information. The game stalled in an unresolved state, requiring an external intervention to proceed.
 """
+
+
 # WE RUN THIS IF THERE ARE NO MILESTONES
 def generate_milestones_text(config):
     print("calling LLM for generate_milestones_text")
@@ -280,6 +282,7 @@ def generate_milestones_text(config):
     user_message = f"Here is the config: {config}"
     milestone_txt = call_llm(system_message, user_message)
     return milestone_txt
+
 
 def generate_milestones_json(milestones):
     print("calling LLM for generate_milestones_json...")
@@ -312,7 +315,10 @@ def generate_milestones_json(milestones):
     print("sucessfully called LLM for generate_milestones_json", milestones)
     return data
 
-def log_dynamics(logs, current_milestone, current_milestone_id, milestones, previous_dynamic):
+
+def log_dynamics(
+    logs, current_milestone, current_milestone_id, milestones, previous_dynamic
+):
     print("calling LLM for log_dynamics...")
     log_words = logs.split()
     log_words = log_words[-4000:]  # Keep the last 4,000 words
@@ -369,9 +375,17 @@ def log_dynamics(logs, current_milestone, current_milestone_id, milestones, prev
         data = json.loads(dynamic)
         required_keys = {"milestone_id", "milestone", "dynamic"}
         if not required_keys.issubset(data.keys()):
-            log_dynamics(logs, current_milestone, current_milestone_id, milestones, previous_dynamic)
+            log_dynamics(
+                logs,
+                current_milestone,
+                current_milestone_id,
+                milestones,
+                previous_dynamic,
+            )
     except json.JSONDecodeError:
-        log_dynamics(logs, current_milestone, current_milestone_id, milestones, previous_dynamic)
+        log_dynamics(
+            logs, current_milestone, current_milestone_id, milestones, previous_dynamic
+        )
     return json.loads(dynamic)
 
 
@@ -415,6 +429,7 @@ def log_changes(logs, previous):
     except json.JSONDecodeError:
         log_changes(logs, previous)
     return json.loads(change)
+
 
 def generate_summary(logs):
     print("calling LLM for generate_summary...")
@@ -469,53 +484,10 @@ def get_status(logs, problem, failures):
     print("sucessfully called LLM for get_status", status)
     return status
 
-def generate_rubric_text(rubric_instances):
-    result = ""
-
-    for instance in rubric_instances:
-        result += f"Category: {instance["category"]} \n"
-        result += f"Modification Type: {instance["rubric_type"]}\n"
-        result += f"Description: {instance["description"]}\n"
-        result += f"Example: {instance["example"]} \n"
-
-        result += "\n"  # Separate each rubric instance for readability
-
-    return result.strip()
-
-def generate_rubric_missing(rubric, config, logs):
-    print("calling LLM for generate_rubric_missing...")
-    rubric_text = generate_rubric_text(rubric)
-
-    system_message = f"""
-    You are an error analyzer. We are running a multi-agent simulation on GPTeams. {GPTEAMS_DESCRIPTION}
-    Is there anything missing from the debug rubric that could have helped in the debugging of this simulation, which you think i should incorporate into the rubric?
-    {rubric_text}
-
-    Return a JSON object AND ONLY a JSON that looks like this:
-    {{
-        "category": "Task Structure Optimization",
-        "rubric_type": "Reduce complexity",
-        "description": "Simplify the simulation by focusing on a single core task",
-        "example": "If the simulation is about simulating how different students will respond to a late policy made by a professor, by checking when students will return assignments, the example is: Changed from five assignments to one assignment"
-    }}
-    """
-
-    user_message = f"Here are the logs: {logs}. USE THESE LOGS TO IDENTIFY WHAT WENT WRONG HERE. AND IF YOU THINK SOMETHING IS MISSING FROM THE RUBRIC, ADD IT TO THE RUBRIC. IF NOTHING IS MISSING, JUST RETURN THE PART IN THE RUBRIC THAT THIS HAD THE MISTAKE IN AND REWRITE THE EXAMPLE TO FIT WHAT HAPPENED HERE. Here is the original configuration: {config}"
-    missing = call_llm(system_message, user_message)
-
-    try:
-        data = json.loads(missing)  # Try parsing JSON
-        required_keys = {"category", "rubric_type", "description", "example"}
-        if not required_keys.issubset(data.keys()):
-            generate_rubric_missing(rubric, config, logs)
-    except json.JSONDecodeError:
-        generate_rubric_missing(rubric, config, logs)
-    print(f"got missing from llm... {missing}")
-    return json.loads(missing)
 
 def generate_problems_and_solutions(static_list, iterative_list, logs, config):
     print("calling LLM for generate_problems_and_solutions")
-    problem_solution_list = static_list+iterative_list
+    problem_solution_list = static_list + iterative_list
     system_message = f"""
         You are an error analyzer that analyzes what went wrong in a multi-agent simulation based off of logs. You will then try to fix the initial configuration file by offering suggestions.
         The multi-agent simulation is run off of GPTeams. {GPTEAMS_DESCRIPTION}
@@ -525,16 +497,18 @@ def generate_problems_and_solutions(static_list, iterative_list, logs, config):
         The response must be a JSON list format, like this:
         [
         {{
-            "problem": <string>
+            "problem": <string>,
             "solution": <string>
         }},
         {{
-            "problem": <string>
+            "problem": <string>,
             "solution": <string>
         }},
         ]
-        where the "problem" field is exactly the same as the "problem" provided in the list, but the "solution" field is whatever you think would be the best fix.
+        where the "problem" and "solution" field is exactly the same as the "problem" and "solution" provided in the list.
         return only the JSON list and nothing else.
+
+        IF THERE IS NOTHING RELEVANT, RETURN AN EMPTY LIST LIKE THIS: []
     """
 
     user_message = f"""
@@ -542,6 +516,9 @@ def generate_problems_and_solutions(static_list, iterative_list, logs, config):
         Here are the logs: {logs}
     """
     fixes = call_llm(system_message, user_message)
+    print(
+        f"the (raw) problems and solutions absed on the existing matrix are are {fixes}..."
+    )
 
     try:
         parsed_fixes = json.loads(fixes)  # Parse JSON string
@@ -553,147 +530,127 @@ def generate_problems_and_solutions(static_list, iterative_list, logs, config):
         for fix in parsed_fixes:
             if not isinstance(fix, dict) or not required_keys.issubset(fix.keys()):
                 print(f"Missing required fields in fix: {fix}")
-                return generate_rubric_missing(fix, config, logs)  # Handle missing fields
+                generate_problems_and_solutions(
+                    static_list, iterative_list, logs, config
+                )
 
     except (json.JSONDecodeError, ValueError) as e:
         print(f"JSON parsing error: {e}")
-        return generate_rubric_missing(None, config, logs)  # Handle invalid JSON
+        generate_problems_and_solutions(static_list, iterative_list, logs, config)
 
     print(f"Got valid fixes from LLM: {parsed_fixes}")
-    return parsed_fixes  # Return the validated JSON list
+    all_fixes = get_duplicate_elements(parsed_fixes, problem_solution_list)
+    return all_fixes  # Return the validated JSON list
 
 
-def generate_analysis_and_config(logs, matrix, config, rubric):
-    print("calling LLM for generate_analysis_and_config...")
+def get_duplicate_elements(new_elements, old_elements):
+    old_pairs = {
+        (item["problem"], item["solution"]) for item in old_elements
+    }  # Collect existing (problem, solution) pairs
+    return [
+        item
+        for item in new_elements
+        if (item["problem"], item["solution"]) in old_pairs
+    ]
 
-    rubric_text = generate_rubric_text(rubric)
 
+def generate_new_specific_problems_and_solutions(
+    user_input, static_list, iterative_list, logs, config
+):
+    print("calling LLM for generate_problems_and_solutions")
+    problem_solution_list = static_list + iterative_list
+    system_message = f"""
+        You are an error analyzer that analyzes what went wrong in a multi-agent simulation based off of logs and write out the problem and the solution.
+        The user will provide something they believe went wrong with the simulation, and your job is to look at the logs and configuration and prescribe elements that they can add to a running list of problems and solutions to help with future debugging.
+        The multi-agent simulation is run off of GPTeams. {GPTEAMS_DESCRIPTION}
+        The user will provide logs and the original configuration file.
+
+        MAKE SURE NOT TO DUPLICATE WHAT IS ON THE EXISTING LIST. INSTEAD, USE THE EXISTING LIST AS EXAMPLES AS TO HOW SPECIFIC EACH FIELD SHOULD BE:
+        HERE IS THE EXISTING LIST
+        {str(problem_solution_list)}
+
+        The response must be a JSON list format, like this:
+        [
+        {{
+            "problem": <string>, # describes the general problem
+            "problem_example": <string>, # describes the specific problem related to this example exactly
+            "solution": <string>, # describes the general solution
+            "solution_example": <string>, # describes the specific solution related to this example exactly
+        }},
+        {{
+            "problem": <string>,
+            "problem_example": <string>,
+            "solution": <string>,
+            "solution_example": <string>
+        }},
+        ]
+        Each field should only have 10-50 words maximum.
+        Return only the JSON list and nothing else.
+
+        IF THERE IS NOTHING RELEVANT, RETURN AN EMPTY LIST LIKE THIS: []
+    """
+
+    user_message = f"""
+        Here is the user input of the problem/problems you should be trying to look at: {user_input}
+        Here is the original configuration: {config}.
+        Here are the logs: {logs}
+    """
+    elements = call_llm(system_message, user_message)
+    print(f"the (raw) new elemenets generated are {elements}...")
+
+    try:
+        parsed_elements = json.loads(elements)  # Parse JSON string
+        if not isinstance(parsed_elements, list):  # Ensure it's a list
+            raise ValueError("Expected a JSON list but got something else.")
+
+        required_keys = {"problem", "problem_example", "solution", "solution_example"}
+
+        for fix in parsed_elements:
+            if not isinstance(fix, dict) or not required_keys.issubset(fix.keys()):
+                print(f"Missing required fields in fix: {fix}")
+                generate_new_specific_problems_and_solutions(
+                    user_input, static_list, iterative_list, logs, config
+                )  # Handle missing fields
+    except (json.JSONDecodeError, ValueError) as e:
+        print(f"JSON parsing error: {e}")
+        generate_new_specific_problems_and_solutions(
+            user_input, static_list, iterative_list, logs, config
+        )  # Handle invalid JSON
+
+    print(f"Got valid elements from LLM: {parsed_elements}")
+    new_elements = remove_duplicate_elements(parsed_elements, problem_solution_list)
+    return new_elements  # Return the validated JSON list
+
+
+def remove_duplicate_elements(new_elements, old_elements):
+    old_problems = {
+        item["problem"] for item in old_elements
+    }  # Collect existing problems in a set
+    return [item for item in new_elements if item["problem"] not in old_problems]
+
+
+def generate_updated_config(fixes_to_apply, logs, config):
+    print("calling LLM for generate_updated_config...")
     system_message = f"""
         {GPTEAMS_DESCRIPTION}
-        Identify why the simulation failed. based off the rubric {rubric_text}.
-        Modify the config as needed ,keeping all the original necessary information.
+        These are problems that are identified that the user wants to fix - {fixes_to_apply}.
+        The "problem" is the problem and the "solution" is the prescribed general solution, and the "problem_example" and "solution_examples" are how we solved the issue in the past given a certain simulation.
+        Based on this, make sure to fix EACH problem here with your own solution.
+        Modify the config as needed, keeping all the original necessary information.
         Do not add any new fields. Do not change the format of the config up. If you want to remove content of the field, still keep the field but just have it like this: "private_bio": ""
         Do not add ANY NEW ROOMS to the worlds. For the world, only modify the description
         Keep the SAME NUMBER OF AGENTS with the same names and everything. For the agents, only modify the directives or initial plan.
-        Specifically, return the analysis of what went wrong (within 300 words) and the ENTIRE CONFIGURATION (DO NOT RETURN ONLY PART OF THE CONFIGURATION).
         Ensure that all these fields are filled out and follows this structure, like this example config {GPTEAM_EXAMPLE}
+
+        RETURN THE JSON CONFIG AND ONLY THE JSON CONFIG
     """
-    user_message = f"Here are the logs: {logs}. Here is the original configuration: {config}"
+    user_message = (
+        f"Here are the logs: {logs}. Here is the original configuration: {config}"
+    )
     analysis_and_config = call_llm(system_message, user_message)
     new_config = cleanup_json(analysis_and_config)
     new_config_lines = len(new_config.splitlines())
     config_lines = len(config.splitlines())
     print(f"config lines is {config_lines} and new_config_lines is {new_config_lines}")
-    # if config_lines > new_config_lines:
-    #     print("trying again... writing json failed...")
-    #     generate_analysis_and_config(logs, matrix, config, rubric)
-    analysis = get_analysis(analysis_and_config)
-    print(
-        "sucessfully called LLM for generate_analysis_and_config", analysis_and_config
-    )
-    return analysis, new_config
-
-
-def get_analysis(analysis_and_config):
-    print("calling LLM for get_analysis...")
-    system_message = """
-        Given an analysis and a config json, return only the NATURAL LANGUAGE ANALYSIS part that makes sense. Do not add any words or change anything.
-
-        For example, if you have something that is like:
-        The given simulation amiss a significant part of the rubric as pointed out under the category: "Task Structure Optimization" - interms of optimization by reducing complexity. It uses three assignments instead of one, complicating the execution. Additionally, each part of the assignment requires specific details and directions that are not explicitly specified, invoking "Task Structure Optimization" - clarify task instructions. There is ambiguity on core tasks, creating a possibility of misalignment in actions.
-
-    Under the category of "Stop Condition & Completion Criteria", optimization by preventing premature exits and using dependency-based stop conditions needs attention. The completion of tasks doesn’t solely rely on actual task completion, and there seems to be a lack of dependency-based stop condition ensuring the simulation doesn't terminate early.
-
-    The configuration is amended to align with the matrix and reduce the complexity by focusing on just one core assignment, with explicit task details and stop conditions.
-
-    Here is the fixed configuration:
-
-        {
-        "world_name": "Classroom Scenario with Late Policy Experimentation",
-        "locations": [
-            {
-                "name": "Classroom",
-                "description": "The classroom is where the professor and students interact. The professor announces assignments, due dates, and late policies here. Students declare when they submit assignments in this space."
-            }
-        ],
-        "agents": [
-            {
-                "first_name": "Professor",
-                "private_bio": "",
-                "public_bio": "The professor wants to experiment with different late policies to improve class performance.",
-                "directives": [
-                    "Maintain a good relationship with all students.",
-                    "Clearly announce the assignment with explicit due date and task details at the start of the simulation.",
-                    "Define a specific late policy for the assignment.",
-                    "Engage with students when they ask questions or address you.",
-                    "Clearly communicate the late policy for the assignment."
-                ],
-                "initial_plan": {
-                    "description": "Announce an explicit late policy and assign a single specific assignment.",
-                    "stop_condition": "The professor has announced and collected the assignment with respective late policy.",
-                    "location": "Classroom"
-                }
-            },
-            {
-                "first_name": "Ali",
-                "private_bio": "Ali is a diligent student who prefers strict deadline policies and is always punctual.",
-                "public_bio": "Ali is a student in the professor's class.",
-                "directives": [
-                    "Recognize the professor's late policies and work on the assignment accordingly.",
-                    "Aim to submit the assignment on time, without being late.",
-                    "Inform the professor when you submit the assignment.",
-                    "Discuss the late policy and assignment progress with classmates Sam and Tim."
-                ],
-                "initial_plan": {
-                    "description": "Understand the professor's assignment announcement and late policy. Work on the assignment with the aim to submit it on time.",
-                    "stop_condition": "The assignment is marked as 'submitted' to the professor.",
-                    "location": "Classroom"
-                }
-            },
-            {
-                "first_name": "Sam",
-                "private_bio": "Sam is an average student and an occasional procrastinator who prefers leniency in late policies.",
-                "public_bio": "Sam is a student in the professor's class.",
-                "directives": [
-                    "Recognize the professor's late policies and work on the assignment accordingly.",
-                    "Try to submit the assignment on time, but be prepared to turn it in late if needed.",
-                    "Inform the professor when you submit the assignment, including if it's late.",
-                    "Discuss the late policy and assignment progress with classmates Ali and Tim."
-                ],
-                "initial_plan": {
-                    "description": "Understand the professor's assignment announcement and late policy. Work on the assignment, potentially submitting it late.",
-                    "stop_condition": "The assignment is marked as 'submitted' to the professor.",
-                    "location": "Classroom"
-                }
-            },
-            {
-                "first_name": "Tim",
-                "private_bio": "Tim is a chronic procrastinator who is greatly affected by strict late policies and desires high leniency.",
-                "public_bio": "Tim is a student in the professor's class.",
-                "directives": [
-                    "Recognize the professor's late policies and work on the assignment accordingly.",
-                    "Expect to submit the assignment late, depending on the late policy involved.",
-                    "Inform the professor when you submit the assignment, including if it's late.",
-                    "Discuss the late policy and assignment progress with classmates Ali and Sam."
-                ],
-                "initial_plan": {
-                    "description": "Understand the professor's assignment announcement and late policy. Work on the assignment, likely submitting it late.",
-                    "stop_condition": "The assignment is marked as 'submitted' to the professor.",
-                    "location": "Classroom"
-                }
-            }
-        ]
-    }
-
-    only return:
-    The given simulation amiss a significant part of the rubric as pointed out under the category: "Task Structure Optimization" - interms of optimization by reducing complexity. It uses three assignments instead of one, complicating the execution. Additionally, each part of the assignment requires specific details and directions that are not explicitly specified, invoking "Task Structure Optimization" - clarify task instructions. There is ambiguity on core tasks, creating a possibility of misalignment in actions.
-
-    Under the category of "Stop Condition & Completion Criteria", optimization by preventing premature exits and using dependency-based stop conditions needs attention. The completion of tasks doesn’t solely rely on actual task completion, and there seems to be a lack of dependency-based stop condition ensuring the simulation doesn't terminate early.
-
-    The configuration is amended to align with the matrix and reduce the complexity by focusing on just one core assignment, with explicit task details and stop conditions.
-
-
-    """
-    user_message = f"Here is the input: {analysis_and_config}."
-    analysis = call_llm(system_message, user_message)
-    return analysis
+    print("sucessfully called LLM for generate_updated_config", analysis_and_config)
+    return new_config
