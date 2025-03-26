@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/current";
 import { AppProvider } from "./pages/current/hooks/app-context";
 import Rubric from "./pages/current/rubric";
+import List from "./pages/current/components/list-view";
 
 function App() {
   return (
@@ -25,6 +26,22 @@ function App() {
           element={
             <AppProvider>
               <Rubric />
+            </AppProvider>
+          }
+        />
+        <Route
+          path="/iterative_list"
+          element={
+            <AppProvider>
+              <List type="iterative" />
+            </AppProvider>
+          }
+        />
+        <Route
+          path="/static_list"
+          element={
+            <AppProvider>
+              <List type="static"/>
             </AppProvider>
           }
         />

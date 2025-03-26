@@ -7,6 +7,8 @@ import Button from "../../../../components/Button";
 import TextField from "../../../../components/TextField";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import InputWithButton from "../../../../components/InputWithButton";
+import Fixes from "./fixes";
+import UserSpecifiedFixes from "./user-specified-fixes";
 
 type Rubric = {
   category: string;
@@ -253,7 +255,7 @@ const Reflection = () => {
       </Stack>
       <Stack spacing="20px" direction="row">
         <Stack width="50%" spacing="20px">
-          <Stack direction="row" sx={{ justifyContent: "space-between" }}>
+          {/* <Stack direction="row" sx={{ justifyContent: "space-between" }}>
             <Typography
               variant="h6"
               sx={{
@@ -276,7 +278,11 @@ const Reflection = () => {
             readOnly={true}
             code={true}
             rows="50"
-          />
+          /> */}
+          <Fixes/>
+        </Stack>
+        <Stack>
+          <UserSpecifiedFixes/>
         </Stack>
         <Stack width="50%" spacing="20px">
           <Stack direction="row" sx={{ justifyContent: "space-between" }}>
@@ -317,67 +323,6 @@ const Reflection = () => {
               Update Config
             </Button>
           </Stack>
-        </Stack>
-        <Stack>
-          <Stack
-            direction="row"
-            sx={{ justifyContent: "space-between", paddingBottom: "20px" }}
-          >
-            <Typography
-              variant="h6"
-              sx={{
-                fontWeight: "bold",
-              }}
-            >
-              Add To Rubric (optional)
-            </Typography>
-            <Button
-              onClick={() => {
-                getMissingRubric();
-              }}
-            >
-              Get Missing Rubric
-            </Button>
-          </Stack>
-          {missingRubric && (
-            <Stack spacing="10px">
-              <Typography variant="h6">CATEGORY:</Typography>
-              <TextField
-                rows={1}
-                value={missingRubric.category}
-                onChange={(e) => {
-                  handleRubricChange("category", e.target.value);
-                }}
-              />
-              <Typography variant="h6">RUBRIC TYPE:</Typography>
-              <TextField
-                rows={1}
-                value={missingRubric.rubric_type}
-                onChange={(e) => {
-                  handleRubricChange("rubric_type", e.target.value);
-                }}
-              />
-              <Typography variant="h6">DESCRIPTION:</Typography>
-              <TextField
-                rows={5}
-                value={missingRubric.description}
-                onChange={(e) => {
-                  handleRubricChange("description", e.target.value);
-                }}
-              />
-              <Typography variant="h6">EXAMPLE:</Typography>
-              <TextField
-                rows={10}
-                value={missingRubric.example}
-                onChange={(e) => {
-                  handleRubricChange("example", e.target.value);
-                }}
-              />
-              <Button onClick={() => saveMissingRubric()}>
-                Save to Rubric
-              </Button>
-            </Stack>
-          )}
         </Stack>
       </Stack>
     </Stack>

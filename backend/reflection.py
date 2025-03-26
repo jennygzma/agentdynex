@@ -295,11 +295,18 @@ def generate_milestones_json(milestones):
             "2": Second assignment announced and completed,
             "3": Third assignment announced and completed
         }}
+        RETURN THE JSON AND ONLY THE JSON. DO NOT RETURN ANY NATURAL LANGUAGE.
+        MAKE SURE THE KEY IS A NUMERIC STRING ONLY, AND THE VALUE IS A STRING ONLY.
+        THE MILESTONES GENERATED SHOULD DIRECTLY REFLECT WHAT IS IN THE TEXT. DO NOT ADD ANYTHING.
     """
     user_message = f"Here is the text: {milestones}"
     milestone_json = call_llm(system_message, user_message)
     try:
         data = json.loads(milestone_json)  # Try parsing JSON
+        if not all(isinstance(v, str) for v in data.values()):
+            generate_milestones_json(milestones)
+        if not all(k.isdigit() for k in data.keys()):
+            generate_milestones_json(milestones)
     except json.JSONDecodeError:
         generate_milestones_json(milestones)
     print("sucessfully called LLM for generate_milestones_json", milestones)
@@ -505,6 +512,56 @@ def generate_rubric_missing(rubric, config, logs):
         generate_rubric_missing(rubric, config, logs)
     print(f"got missing from llm... {missing}")
     return json.loads(missing)
+
+def generate_problems_and_solutions(static_list, iterative_list, logs, config):
+    print("calling LLM for generate_problems_and_solutions")
+    problem_solution_list = static_list+iterative_list
+    system_message = f"""
+        You are an error analyzer that analyzes what went wrong in a multi-agent simulation based off of logs. You will then try to fix the initial configuration file by offering suggestions.
+        The multi-agent simulation is run off of GPTeams. {GPTEAMS_DESCRIPTION}
+        The user will provide logs and the original configuration file.
+        From a provided list of problems and solutions, identify the specific problem that this simulation ran into based on the logs and the current configuratoin file. Then identify a solution, using the solution examples as context to help you.
+        Here is the list: {str(problem_solution_list)}
+        The response must be a JSON list format, like this:
+        [
+        {{
+            "problem": <string>
+            "solution": <string>
+        }},
+        {{
+            "problem": <string>
+            "solution": <string>
+        }},
+        ]
+        where the "problem" field is exactly the same as the "problem" provided in the list, but the "solution" field is whatever you think would be the best fix.
+        return only the JSON list and nothing else.
+    """
+
+    user_message = f"""
+        Here is the original configuration: {config}.
+        Here are the logs: {logs}
+    """
+    fixes = call_llm(system_message, user_message)
+
+    try:
+        parsed_fixes = json.loads(fixes)  # Parse JSON string
+        if not isinstance(parsed_fixes, list):  # Ensure it's a list
+            raise ValueError("Expected a JSON list but got something else.")
+
+        required_keys = {"problem", "solution"}
+
+        for fix in parsed_fixes:
+            if not isinstance(fix, dict) or not required_keys.issubset(fix.keys()):
+                print(f"Missing required fields in fix: {fix}")
+                return generate_rubric_missing(fix, config, logs)  # Handle missing fields
+
+    except (json.JSONDecodeError, ValueError) as e:
+        print(f"JSON parsing error: {e}")
+        return generate_rubric_missing(None, config, logs)  # Handle invalid JSON
+
+    print(f"Got valid fixes from LLM: {parsed_fixes}")
+    return parsed_fixes  # Return the validated JSON list
+
 
 def generate_analysis_and_config(logs, matrix, config, rubric):
     print("calling LLM for generate_analysis_and_config...")

@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 from openai import OpenAI
 
 # either anthropic or openai
-LLM = "anthropic"
+LLM = "openai"
 
 # Load variables from .env file
 load_dotenv()
@@ -52,6 +52,8 @@ MILESTONES_FILE_NAME = "milestones.txt"
 DYNAMICS_FILE_NAME = "dynamics.json"
 CHANGES_FILE_NAME = "changes.json"
 RUBRIC_FILE_NAME = "rubric.json"
+STATIC_LIST_FILE_NAME = "static_list.json"
+ITERATIVE_LIST_FILE_NAME = "iterative_list.json"
 RUN_TREE = "run_tree.json"
 
 # config iteration logic
@@ -85,6 +87,8 @@ config = None
 run_id = None
 milestones = None
 current_milestone_id = "1"
+iterative_list = None
+static_list = None
 
 # all prototypes to explore
 prototypes = []
