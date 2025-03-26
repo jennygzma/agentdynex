@@ -43,6 +43,24 @@ const ChangeLog = ({ expand }: { expand: boolean }) => {
       });
   };
 
+  const getChanges = () => {
+    // updateIsLoading(true);
+    axios({
+      method: "GET",
+      url: `${SERVER_URL}/get_changes`,
+    })
+      .then((response) => {
+        console.log("/get_changes request successful:", response.data);
+        setChangeLogData(response.data.changes_data);
+      })
+      .catch((error) => {
+        console.error("Error calling /get_changes request:", error);
+      })
+      .finally(() => {
+        // updateIsLoading(false);
+      });
+  };
+
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -64,8 +82,12 @@ const ChangeLog = ({ expand }: { expand: boolean }) => {
   }, [isRunningSimulation]);
 
   useEffect(() => {
-    if (expand) fetchChanges();
+    if (expand) getChanges();
   }, [expand, currentRunId, currentPrototype]);
+
+  useEffect(() => {
+    getChanges();
+  }, []);
 
   if (!changeLogData) return <></>;
   return (

@@ -41,6 +41,24 @@ const Dynamics = ({ expand }: { expand: boolean }) => {
         // updateIsLoading(false);
       });
   };
+
+  const getDynamics = () => {
+    // updateIsLoading(true);
+    axios({
+      method: "GET",
+      url: `${SERVER_URL}/get_dynamics`,
+    })
+      .then((response) => {
+        console.log("/get_dynamics request successful:", response.data);
+        setDynamicsData(response.data.dynamics_data);
+      })
+      .catch((error) => {
+        console.error("Error calling /get_dynamics request:", error);
+      })
+      .finally(() => {
+        // updateIsLoading(false);
+      });
+  };
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -61,8 +79,12 @@ const Dynamics = ({ expand }: { expand: boolean }) => {
   }, [isRunningSimulation]);
 
   useEffect(() => {
-    if (expand) fetchDynamics();
+    if (expand) getDynamics();
   }, [currentRunId, currentPrototype]);
+
+  useEffect(() => {
+    getDynamics();
+  }, []);
 
   return (
     <TableContainer component={Paper}>

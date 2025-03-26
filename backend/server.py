@@ -199,6 +199,9 @@ def set_current_prototype():
             f"{globals.folder_path}/{globals.CONFIG_FILE_NAME}",
             json.dumps(globals.config),
         )
+
+    globals.existing_fixes_to_apply = []
+    globals.user_specified_fixes_to_apply = []
     return (
         jsonify(
             {
@@ -359,6 +362,29 @@ def set_current_run_id():
             f"{run_id_path}/{globals.INITIAL_CONFIG_FILE}",
             json.dumps(globals.config),
         )
+
+    if file_exists(f"{run_id_path}/{globals.EXISTING_FIXES_TO_APPLY_FILE_NAME}"):
+        globals.existing_fixes_to_apply = json.loads(
+            read_file(f"{run_id_path}/{globals.EXISTING_FIXES_TO_APPLY_FILE_NAME}")
+        )
+        create_and_write_file(
+            f"{globals.folder_path}/{globals.EXISTING_FIXES_TO_APPLY_FILE_NAME}",
+            json.dumps(globals.existing_fixes_to_apply),
+        )
+    else:
+        globals.existing_fixes_to_apply = []
+    if file_exists(f"{run_id_path}/{globals.USER_SPECIFIED_FIXES_TO_APPLY_FILE_NAME}"):
+        globals.user_specified_fixes_to_apply = json.loads(
+            read_file(
+                f"{run_id_path}/{globals.USER_SPECIFIED_FIXES_TO_APPLY_FILE_NAME}"
+            )
+        )
+        create_and_write_file(
+            f"{globals.folder_path}/{globals.USER_SPECIFIED_FIXES_TO_APPLY_FILE_NAME}",
+            json.dumps(globals.existing_fixes_to_apply),
+        )
+    else:
+        globals.user_specified_fixes_to_apply = []
     return (
         jsonify(
             {
@@ -672,6 +698,30 @@ def fetch_dynamics():
     )
 
 
+@app.route("/get_dynamics", methods=["GET"])
+def get_dynamics():
+    print("calling fetch_dynamics...")
+    current_prototype_folder_path = f"{globals.folder_path}/{globals.current_prototype}"
+    current_run_id_folder_path = find_folder_path(
+        globals.run_id, current_prototype_folder_path
+    )
+    dynamics = json.loads(
+        read_file(
+            f"{current_run_id_folder_path}/{globals.DYNAMICS_FILE_NAME}",
+        )
+    )
+    return (
+        jsonify(
+            {
+                "message": "fetching dynamics",
+                "current_milestone_id": globals.current_milestone_id,
+                "dynamics_data": dynamics,
+            }
+        ),
+        200,
+    )
+
+
 @app.route("/fetch_changes", methods=["GET"])
 def fetch_changes():
     print("calling fetch_changes...")
@@ -714,6 +764,30 @@ def fetch_changes():
                 "message": "fetching changes",
                 "current_milestone_id": globals.current_milestone_id,
                 "changes_data": changes_data,
+            }
+        ),
+        200,
+    )
+
+
+@app.route("/get_changes", methods=["GET"])
+def get_changes():
+    print("calling get_changes...")
+    current_prototype_folder_path = f"{globals.folder_path}/{globals.current_prototype}"
+    current_run_id_folder_path = find_folder_path(
+        globals.run_id, current_prototype_folder_path
+    )
+    changes = json.loads(
+        read_file(
+            f"{current_run_id_folder_path}/{globals.CHANGES_FILE_NAME}",
+        )
+    )
+    return (
+        jsonify(
+            {
+                "message": "fetching dynamics",
+                "current_milestone_id": globals.current_milestone_id,
+                "changes_data": changes,
             }
         ),
         200,
@@ -782,6 +856,7 @@ def generate_fixes():
     fixes = generate_problems_and_solutions(
         globals.static_list, globals.iterative_list, log_words, config
     )
+    print(f"hi jenny all_fixes {fixes}")
     # create_and_write_file(
     #     f"{current_run_id_folder_path}/{globals.ANALYSIS_FILE}", analysis
     # )
@@ -920,7 +995,9 @@ def generate_updated_config():
     log_words = log_words[-3000:]
     config = read_file(f"{current_prototype_folder_path}/{globals.CONFIG_FILE_NAME}")
     updated_config = generate_updated_config_from_fixes(
-        globals.fixes_to_apply, logs, config
+        globals.existing_fixes_to_apply + globals.user_specified_fixes_to_apply,
+        logs,
+        config,
     )
     create_and_write_file(
         f"{current_run_id_folder_path}/{globals.UPDATED_CONFIG}",
@@ -965,11 +1042,26 @@ def set_globals_for_uuid(generated_uuid):
         if file_exists(file_path_milestone)
         else {}
     )
-    globals.fixes_to_apply = (
+    globals.existing_fixes_to_apply = (
         json.loads(
-            read_file(f"{globals.folder_path}/{globals.FIXES_TO_APPLY_FILE_NAME}")
+            read_file(
+                f"{globals.folder_path}/{globals.EXISTING_FIXES_TO_APPLY_FILE_NAME}"
+            )
         )
-        if file_exists(f"{globals.folder_path}/{globals.FIXES_TO_APPLY_FILE_NAME}")
+        if file_exists(
+            f"{globals.folder_path}/{globals.EXISTING_FIXES_TO_APPLY_FILE_NAME}"
+        )
+        else []
+    )
+    globals.user_specified_fixes_to_apply = (
+        json.loads(
+            read_file(
+                f"{globals.folder_path}/{globals.USER_SPECIFIED_FIXES_TO_APPLY_FILE_NAME}"
+            )
+        )
+        if file_exists(
+            f"{globals.folder_path}/{globals.USER_SPECIFIED_FIXES_TO_APPLY_FILE_NAME}"
+        )
         else []
     )
     globals.run_id = "0"

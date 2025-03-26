@@ -14,7 +14,7 @@ const ContinuousData = ({ parentExpand }: { parentExpand: boolean }) => {
 
   const [status, setStatus] = useState("");
 
-  const { isRunningSimulation } = useAppContext();
+  const { isRunningSimulation, updateIsRunningSimulation } = useAppContext();
   const getStatus = () => {
     // updateIsLoading(true);
     axios({

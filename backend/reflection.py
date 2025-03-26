@@ -450,7 +450,7 @@ def generate_summary(logs):
 def get_status(logs, problem, failures):
     print("calling LLM for get_status...")
     log_words = logs.split()
-    log_words = log_words[-4000:]  # Keep the last 4,000 words
+    log_words = log_words[-3000:]  # Keep the last 4,000 words
     truncated_logs = " ".join(log_words)
     system_message = f"""
         You are an evaluator that is deciding whether or not the simulation is running in the proper direction or not. We are running a multi-agent simulation on GPTeams.
@@ -498,14 +498,18 @@ def generate_problems_and_solutions(static_list, iterative_list, logs, config):
         [
         {{
             "problem": <string>,
-            "solution": <string>
+            "problem_example": <string>,
+            "solution": <string>,
+            "solution_example": <string>
         }},
         {{
             "problem": <string>,
-            "solution": <string>
+            "problem_example": <string>,
+            "solution": <string>,
+            "solution_example": <string>
         }},
         ]
-        where the "problem" and "solution" field is exactly the same as the "problem" and "solution" provided in the list.
+        where the "problem" and "problem_example" and "solution" and "solution_example" field is exactly the same as the "problem" and "solution" provided in the list.
         return only the JSON list and nothing else.
 
         IF THERE IS NOTHING RELEVANT, RETURN AN EMPTY LIST LIKE THIS: []
@@ -539,18 +543,19 @@ def generate_problems_and_solutions(static_list, iterative_list, logs, config):
         generate_problems_and_solutions(static_list, iterative_list, logs, config)
 
     print(f"Got valid fixes from LLM: {parsed_fixes}")
-    all_fixes = get_duplicate_elements(parsed_fixes, problem_solution_list)
-    return all_fixes  # Return the validated JSON list
+    get_duplicate_elements(parsed_fixes, problem_solution_list)
+    return parsed_fixes  # Return the validated JSON list
 
 
 def get_duplicate_elements(new_elements, old_elements):
-    old_pairs = {
-        (item["problem"], item["solution"]) for item in old_elements
-    }  # Collect existing (problem, solution) pairs
+    # Create a lookup dictionary from old_elements with (problem, solution) as the key
+    old_dict = {(item["problem"], item["solution"]): item for item in old_elements}
+
+    # Return the full old_element if its (problem, solution) pair exists in new_elements
     return [
-        item
+        old_dict[(item["problem"], item["solution"])]
         for item in new_elements
-        if (item["problem"], item["solution"]) in old_pairs
+        if (item["problem"], item["solution"]) in old_dict
     ]
 
 
@@ -631,6 +636,7 @@ def remove_duplicate_elements(new_elements, old_elements):
 
 def generate_updated_config(fixes_to_apply, logs, config):
     print("calling LLM for generate_updated_config...")
+    print(f"here are the fixes to apply {str(fixes_to_apply)}")
     system_message = f"""
         {GPTEAMS_DESCRIPTION}
         These are problems that are identified that the user wants to fix - {fixes_to_apply}.

@@ -142,7 +142,7 @@ const Reflection = () => {
     getConfig();
   }, [currentPrototype, currentRunId]);
 
-  if (!config) return <></>;
+  // if (!config) return <></>;
   if (!expand) {
     return (
       <Stack direction="row" spacing="10px">
@@ -171,7 +171,7 @@ const Reflection = () => {
         </Typography>
       </Stack>
       <Stack spacing="20px" direction="row">
-        <Stack width="50%" spacing="20px">
+        <Stack width="33%" spacing="20px">
           <Typography
             variant="h6"
             sx={{
@@ -182,7 +182,7 @@ const Reflection = () => {
           </Typography>
           <Fixes />
         </Stack>
-        <Stack spacing={"10px"}>
+        <Stack spacing={"10px"} width="33%">
           <Typography
             variant="h6"
             sx={{
@@ -193,7 +193,7 @@ const Reflection = () => {
           </Typography>
           <UserSpecifiedFixes />
         </Stack>
-        <Stack width="50%" spacing="20px">
+        <Stack width="33%" spacing="20px">
           <Stack direction="row" sx={{ justifyContent: "space-between" }}>
             <Typography
               variant="h6"

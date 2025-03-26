@@ -18,6 +18,7 @@ const Run = () => {
     updateIsRunningSimulation,
     updateCurrentRunTree,
   } = useAppContext();
+  console.log("hi jenny isRunningSimulatoin " + isRunningSimulation);
   const [config, setConfig] = useState("");
   const [logs, setLogs] = useState("");
   const [summary, setSummary] = useState("");
@@ -379,7 +380,7 @@ const Run = () => {
         </Stack>
       )}
       <Divider />
-      {hasReflection && <Reflection />}
+      <Reflection />
     </Stack>
   );
 };
