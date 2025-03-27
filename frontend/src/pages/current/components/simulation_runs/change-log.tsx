@@ -82,8 +82,9 @@ const ChangeLog = ({ expand }: { expand: boolean }) => {
   }, [isRunningSimulation]);
 
   useEffect(() => {
-    if (expand) getChanges();
+    getChanges();
   }, [expand, currentRunId, currentPrototype]);
+  console.log("hi jenny currentRunId " + currentRunId);
 
   useEffect(() => {
     getChanges();

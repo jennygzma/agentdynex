@@ -79,8 +79,9 @@ const Dynamics = ({ expand }: { expand: boolean }) => {
   }, [isRunningSimulation]);
 
   useEffect(() => {
-    if (expand) getDynamics();
+    getDynamics();
   }, [currentRunId, currentPrototype]);
+  console.log("hi jenny currentRunId " + currentRunId);
 
   useEffect(() => {
     getDynamics();

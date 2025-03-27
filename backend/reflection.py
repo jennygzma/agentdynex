@@ -634,6 +634,30 @@ def remove_duplicate_elements(new_elements, old_elements):
     return [item for item in new_elements if item["problem"] not in old_problems]
 
 
+def remove_duplicate_elements_from_one_list(elements):
+    print("calling LLM for remove_duplicate_elements_from_one_list...")
+    system_message = "Remove all duplicate elemnts from a list as provided by the user. Return the JSON list and only the JSON list and do not change the format of it at all."
+    user_message = f"{str(elements)}"
+    elements = call_llm(system_message, user_message)
+    try:
+        parsed_elements = json.loads(elements)  # Parse JSON string
+        if not isinstance(parsed_elements, list):  # Ensure it's a list
+            remove_duplicate_elements_from_one_list(elements)
+
+        required_keys = {"problem", "problem_example", "solution", "solution_example"}
+
+        for fix in parsed_elements:
+            if not isinstance(fix, dict) or not required_keys.issubset(fix.keys()):
+                print(f"Missing required fields in fix: {fix}")
+                remove_duplicate_elements_from_one_list(elements)
+    except (json.JSONDecodeError, ValueError) as e:
+        print(f"JSON parsing error: {e}")
+        remove_duplicate_elements_from_one_list(elements)
+
+    print(f"Removed duplicate items from LLM: {parsed_elements}")
+    return elements  # Return the validated JSON list
+
+
 def generate_updated_config(fixes_to_apply, logs, config):
     print("calling LLM for generate_updated_config...")
     print(f"here are the fixes to apply {str(fixes_to_apply)}")
@@ -641,7 +665,8 @@ def generate_updated_config(fixes_to_apply, logs, config):
         {GPTEAMS_DESCRIPTION}
         These are problems that are identified that the user wants to fix - {fixes_to_apply}.
         The "problem" is the problem and the "solution" is the prescribed general solution, and the "problem_example" and "solution_examples" are how we solved the issue in the past given a certain simulation.
-        Based on this, make sure to fix EACH problem here with your own solution.
+        Based on this, make sure to fix EACH problem here with your own solution. USE THE "problem_examples" and "solution_examples" AS CONTEXT AS TO HOW TO FIX THINGS.
+        IF THE EXAMPLE IS DIRECTLY BASED ON YOUR SIMULATION, YOU CAN TAKE THE SOLUTION QUITE LITERALLY. OTHERWISE, REASON THROUGH HOW YOU WOULD FIX THE CONFIGURATON.
         Modify the config as needed, keeping all the original necessary information.
         Do not add any new fields. Do not change the format of the config up. If you want to remove content of the field, still keep the field but just have it like this: "private_bio": ""
         Do not add ANY NEW ROOMS to the worlds. For the world, only modify the description
@@ -653,10 +678,33 @@ def generate_updated_config(fixes_to_apply, logs, config):
     user_message = (
         f"Here are the logs: {logs}. Here is the original configuration: {config}"
     )
-    analysis_and_config = call_llm(system_message, user_message)
-    new_config = cleanup_json(analysis_and_config)
+    updated_config = call_llm(system_message, user_message)
+    checked_config = check_updated_config(fixes_to_apply, updated_config)
+    new_config = cleanup_json(checked_config)
     new_config_lines = len(new_config.splitlines())
     config_lines = len(config.splitlines())
     print(f"config lines is {config_lines} and new_config_lines is {new_config_lines}")
-    print("sucessfully called LLM for generate_updated_config", analysis_and_config)
+    print("sucessfully called LLM for generate_updated_config", checked_config)
+    return new_config
+
+
+def check_updated_config(fixes_to_apply, config):
+    print("calling LLM for check_updated_config...")
+    print(f"here are the fixes to apply {str(fixes_to_apply)}")
+    system_message = f"""
+        You are a checker to make sure that ALL THE PROBLEMS THAT THE USER WANTED TO FIX HAS BEEN UPDATED AND WRITTEN ITO THE CONFIG. {GPTEAMS_DESCRIPTION}
+        The user will present the fixes that they wanted to apply in an array form. They will also show the config. Your job is to make sure that the config has been properly updated to fix that change.
+
+        ITERATE THROUGH ALL THE PROBLEMS THAT THE USER HAS AND CHECK TO MAKE SURE THEY ARE FIXED. IF IT IS NOT FIXED, EITHER ADD OR REMOVE SOME RELEVANT PART OF THE CONFIG TO ENSURE THAT IT IS FIXED, WHILE KEEPIGN THE OTHER PARTS OF THE CONFIG THE SAME.
+        For example, if a problem is "Coach compromises practice schedule instead of maintaining authority and consistency.	", make sure to add that THE COACH CANNOT COMPROMISE in his directive, and remove anything in his directive that would suggest he would be willing to compromise.
+
+        Do not add any new fields. Do not change the format of the config up. If you want to remove content of the field, still keep the field but just have it like this: "private_bio": ""
+        Do not add ANY NEW ROOMS to the worlds. For the world, only modify the description
+        Keep the SAME NUMBER OF AGENTS with the same names and everything. For the agents, only modify the directives or initial plan.
+        Ensure that all these fields are filled out and follows this structure, like this example config {GPTEAM_EXAMPLE}
+
+        RETURN THE JSON CONFIG AND ONLY THE JSON CONFIG
+    """
+    user_message = f"Here are the logs: {str(fixes_to_apply)}. Here is the original configuration: {config}"
+    new_config = call_llm(system_message, user_message)
     return new_config

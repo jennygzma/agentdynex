@@ -21,6 +21,8 @@ from reflection import get_status as generate_status
 from reflection import (
     log_changes,
     log_dynamics,
+    remove_duplicate_elements,
+    remove_duplicate_elements_from_one_list,
 )
 from run_simulation import (
     delete_child_runs,
@@ -709,7 +711,7 @@ def get_dynamics():
         read_file(
             f"{current_run_id_folder_path}/{globals.DYNAMICS_FILE_NAME}",
         )
-    )
+    )if file_exists(f"{current_run_id_folder_path}/{globals.DYNAMICS_FILE_NAME}") else []
     return (
         jsonify(
             {
@@ -781,7 +783,7 @@ def get_changes():
         read_file(
             f"{current_run_id_folder_path}/{globals.CHANGES_FILE_NAME}",
         )
-    )
+    ) if file_exists(f"{current_run_id_folder_path}/{globals.CHANGES_FILE_NAME}") else []
     return (
         jsonify(
             {
@@ -911,10 +913,13 @@ def set_fixes_to_apply():
     )
     data = request.json
     user_specified = data["user_specified"]
+    fixes = json.loads(json.dumps(data["fixes"]))
     if user_specified:
+        fixes_to_add = remove_duplicate_elements(
+            fixes, globals.user_specified_fixes_to_apply
+        )
         globals.user_specified_fixes_to_apply = (
-            globals.user_specified_fixes_to_apply
-            + json.loads(json.dumps(data["fixes"]))
+            globals.user_specified_fixes_to_apply + fixes_to_add
         )
         create_and_write_file(
             f"{current_run_id_folder_path}/{globals.USER_SPECIFIED_FIXES_TO_APPLY_FILE_NAME}",
@@ -925,9 +930,8 @@ def set_fixes_to_apply():
             json.dumps(globals.user_specified_fixes_to_apply),
         )
     else:
-        globals.existing_fixes_to_apply = globals.existing_fixes_to_apply + json.loads(
-            json.dumps(data["fixes"])
-        )
+        fixes_to_add = remove_duplicate_elements(fixes, globals.existing_fixes_to_apply)
+        globals.existing_fixes_to_apply = globals.existing_fixes_to_apply + fixes_to_add
         create_and_write_file(
             f"{current_run_id_folder_path}/{globals.EXISTING_FIXES_TO_APPLY_FILE_NAME}",
             json.dumps(globals.existing_fixes_to_apply),
@@ -949,7 +953,40 @@ def set_fixes_to_apply():
 @app.route("/get_fixes_to_apply", methods=["GET"])
 def get_fixes_to_apply():
     print("calling get_fixes_to_apply...")
+    current_prototype_folder_path = f"{globals.folder_path}/{globals.current_prototype}"
+    current_run_id_folder_path = find_folder_path(
+        globals.run_id, current_prototype_folder_path
+    )
     user_specified = request.args.get("user_specified")
+    if file_exists(
+        f"{current_run_id_folder_path}/{globals.EXISTING_FIXES_TO_APPLY_FILE_NAME}"
+    ):
+        globals.existing_fixes_to_apply = json.loads(
+            read_file(
+                f"{current_run_id_folder_path}/{globals.EXISTING_FIXES_TO_APPLY_FILE_NAME}"
+            )
+        )
+        create_and_write_file(
+            f"{globals.folder_path}/{globals.EXISTING_FIXES_TO_APPLY_FILE_NAME}",
+            json.dumps(globals.existing_fixes_to_apply),
+        )
+    else:
+        globals.existing_fixes_to_apply = []
+    if file_exists(
+        f"{current_run_id_folder_path}/{globals.USER_SPECIFIED_FIXES_TO_APPLY_FILE_NAME}"
+    ):
+        globals.user_specified_fixes_to_apply = json.loads(
+            read_file(
+                f"{current_run_id_folder_path}/{globals.USER_SPECIFIED_FIXES_TO_APPLY_FILE_NAME}"
+            )
+        )
+        create_and_write_file(
+            f"{globals.folder_path}/{globals.USER_SPECIFIED_FIXES_TO_APPLY_FILE_NAME}",
+            json.dumps(globals.existing_fixes_to_apply),
+        )
+    else:
+        globals.user_specified_fixes_to_apply = []
+
     fixes_to_apply = (
         globals.user_specified_fixes_to_apply
         if user_specified
@@ -994,8 +1031,11 @@ def generate_updated_config():
     log_words = logs.split()
     log_words = log_words[-3000:]
     config = read_file(f"{current_prototype_folder_path}/{globals.CONFIG_FILE_NAME}")
+    fixes = remove_duplicate_elements_from_one_list(
+        globals.existing_fixes_to_apply + globals.user_specified_fixes_to_apply
+    )
     updated_config = generate_updated_config_from_fixes(
-        globals.existing_fixes_to_apply + globals.user_specified_fixes_to_apply,
+        fixes,
         logs,
         config,
     )

@@ -140,7 +140,9 @@ const UserSpecifiedFixes = () => {
 
   useEffect(() => {
     getFixesToApply();
+    setUserInput("");
   }, [currentRunId, currentPrototype]);
+  console.log("hi jenny currentRunId " + currentRunId);
 
   // Toggle selected fixes
   const handleCheckboxChange = (fix: FixData) => {

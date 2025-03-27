@@ -147,7 +147,7 @@ def run_simulation(current_run_path, config):
             f'poetry run world > "{log_file}" 2>&1',
         ]
     else:  # macOS / Linux (More portable approach)
-        shell_cmd = f'cd /Users/jennyma/Projects/GPTeam && poetry run db-reset && poetry run db-reset && poetry run world > "{log_file}" 2>&1'
+        shell_cmd = f'cd /Users/jennyma/Projects/GPTeam && poetry run db-reset && poetry run db-reset && poetry run world> "{log_file}" 2>&1'
         shell_cmd_escaped = shell_cmd.replace('"', '\\"')
         # macOS Terminal command
         cmd = [
