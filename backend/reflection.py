@@ -529,7 +529,7 @@ def generate_problems_and_solutions(static_list, iterative_list, logs, config):
         if not isinstance(parsed_fixes, list):  # Ensure it's a list
             raise ValueError("Expected a JSON list but got something else.")
 
-        required_keys = {"problem", "solution"}
+        required_keys = {"problem", "problem_example", "solution", "solution_example"}
 
         for fix in parsed_fixes:
             if not isinstance(fix, dict) or not required_keys.issubset(fix.keys()):
@@ -636,7 +636,11 @@ def remove_duplicate_elements(new_elements, old_elements):
 
 def remove_duplicate_elements_from_one_list(elements):
     print("calling LLM for remove_duplicate_elements_from_one_list...")
-    system_message = "Remove all duplicate elemnts from a list as provided by the user. Return the JSON list and only the JSON list and do not change the format of it at all."
+    system_message = """Remove all duplicate elemnts from a list as provided by the user.
+    MAKE SURE TO KEEP ALL THE FIELDS: PROBLEM, PROBLEM_EXAMPLE, SOLUTION, SOLUTION_EXAMPLE.
+    Return the JSON list and only the JSON list and do not change the format of it at all.
+    If there are no duplicates return the list as is.
+    If there are no fixes return an empty list."""
     user_message = f"{str(elements)}"
     elements = call_llm(system_message, user_message)
     try:
