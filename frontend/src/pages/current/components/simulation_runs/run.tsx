@@ -18,7 +18,6 @@ const Run = () => {
     updateIsRunningSimulation,
     updateCurrentRunTree,
   } = useAppContext();
-  console.log("hi jenny isRunningSimulatoin " + isRunningSimulation);
   const [config, setConfig] = useState("");
   const [logs, setLogs] = useState("");
   const [summary, setSummary] = useState("");
@@ -199,6 +198,7 @@ const Run = () => {
   }, [currentPrototype, currentRunId]);
 
   if (!currentPrototype) return <></>;
+
   return (
     <Stack spacing="20px" width="85%">
       {!expand ? (

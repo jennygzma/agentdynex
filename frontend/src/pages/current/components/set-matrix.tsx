@@ -28,10 +28,10 @@ const MATRIX_CATEGORY_DESCRIPTIONS: Record<CategoryType, string> = {
     "How should we define each room? What do agents do in each room?",
   MilestonesXIdea: "What are the chronological milestones for the simulation?",
   MilestonesXGrounding:
-    "What are the specific of each milestone? What muste we ensure happen in the simulation before each milestone?",
+    "What are the specific of each milestone? What must we ensure happen in the simulation before each milestone?",
   StopConditionXIdea: "What is the stop condition for the simulation?",
   StopConditionXGrounding:
-    "What are the specific of the stop conditions? What muste we ensure happen in the simulation before the stop condition?",
+    "What are the specific of the stop conditions? What must we ensure happen in the simulation before the stop condition?",
   FailureConditionXIdea: "What are the failure conditions for the simulation?",
   FailureConditionXGrounding:
     "What are the specifics of each failure conditions? Why does this indicate that the simulation has gone wrong?",
@@ -43,12 +43,12 @@ const SetMatrix = () => {
   const [problem, setProblem] = useState("");
   const [expand, setExpand] = useState(true);
 
-  const [AgentsXIdea, setAgentsXIdea] = useState("");
-  const [ActionsXIdea, setActionsXIdea] = useState("");
-  const [LocationsXIdea, setLocationsXIdea] = useState("");
-  const [MilestonesXIdea, setMilestonesXIdea] = useState("");
-  const [StopConditionXIdea, setStopConditionXIdea] = useState("");
-  const [FailureConditionXIdea, setFailureConditionXIdea] = useState("");
+  const [AgentsXIdea, setAgentsXIdea] = useState([]);
+  const [ActionsXIdea, setActionsXIdea] = useState([]);
+  const [LocationsXIdea, setLocationsXIdea] = useState([]);
+  const [MilestonesXIdea, setMilestonesXIdea] = useState([]);
+  const [StopConditionXIdea, setStopConditionXIdea] = useState([]);
+  const [FailureConditionXIdea, setFailureConditionXIdea] = useState([]);
   const [AgentsXGrounding, setAgentsXGrounding] = useState("");
   const [ActionsXGrounding, setActionsXGrounding] = useState("");
   const [LocationsXGrounding, setLocationsXGrounding] = useState("");
@@ -141,7 +141,7 @@ const SetMatrix = () => {
     fetchInput();
   }, [currentPrototype]);
 
-  const getInput = async (category: string): Promise<string | undefined> => {
+  const getInput = async (category: string) => {
     try {
       const response = await axios({
         method: "GET",
@@ -342,7 +342,9 @@ const SetMatrix = () => {
                   >
                     {MATRIX_CATEGORY_DESCRIPTIONS["AgentsXIdea"]}
                   </Typography>
-                  <Typography variant="body2">{AgentsXIdea}</Typography>
+                  <Typography variant="body2" sx={{ whiteSpace: "pre-wrap" }}>
+                  👤 {AgentsXIdea.join("\n 👤")}
+                  </Typography>
                 </TableCell>
                 <TableCell
                   sx={{
@@ -358,7 +360,9 @@ const SetMatrix = () => {
                   >
                     {MATRIX_CATEGORY_DESCRIPTIONS["ActionsXIdea"]}
                   </Typography>
-                  <Typography variant="body2">{ActionsXIdea}</Typography>
+                  <Typography variant="body2" sx={{ whiteSpace: "pre-wrap" }}>
+                  💥 {ActionsXIdea.join("\n💥 ")}
+                  </Typography>
                 </TableCell>
                 <TableCell
                   sx={{
@@ -374,7 +378,9 @@ const SetMatrix = () => {
                   >
                     {MATRIX_CATEGORY_DESCRIPTIONS["LocationsXIdea"]}
                   </Typography>
-                  <Typography variant="body2">{LocationsXIdea}</Typography>
+                  <Typography variant="body2" sx={{ whiteSpace: "pre-wrap" }}>
+                  📍 {LocationsXIdea.join("\n📍 ")}
+                  </Typography>
                 </TableCell>
                 <TableCell
                   sx={{
@@ -390,7 +396,9 @@ const SetMatrix = () => {
                   >
                     {MATRIX_CATEGORY_DESCRIPTIONS["MilestonesXIdea"]}
                   </Typography>
-                  <Typography variant="body2">{MilestonesXIdea}</Typography>
+                  <Typography variant="body2" sx={{ whiteSpace: "pre-wrap" }}>
+                  🎯 {MilestonesXIdea.join("\n🎯 ")}
+                  </Typography>
                 </TableCell>
                 <TableCell
                   sx={{
@@ -406,7 +414,9 @@ const SetMatrix = () => {
                   >
                     {MATRIX_CATEGORY_DESCRIPTIONS["StopConditionXIdea"]}
                   </Typography>
-                  <Typography variant="body2">{StopConditionXIdea}</Typography>
+                  <Typography variant="body2" sx={{ whiteSpace: "pre-wrap" }}>
+                  🛑 {StopConditionXIdea.join("\n🛑 ")}
+                  </Typography>
                 </TableCell>
                 <TableCell
                   sx={{
@@ -422,8 +432,8 @@ const SetMatrix = () => {
                   >
                     {MATRIX_CATEGORY_DESCRIPTIONS["FailureConditionXIdea"]}
                   </Typography>
-                  <Typography variant="body2">
-                    {FailureConditionXIdea}
+                  <Typography variant="body2" sx={{ whiteSpace: "pre-wrap" }}>
+                  ❌ {FailureConditionXIdea.join("\n❌ ")}
                   </Typography>
                 </TableCell>
               </TableRow>
@@ -459,7 +469,10 @@ const SetMatrix = () => {
                   >
                     {MATRIX_CATEGORY_DESCRIPTIONS["AgentsXGrounding"]}
                   </Typography>
-                  <Typography variant="body2">{AgentsXGrounding}</Typography>
+                  <Typography variant="body2" sx={{ whiteSpace: "pre-wrap" }}>
+                  {AgentsXGrounding.replace(/- "/g, "👤 ")
+  .replace(/\"/g, "")}
+                  </Typography>
                 </TableCell>
                 <TableCell
                   sx={{
@@ -475,7 +488,11 @@ const SetMatrix = () => {
                   >
                     {MATRIX_CATEGORY_DESCRIPTIONS["ActionsXGrounding"]}
                   </Typography>
-                  <Typography variant="body2">{ActionsXGrounding}</Typography>
+                  <Typography variant="body2" sx={{ whiteSpace: "pre-wrap" }}>
+                    {ActionsXGrounding.split("\n") // Split the string by newlines
+  .map(line => `💥 ${line.replace(/^-\s*/, '')}`) // Remove "-" and add "👤 " at the start
+  .join("\n")}
+                  </Typography>
                 </TableCell>
                 <TableCell
                   sx={{
@@ -491,7 +508,11 @@ const SetMatrix = () => {
                   >
                     {MATRIX_CATEGORY_DESCRIPTIONS["LocationsXGrounding"]}
                   </Typography>
-                  <Typography variant="body2">{LocationsXGrounding}</Typography>
+                  <Typography variant="body2" sx={{ whiteSpace: "pre-wrap" }}>
+                    {LocationsXGrounding.split("\n") // Split the string by newlines
+  .map(line => `📍 ${line.replace(/^-\s*/, '')}`) // Remove "-" and add "👤 " at the start
+  .join("\n")}
+                  </Typography>
                 </TableCell>
                 <TableCell
                   sx={{
@@ -507,8 +528,10 @@ const SetMatrix = () => {
                   >
                     {MATRIX_CATEGORY_DESCRIPTIONS["MilestonesXGrounding"]}
                   </Typography>
-                  <Typography variant="body2">
-                    {MilestonesXGrounding}
+                  <Typography variant="body2" sx={{ whiteSpace: "pre-wrap" }}>
+                    {MilestonesXGrounding.split("\n") // Split the string by newlines
+  .map(line => `🎯 ${line.replace(/^-\s*/, '')}`) // Remove "-" and add "👤 " at the start
+  .join("\n")}
                   </Typography>
                 </TableCell>
                 <TableCell
@@ -525,8 +548,10 @@ const SetMatrix = () => {
                   >
                     {MATRIX_CATEGORY_DESCRIPTIONS["StopConditionXGrounding"]}
                   </Typography>
-                  <Typography variant="body2">
-                    {StopConditionXGrounding}
+                  <Typography variant="body2" sx={{ whiteSpace: "pre-wrap" }}>
+                   {StopConditionXGrounding.split("\n") // Split the string by newlines
+  .map(line => `🛑 ${line.replace(/^-\s*/, '')}`) // Remove "-" and add "👤 " at the start
+  .join("\n")}
                   </Typography>
                 </TableCell>
                 <TableCell
@@ -543,8 +568,10 @@ const SetMatrix = () => {
                   >
                     {MATRIX_CATEGORY_DESCRIPTIONS["FailureConditionXGrounding"]}
                   </Typography>
-                  <Typography variant="body2">
-                    {failureConditionXGrounding}
+                  <Typography variant="body2" sx={{ whiteSpace: "pre-wrap" }}>
+                    {failureConditionXGrounding.split("\n") // Split the string by newlines
+  .map(line => `❌ ${line.replace(/^-\s*/, '')}`) // Remove "-" and add "👤 " at the start
+  .join("\n")}
                   </Typography>
                 </TableCell>
               </TableRow>

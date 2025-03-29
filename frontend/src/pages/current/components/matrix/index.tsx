@@ -28,10 +28,10 @@ const MATRIX_CATEGORY_DESCRIPTIONS: Record<CategoryType, string> = {
     "How should we define each room? What do agents do in each room?",
   MilestonesXIdea: "What are the chronological milestones for the simulation?",
   MilestonesXGrounding:
-    "What are the specific of each milestone? What muste we ensure happen in the simulation before each milestone?",
+    "What are the specific of each milestone? What must we ensure happen in the simulation before each milestone?",
   StopConditionXIdea: "What is the stop condition for the simulation?",
   StopConditionXGrounding:
-    "What are the specific of the stop conditions? What muste we ensure happen in the simulation before the stop condition?",
+    "What are the specific of the stop conditions? What must we ensure happen in the simulation before the stop condition?",
   FailureConditionXIdea: "What are the failure conditions for the simulation?",
   FailureConditionXGrounding:
     "What are the specifics of each failure conditions? Why does this indicate that the simulation has gone wrong?",
