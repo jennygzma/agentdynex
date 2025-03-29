@@ -39,6 +39,7 @@ const UserSpecifiedFixes = () => {
   ]);
   const [selectedFixes, setSelectedFixes] = useState<Set<FixData>>(new Set());
   const [userInput, setUserInput] = useState<string>("");
+  const [hasSubmitted, setHasSubmitted] = useState(true);
   const {
     isRunningSimulation,
     currentPrototype,
@@ -107,6 +108,7 @@ const UserSpecifiedFixes = () => {
     })
       .then((response) => {
         console.log("/set_fixes_to_apply request successful:", response.data);
+        setHasSubmitted(true);
       })
       .catch((error) => {
         console.error("Error calling /set_fixes_to_apply request:", error);
@@ -155,6 +157,7 @@ const UserSpecifiedFixes = () => {
       }
       return newSelected;
     });
+    setHasSubmitted(false);
   };
 
   return (
@@ -206,7 +209,7 @@ const UserSpecifiedFixes = () => {
           addToList();
           setFixesToApply();
         }}
-        disabled={selectedFixes?.size === 0}
+        disabled={selectedFixes?.size === 0 || hasSubmitted}
       >
         Submit Selected Fixes
       </Button>

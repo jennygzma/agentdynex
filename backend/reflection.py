@@ -512,6 +512,8 @@ def generate_problems_and_solutions(static_list, iterative_list, logs, config):
         where the "problem" and "problem_example" and "solution" and "solution_example" field is exactly the same as the "problem" and "solution" provided in the list.
         return only the JSON list and nothing else.
 
+        ONLY RETURN PROBLEMS THAT ARE IN THE EXISTING LIST.
+
         IF THERE IS NOTHING RELEVANT, RETURN AN EMPTY LIST LIKE THIS: []
     """
 
@@ -636,6 +638,7 @@ def remove_duplicate_elements(new_elements, old_elements):
 
 def remove_duplicate_elements_from_one_list(elements):
     print("calling LLM for remove_duplicate_elements_from_one_list...")
+    print(f"elements to remove {elements}")
     system_message = """Remove all duplicate elemnts from a list as provided by the user.
     MAKE SURE TO KEEP ALL THE FIELDS: PROBLEM, PROBLEM_EXAMPLE, SOLUTION, SOLUTION_EXAMPLE.
     Return the JSON list and only the JSON list and do not change the format of it at all.
@@ -658,7 +661,7 @@ def remove_duplicate_elements_from_one_list(elements):
         print(f"JSON parsing error: {e}")
         remove_duplicate_elements_from_one_list(elements)
 
-    print(f"Removed duplicate items from LLM: {parsed_elements}")
+    print(f"Removed duplicate items from LLM: {elements}")
     return elements  # Return the validated JSON list
 
 
@@ -671,6 +674,7 @@ def generate_updated_config(fixes_to_apply, logs, config):
         The "problem" is the problem and the "solution" is the prescribed general solution, and the "problem_example" and "solution_examples" are how we solved the issue in the past given a certain simulation.
         Based on this, make sure to fix EACH problem here with your own solution. USE THE "problem_examples" and "solution_examples" AS CONTEXT AS TO HOW TO FIX THINGS.
         IF THE EXAMPLE IS DIRECTLY BASED ON YOUR SIMULATION, YOU CAN TAKE THE SOLUTION QUITE LITERALLY. OTHERWISE, REASON THROUGH HOW YOU WOULD FIX THE CONFIGURATON.
+        IF THERE ARE DIRECTIVES THAT ARE CONFLICTING TO EACHOTHER, PRIORITIZE WHAT IS IN THE FIXES LIST AND REMOVE THE PART OF THE CONFIG THAT DOES NOT RESPECT THE FIXES LIST.
         Modify the config as needed, keeping all the original necessary information.
         Do not add any new fields. Do not change the format of the config up. If you want to remove content of the field, still keep the field but just have it like this: "private_bio": ""
         Do not add ANY NEW ROOMS to the worlds. For the world, only modify the description
@@ -699,7 +703,10 @@ def check_updated_config(fixes_to_apply, config):
         You are a checker to make sure that ALL THE PROBLEMS THAT THE USER WANTED TO FIX HAS BEEN UPDATED AND WRITTEN ITO THE CONFIG. {GPTEAMS_DESCRIPTION}
         The user will present the fixes that they wanted to apply in an array form. They will also show the config. Your job is to make sure that the config has been properly updated to fix that change.
 
-        ITERATE THROUGH ALL THE PROBLEMS THAT THE USER HAS AND CHECK TO MAKE SURE THEY ARE FIXED. IF IT IS NOT FIXED, EITHER ADD OR REMOVE SOME RELEVANT PART OF THE CONFIG TO ENSURE THAT IT IS FIXED, WHILE KEEPIGN THE OTHER PARTS OF THE CONFIG THE SAME.
+        ITERATE THROUGH ALL THE PROBLEMS THAT THE USER HAS AND CHECK TO MAKE SURE THEY ARE FIXED.
+        IF IT IS NOT FIXED, EITHER ADD OR REMOVE SOME RELEVANT PART OF THE CONFIG TO ENSURE THAT IT IS FIXED, WHILE KEEPIGN THE OTHER PARTS OF THE CONFIG THE SAME.
+        IF THERE ARE DIRECTIVES THAT ARE CONFLICTING TO EACHOTHER, PRIORITIZE WHAT IS IN THE FIXES LIST AND REMOVE THE PART OF THE CONFIG THAT DOES NOT RESPECT THE FIXES LIST.
+
         For example, if a problem is "Coach compromises practice schedule instead of maintaining authority and consistency.	", make sure to add that THE COACH CANNOT COMPROMISE in his directive, and remove anything in his directive that would suggest he would be willing to compromise.
 
         Do not add any new fields. Do not change the format of the config up. If you want to remove content of the field, still keep the field but just have it like this: "private_bio": ""
