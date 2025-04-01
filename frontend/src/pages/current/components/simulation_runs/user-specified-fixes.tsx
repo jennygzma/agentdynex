@@ -8,12 +8,17 @@ import {
   TableRow,
   Paper,
   Checkbox,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
 import axios from "axios";
 import { SERVER_URL } from "../..";
 import { useAppContext } from "../../hooks/app-context";
 import Button from "../../../../components/Button";
 import InputWithButton from "../../../../components/InputWithButton";
+import TextField from "../../../../components/TextField";
 
 type FixData = {
   problem: string;
@@ -21,6 +26,8 @@ type FixData = {
   solution: string;
   solution_example: string;
 };
+
+type EditableFixData = FixData & { index: number };
 
 const UserSpecifiedFixes = () => {
   const [fixesData, setFixesData] = useState<FixData[]>([
@@ -40,6 +47,8 @@ const UserSpecifiedFixes = () => {
   const [selectedFixes, setSelectedFixes] = useState<Set<FixData>>(new Set());
   const [userInput, setUserInput] = useState<string>("");
   const [hasSubmitted, setHasSubmitted] = useState(true);
+  const [openEdit, setOpenEdit] = useState(false);
+  const [editData, setEditData] = useState<EditableFixData | null>(null);
   const {
     isRunningSimulation,
     currentPrototype,
@@ -160,6 +169,26 @@ const UserSpecifiedFixes = () => {
     setHasSubmitted(false);
   };
 
+  const handleRowClick = (fix: FixData, index: number) => {
+    setEditData({ ...fix, index });
+    setOpenEdit(true);
+  };
+
+  const handleEditChange = (field: keyof FixData, value: string) => {
+    setEditData((prev) => (prev ? { ...prev, [field]: value } : null));
+  };
+
+  const handleEditSubmit = () => {
+    if (editData !== null && editData.index !== undefined) {
+      setFixesData((prev) =>
+        prev.map((fix, idx) =>
+          idx === editData.index ? { ...editData } : fix,
+        ),
+      );
+      setOpenEdit(false);
+    }
+  };
+
   return (
     <TableContainer component={Paper} elevation={0} sx={{ boxShadow: "none" }}>
       <InputWithButton
@@ -175,16 +204,50 @@ const UserSpecifiedFixes = () => {
       <Table>
         <TableHead>
           <TableRow>
-            <TableCell sx={{ fontWeight: "bold" }}>Problem</TableCell>
-            <TableCell sx={{ fontWeight: "bold" }}>Solution</TableCell>
-            <TableCell sx={{ fontWeight: "bold" }}>Apply</TableCell>
+            <TableCell width="20%" sx={{ fontWeight: "bold" }}>
+              Problem
+            </TableCell>
+            <TableCell width="20%" sx={{ fontWeight: "bold" }}>
+              Problem Example
+            </TableCell>
+            <TableCell width="20%" sx={{ fontWeight: "bold" }}>
+              Solution
+            </TableCell>
+            <TableCell width="20%" sx={{ fontWeight: "bold" }}>
+              Solution Example
+            </TableCell>
+            <TableCell width="20%" sx={{ fontWeight: "bold" }}>
+              Apply
+            </TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {fixesData?.map((fix, index) => (
             <TableRow key={index}>
-              <TableCell>{fix.problem}</TableCell>
-              <TableCell>{fix.solution}</TableCell>
+              <TableCell
+                onClick={() => handleRowClick(fix, index)}
+                style={{ cursor: "pointer" }}
+              >
+                {fix.problem}
+              </TableCell>
+              <TableCell
+                onClick={() => handleRowClick(fix, index)}
+                style={{ cursor: "pointer" }}
+              >
+                {fix.problem_example}
+              </TableCell>
+              <TableCell
+                onClick={() => handleRowClick(fix, index)}
+                style={{ cursor: "pointer" }}
+              >
+                {fix.solution}
+              </TableCell>
+              <TableCell
+                onClick={() => handleRowClick(fix, index)}
+                style={{ cursor: "pointer" }}
+              >
+                {fix.solution_example}
+              </TableCell>
               <TableCell>
                 <Checkbox
                   checked={selectedFixes?.has(fix)}
@@ -201,6 +264,57 @@ const UserSpecifiedFixes = () => {
           ))}
         </TableBody>
       </Table>
+      <Dialog open={openEdit} onClose={() => setOpenEdit(false)}>
+        <DialogTitle>Edit Fix</DialogTitle>
+        <DialogContent>
+          {editData && (
+            <>
+              <TextField
+                fullWidth
+                margin="dense"
+                label="Problem"
+                value={editData.problem}
+                onChange={(e) => handleEditChange("problem", e.target.value)}
+              />
+              <TextField
+                fullWidth
+                margin="dense"
+                label="Problem Example"
+                value={editData.problem_example}
+                onChange={(e) =>
+                  handleEditChange("problem_example", e.target.value)
+                }
+              />
+              <TextField
+                fullWidth
+                margin="dense"
+                label="Solution"
+                value={editData.solution}
+                onChange={(e) => handleEditChange("solution", e.target.value)}
+              />
+              <TextField
+                fullWidth
+                margin="dense"
+                label="Solution Example"
+                value={editData.solution_example}
+                onChange={(e) =>
+                  handleEditChange("solution_example", e.target.value)
+                }
+              />
+            </>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenEdit(false)}>Cancel</Button>
+          <Button
+            onClick={handleEditSubmit}
+            variant="contained"
+            color="primary"
+          >
+            Save
+          </Button>
+        </DialogActions>
+      </Dialog>
       <Button
         variant="contained"
         color="primary"

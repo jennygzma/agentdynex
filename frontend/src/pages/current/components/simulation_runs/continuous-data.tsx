@@ -14,7 +14,8 @@ const ContinuousData = ({ parentExpand }: { parentExpand: boolean }) => {
 
   const [status, setStatus] = useState("");
 
-  const { isRunningSimulation, updateIsRunningSimulation } = useAppContext();
+  const { isRunningSimulation, currentPrototype, currentRunId } =
+    useAppContext();
   const getStatus = () => {
     // updateIsLoading(true);
     axios({
@@ -37,10 +38,12 @@ const ContinuousData = ({ parentExpand }: { parentExpand: boolean }) => {
     if (isRunningSimulation && expand) {
       const intervalId = setInterval(getStatus, 30000);
       return () => clearInterval(intervalId);
-    } else {
-      setStatus("");
     }
   }, [isRunningSimulation]);
+
+  useEffect(() => {
+    setStatus("");
+  }, [currentPrototype, currentRunId]);
 
   if (!expand) {
     return (

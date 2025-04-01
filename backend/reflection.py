@@ -78,174 +78,19 @@ GPTEAM_EXAMPLE = """
 """
 
 
-class RubricInstance:
-    def __init__(
-        self,
-        category,
-        rubric_type,
-        description,
-        example=None,
-    ):
-        self.category = category
-        self.rubric_type = rubric_type
-        self.description = description
-        self.example = example
+POTENTIAL_SOLUTION_EXAMPLES = """Here are some examples of potential solutions:
+        1. Raise the STAKES of the simulation. This is in the agent's personal biographies, such as: "it is EXTREMELY EMBARRASSING if you do not find a date for prom", or "it is EXTREMELY EMBARASSING if you get rejected".
+        2. ADD A NEW DIRECTIVE AS ONE OF THE FIRST DIRECTIVES, NOT LAST.
+        3. REPLACE LONGWINDED, UNHELPFUL DIRECTIVES. INCREASE URGENCY BY TELLING AGENTS TO RESPOND QUICKER.
+        3. ADD SOMETHING TO THE OVERSEER'S DIRECTIVE SO THAT THEY CAN HELP FIX THE SIMULATION FROM WITHIN.
+        2. REMOVE CONFLICTING DIRECTIVES. If an agent has a directive that they need to ask someone to prom, and another one that says they will reject EVERYONE, that is messing with the dynamics of the simulation, remove it.
+        2. Add a room or agent if necessary IF YOU THINK IT IS NECESSARY BECAUSE THE LOGISTICS OF THE SIMULATION ARE NOT WORKING. For example, if the user thinks that the dynamics of the simulation are being corrupted because there is no private room to ask people to prom, then potentailly adding an extra room is a good fix.
+            If the logistics are going wrong because we need a new moderator agent or something to facillitate logistics smoother, a new agnet can also be added.
+        3. Modify the OVERSEER'S DIRECTIVES to ensure that the LOGICAL ERRORS of the simulation work clearly, or introduce a TIME ELEMENT to the overseer's directive.
+            The overseer can help prod agents in the right direction to find a partner, or encourage them to make logical decisions.
+        4. DEFINE RULES BETTER in the DIRECTIVES to ensure that they are vague enough for intersting DYNAMICS to emerge. For example, no need to say: "Agent will ask declare interest in going to prom by stating "Will you go to prom with me?"" because this is too specific.
 
-    def get_string(self):
-        result = f"Category: {self.category}\nModification Type: {self.rubric_type}\nDescription: {self.description}\n Example: {self.example}"
-        return result
-
-
-RUBRIC = [
-    # Task Structure Optimization
-    RubricInstance(
-        category="Task Structure Optimization",
-        rubric_type="Reduce complexity",
-        description="Simplify the simulation by focusing on a single core task",
-        example="Changed from five assignments to one assignment",
-    ),
-    RubricInstance(
-        category="Task Structure Optimization",
-        rubric_type="Clarify task instructions",
-        description="Ensure clear explicit task details to remove ambiguity",
-        example="Clearly stated 500-word essay topic & deadline",
-    ),
-    # Stop Condition & Completion Criteria
-    RubricInstance(
-        category="Stop Condition & Completion Criteria",
-        rubric_type="Prevent premature exits",
-        description="Stop condition should depend on actual task completion",
-        example="Required all students to submit before ending",
-    ),
-    RubricInstance(
-        category="Stop Condition & Completion Criteria",
-        rubric_type="Use dependency-based stop conditions",
-        description="Ensure stop conditions track key dependencies to avoid early termination",
-        example="Simulation now waits for all students’ work to be acknowledged",
-    ),
-    # Directive & Agent Behavior Optimization
-    RubricInstance(
-        category="Directive & Agent Behavior Optimization",
-        rubric_type="Prevent premature actions",
-        description="Ensure agents wait for key information before acting",
-        example="Students wait for assignment details before starting",
-    ),
-    RubricInstance(
-        category="Directive & Agent Behavior Optimization",
-        rubric_type="Enforce mandatory actions",
-        description="Make sure critical steps like submission & acknowledgment are required",
-        example="Students must verbally declare submission and receive acknowledgment before leaving",
-    ),
-    RubricInstance(
-        category="Directive & Agent Behavior Optimization",
-        rubric_type="Reduce redundant waiting",
-        description="Avoid agents getting stuck waiting for unimportant responses",
-        example="Students no longer wait for greetings before working",
-    ),
-    # Reducing Waiting Bottlenecks & Deadlocks
-    RubricInstance(
-        category="Reducing Waiting Bottlenecks & Deadlocks",
-        rubric_type="Improve efficiency of response processing",
-        description="Optimize how responses are handled to speed up task progression",
-        example="Professor acknowledges multiple submissions efficiently",
-    ),
-    RubricInstance(
-        category="Reducing Waiting Bottlenecks & Deadlocks",
-        rubric_type="Allow parallel execution when possible",
-        description="Reduce over-reliance on strict sequential actions",
-        example="Students can start working as soon as they get assignment details",
-    ),
-    # Action Validation & Progress Tracking
-    RubricInstance(
-        category="Action Validation & Progress Tracking",
-        rubric_type="Track task completion effectively",
-        description="Ensure simulation can verify when an action is fully completed",
-        example="Students must verbally confirm submission",
-    ),
-    RubricInstance(
-        category="Action Validation & Progress Tracking",
-        rubric_type="Define completion criteria properly",
-        description="Clearly define what counts as 'done' to prevent ambiguity",
-        example="Professor acknowledgment step ensures completion",
-    ),
-    # Handling Stalled Simulations Due to Missing Triggers
-    RubricInstance(
-        category="Handling Stalled Simulations Due to Missing Triggers",
-        rubric_type="Auto-recover from missing triggers",
-        description="If agents wait too long for an event that should have already occurred (e.g., round start), allow them to prompt the proper agent (Mediator) or retry the trigger.",
-        example="Agents request a round announcement if they don’t receive one within a set time.",
-    ),
-    # Ensuring Critical Announcements Are Acknowledged
-    RubricInstance(
-        category="Ensuring Critical Announcements Are Acknowledged",
-        rubric_type="Verify announcement reception",
-        description="Ensure agents explicitly confirm hearing critical announcements before proceeding.",
-        example="Agents must acknowledge the Mediator’s 'Game Start' announcement before they can take further action.",
-    ),
-    # Handling Calculation & Decision Failures
-    RubricInstance(
-        category="Handling Calculation & Decision Failures",
-        rubric_type="Auto-recover from missing computation steps",
-        description="If an agent encounters an error while computing a required value, provide a fallback mechanism where the agent retries the computation with stored values.",
-        example="If the Mediator fails to compute the public goods distribution, they must follow a predefined fallback calculation.",
-    ),
-    RubricInstance(
-        category="Handling Calculation & Decision Failures",
-        rubric_type="Explicitly define required calculations in directives",
-        description="Ensure that all necessary computations are verified before progressing.",
-        example='Mediator directive explicitly states: "Retrieve total contribution and verify it before proceeding."',
-    ),
-    RubricInstance(
-        category="Handling Calculation & Decision Failures",
-        rubric_type="Verify computation success before proceeding",
-        description="Require agents to confirm that a calculation was successfully performed before moving to the next step.",
-        example="If an agent submits a tax contribution but doesn’t see the correct update, they request recalculation before proceeding.",
-    ),
-    RubricInstance(
-        category="Handling Calculation & Decision Failures",
-        rubric_type="Fallback decision-making process",
-        description="If an agent asks how to perform a task they were explicitly told to do, have them re-read their own directives instead of requesting human input.",
-        example="The Mediator forgets how to calculate the public goods total, they must first re-read their directives before asking for external formal guidance.",
-    ),
-    RubricInstance(
-        category="Handling Calculation & Decision Failures",
-        rubric_type="Prevent reliance on external guidance",
-        description="Ensure agents do not request external help and instead rely on predefined fallback mechanisms.",
-        example="If students forget an issue when calculating the public goods total, they must follow a predefined retry process instead of asking for direct human intervention.",
-    ),
-    # New Additions to Improve Debugging Efficiency
-    RubricInstance(
-        category="New Additions to Improve Debugging Efficiency",
-        rubric_type="Implement structured logging",
-        description="Ensure all key simulation events are recorded with timestamps and categorized.",
-        example="The Mediator logs when each round starts, when offers are submitted, and when decisions are made.",
-    ),
-    RubricInstance(
-        category="New Additions to Improve Debugging Efficiency",
-        rubric_type="Add failsafe for incomplete rounds",
-        description="Ensure the round either completes successfully or resets if a critical failure occurs.",
-        example="If neither agent submits an offer or response, the round resets with a default decision.",
-    ),
-    RubricInstance(
-        category="New Additions to Improve Debugging Efficiency",
-        rubric_type="Synchronization checks",
-        description="Ensure all agents wait for appropriate conditions before proceeding.",
-        example="The Proposer cannot submit an offer before the Responder arrives.",
-    ),
-    RubricInstance(
-        category="New Additions to Improve Debugging Efficiency",
-        rubric_type="Granular timeout handling",
-        description="Differentiate between soft timeouts (warnings) and hard timeouts (default actions).",
-        example="Agents receive a warning before a default action is applied.",
-    ),
-    RubricInstance(
-        category="New Additions to Improve Debugging Efficiency",
-        rubric_type="Adjustable simulation parameters",
-        description="Allow real-time modifications to timeout periods and failure recovery strategies.",
-        example="The Mediator can dynamically adjust timeout limits based on observed simulation behavior.",
-    ),
-]
-
+"""
 SIMULATION_SUMNMARY_EXAMPLE = """
 Progress of the Ultimatum Game:
     A round of the Ultimatum Game was initiated and reached the proposal phase.
@@ -317,7 +162,7 @@ def generate_milestones_json(milestones):
 
 
 def log_dynamics(
-    logs, current_milestone, current_milestone_id, milestones, previous_dynamic
+    logs, current_milestone, current_milestone_id, milestones, previous_dynamic, problem
 ):
     print("calling LLM for log_dynamics...")
     log_words = logs.split()
@@ -327,7 +172,7 @@ def log_dynamics(
         You are an analyzer that analyzes logs for a multi-agent simulation. From these logs, you must figure out if there are any qualitative interesting and unexpected social dynamics that have emerged based on these agents' interactions.
         We are trying to measure dynamics that emerge from the simulation, NOT BORING OR OBVIOUS THINGS.
         {GPTEAMS_DESCRIPTION}
-        The user will input some simulation logs, the current milestone, and the overall milestones (which are things in the simulation that will happen and the user can use this track the simulation's progress), and the previous dynamic log.
+        The user will input some simulation logs, the current milestone, and the overall milestones (which are things in the simulation that will happen and the user can use this track the simulation's progress), the previous dynamic log, and the THINGS THAT THEY WANT TO MEASURE.
         It is your job to return the 1) dynamic and 2) current milestone.
 
         Make sure that the response returned is a json response similar to this:
@@ -339,7 +184,8 @@ def log_dynamics(
 
         Make sure to follow these rules when generating a response:
         1. return the JSON object and the JSON object ONLY. Do not return any extra explanation or natural language.
-        2. if the dynamic is not interesting, or it is too similar to the previous dynamic, then leave the dynamic field in the JSON blank, like this: "dynamic": ""
+        2. RETURN DYNAMICS THAT THE USER WANTS TO MEASURE. FOF EXAMPLE, IF THE USER WANTS TO MEASURE HOW CERTAIN AGENTS ARE FEELING, MAKE SURE TO RETURN DYNAMICS SPECIFIC TO THAT. IF THE USER WANTS TO MEASURE RELATIONSHIPS BEING FORMED, MAKE SURE TO RETURN DYNAMICS RELATED TO THAT.
+        3. if the dynamic is not interesting, or it is too similar to the previous dynamic, then leave the dynamic field in the JSON blank, like this: "dynamic": ""
         Here are some examples of interesting behaviors:
         - if an agent has changed their expected behavior (doing something different than their personality) because another agent has convinced them to
         - if an agent decides to do something or go somewhere or say something very out of the ordinary
@@ -368,7 +214,7 @@ def log_dynamics(
         4. if the current milestone has changed, then make sure to update the "milestone" and "milestone_id" field to the NEXT MILESTONE.
             For the most part, the milestone will be correct, but if you realize that the next milestone has been hit, then make sure to update.
     """
-    user_message = f"Here are the logs: {truncated_logs}. Here is the previous dynamic {previous_dynamic}. Here is the current milestone: {current_milestone}. Here is the current milestone_id: {current_milestone_id}. Here are the milestones: {milestones}"
+    user_message = f"Here are the logs: {truncated_logs}. Here is the previous dynamic {previous_dynamic}. Here is the current milestone: {current_milestone}. Here is the current milestone_id: {current_milestone_id}. Here are the milestones: {milestones}. Here are the things that the user wants to measure that you should pay attention to: {problem}"
     dynamic = call_llm(system_message, user_message)
     print("sucessfully called LLM for log_dynamics", dynamic)
     try:
@@ -381,10 +227,16 @@ def log_dynamics(
                 current_milestone_id,
                 milestones,
                 previous_dynamic,
+                problem,
             )
     except json.JSONDecodeError:
         log_dynamics(
-            logs, current_milestone, current_milestone_id, milestones, previous_dynamic
+            logs,
+            current_milestone,
+            current_milestone_id,
+            milestones,
+            previous_dynamic,
+            problem,
         )
     return json.loads(dynamic)
 
@@ -509,10 +361,11 @@ def generate_problems_and_solutions(static_list, iterative_list, logs, config):
             "solution_example": <string>
         }},
         ]
-        where the "problem" and "problem_example" and "solution" and "solution_example" field is exactly the same as the "problem" and "solution" provided in the list.
+        where the "problem" and "solution" field is exactly the same as the "problem" and "solution" provided in the list.
+        GENERATE YOUR OWN "problem_example" and "solution_example" based on the CURRENT CONTEXT OF THE SIMULATION. The "problem_example" should describe the specific problem in RELATION TO THIS SIMULATION and the solution should describe the fix IN RELATION TO THIS SIMULATION.
         return only the JSON list and nothing else.
 
-        ONLY RETURN PROBLEMS THAT ARE IN THE EXISTING LIST.
+        {POTENTIAL_SOLUTION_EXAMPLES}
 
         IF THERE IS NOTHING RELEVANT, RETURN AN EMPTY LIST LIKE THIS: []
     """
@@ -594,6 +447,8 @@ def generate_new_specific_problems_and_solutions(
         Each field should only have 10-50 words maximum.
         Return only the JSON list and nothing else.
 
+        {POTENTIAL_SOLUTION_EXAMPLES}
+
         IF THERE IS NOTHING RELEVANT, RETURN AN EMPTY LIST LIKE THIS: []
     """
 
@@ -631,9 +486,18 @@ def generate_new_specific_problems_and_solutions(
 
 def remove_duplicate_elements(new_elements, old_elements):
     old_problems = {
-        item["problem"] for item in old_elements
-    }  # Collect existing problems in a set
-    return [item for item in new_elements if item["problem"] not in old_problems]
+        item["problem"]: item for item in old_elements
+    }  # Map problems to old elements
+    merged_elements = {
+        item["problem"]: item for item in new_elements
+    }  # Start with new elements
+
+    # Add old elements only if they don't exist in new_elements
+    for problem, item in old_problems.items():
+        if problem not in merged_elements:
+            merged_elements[problem] = item
+
+    return list(merged_elements.values())  # Return the merged list
 
 
 def remove_duplicate_elements_from_one_list(elements):

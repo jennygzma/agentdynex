@@ -198,10 +198,30 @@ annotated_config_example = """
 config_rules = """
 Please follow these rules while creating the JSON
         1. Please only return the JSON and nothing else.
-        2. MAKE SURE THAT EACH MILESTONE HAPPENS FOR ABOUT 2 MINUTES BEFORE MOVING ON TO THE NEW MILESTONE. AVOID LONG DISCUSSIONS IN THE CONFIG. THINGS NEED TO BE HAPPENING.
-        3. Do not specify any date or time in the config. For example, do not say “wait for 5 minutes”, or “submit before March 16”, or “submit a day early”.
-        4. Everything in the action column (ActionsXIdea, ActionsXGrounding) should be incorporated in the directives for each agent. If it has to do with when the simulation stops, it should be in the stop condition.
-        """
+        2. EXPLICITLY STATE THAT AGENTS CANNOT DISCUSS FOR MORE THAN 3 ROUNDS WITH OTHER AGENTS BEFORE MOVING ON.THEY MUST GET THEIR POINT ACROSS BY THEN.
+        3. IF THERE ARE MULTIPLE LOCATIONS, ENSURE THAT AGENTS KNOW THEY CAN MOVE TO CERTAIN LOCATIONS AND TELL THEM THE RULES OF THAT LOCATION.
+        4. Do not specify any date or time in the config. ONLY SPEAK BY ROUNDS For example, do not say “wait for 5 minutes”, or “submit before March 16”, or “submit a day early”.
+        5. Everything in the action column (ActionsXIdea, ActionsXGrounding) should be incorporated in the directives for each agent. If it has to do with when the simulation stops, it should be in the stop condition.
+"""
+# 2. For every simulation, create an agent called "Overseer". The overseer will be a neutral force in the simulation that PLAYS NO ROLE IN THE SIMULATION except to keep the simulation on track. Specifically, the overseer will ensure that:
+#             - The primary job of the overseer is to make sure the simulation runs smoothly and properly defines the simulation. It can act as a mediator, it can act as a clock, or an enforcer. It is essentially an invisible presence that forces the simulation to move foward and that the agents are acting in logicaly sound ways.
+#             - THE OVERSEER NEEDS TO UNDERSTAND THE PROGRESS OF THE SIMULATION ACCURATELY.
+#             - IN ALMOST ALL CASES, THE OVERSEER CANNOT TALK TO ANY AGENT UNLESS THE AGENT IS DOING SOMETHING ALONG THE LINES OF A FAILURE CONDITION OR A LOGISTICAL FAILURE.
+#             - THE OVERSEER CANNOT "ENCOURAGE" ANYONE, THEY CANNOT "GIVE PEP TALKS", THEY CANNOT RANDOMLY HOP INTO A CONVERSATION IF THE SIMULATION IS GOIGN WELL.
+#             - THE OVERSEER CAN ONLY SAY VERY NEUTRAL PHRASES TO PUSH SIMULATION FORWARD.
+#             - The overseer will also fill in-place any sort of logistic that wasn't covered. It essentially fills in the logical gaps of the simulation
+#                 - For example, if votes need to be counted but there is no agent available for vote coutning, the overseer can take that role.
+#             - The overseer wil enforce the rules of the simulation. For example, if only a certain amount of agents can be in a location, they can enforce this.
+#             - THE OVERSEER CANNOT INFLUENCE THE BEHAVIOR OF THE AGENTS. THEY CANNOT TALK TO THE AGENTS UNLESS IT IS ABOUT SOMETHING LOGISTICAL THAT IS GOING WRONG TO GUIDE THE AGENTS IN THE RIGHT DIRECTION AGAIN.
+#                 - For example, when conducting a simulation regarding agents going to swim practice, the overseer cannot tell the swimmers they should go to practice and they need to calm down. They can only talk to the swimmer if the swimmer themselves has declared they will go to practice but are still stuck in the team room, because that is a logical problem with the simulation.
+#                 - For example, when conducting a simulation where people need to go to prom, the overseer cannot influence how the agents ask eachother or who they want to ask. Hoewver, they can interfere if Bob agrees to go with Alice but Bob has already agreed to go with Jenny, to tell Bob he has already committed to a date and needs to reject one of them because that is a logical error of the simulation.
+#             - THE AGENTS CANNOT TALK TO THE OVERSEER. BUT THEY MUST LISTEN TO THE OVERSEER TO ACKNOWLEDGE IT. THEY CANNOT GO INTO DISCUSSION WITH THE OVERSEER. If the overseer speaks to an agent that means they have done something logically insensible.
+#                 - f agents try to do something within the failure-conditions list, then the overseer will redirect the agent.
+#             - ensure that agents cannot speak to the OVERSEER, unlses the OVERSEER talks to them first. And if they do speak to the overseer, it is just to respond to the overseer to get the simulation moving. THIS MUST BE DEFINED IN EACH AGENT'S DIRECTIVE.
+#             - If there is a really long stall in the simulation where milestones are not being completed, the overseer must intervene to keep the simulation on track and finish at a reasonable time. If the agents are stuck in a waiting loop, the overseer can intervene
+#                 - For example, when conducting a simulation where people need to find partners for prom, if after 5 rounds of discussion Felicia is still "waiting" or not making a decision, the Overseer can remind everyone that prom is coming soon and they have to make a decision soon.
+#             - Agents stay on track in completing each milestone, so the milestones must be FULLY EMBEDDED INTO THE OVERSEER AGENT'S DIRECTIVES.
+#             - Agents in the simulation defined by the user CANNOT TALK TO THE OVERSEER, but must LISTEN TO THE OVERSEER if the overseer speaks to them because there is something logically wrong with what the agent is doing.
 
 
 def get_matrix_description(matrix):

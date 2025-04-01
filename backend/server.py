@@ -671,6 +671,7 @@ def fetch_dynamics():
         globals.milestones[globals.current_milestone_id],
         globals.milestones,
         previous,
+        globals.problem,
     )
     if dynamic["milestone_id"] != globals.current_milestone_id:
         globals.current_milestone_id = str(dynamic["milestone_id"])
@@ -707,11 +708,15 @@ def get_dynamics():
     current_run_id_folder_path = find_folder_path(
         globals.run_id, current_prototype_folder_path
     )
-    dynamics = json.loads(
-        read_file(
-            f"{current_run_id_folder_path}/{globals.DYNAMICS_FILE_NAME}",
+    dynamics = (
+        json.loads(
+            read_file(
+                f"{current_run_id_folder_path}/{globals.DYNAMICS_FILE_NAME}",
+            )
         )
-    )if file_exists(f"{current_run_id_folder_path}/{globals.DYNAMICS_FILE_NAME}") else []
+        if file_exists(f"{current_run_id_folder_path}/{globals.DYNAMICS_FILE_NAME}")
+        else []
+    )
     return (
         jsonify(
             {
@@ -779,11 +784,15 @@ def get_changes():
     current_run_id_folder_path = find_folder_path(
         globals.run_id, current_prototype_folder_path
     )
-    changes = json.loads(
-        read_file(
-            f"{current_run_id_folder_path}/{globals.CHANGES_FILE_NAME}",
+    changes = (
+        json.loads(
+            read_file(
+                f"{current_run_id_folder_path}/{globals.CHANGES_FILE_NAME}",
+            )
         )
-    ) if file_exists(f"{current_run_id_folder_path}/{globals.CHANGES_FILE_NAME}") else []
+        if file_exists(f"{current_run_id_folder_path}/{globals.CHANGES_FILE_NAME}")
+        else []
+    )
     return (
         jsonify(
             {
@@ -989,9 +998,10 @@ def get_fixes_to_apply():
 
     fixes_to_apply = (
         globals.user_specified_fixes_to_apply
-        if user_specified
+        if user_specified is True
         else globals.existing_fixes_to_apply
     )
+    print(f"hi jenny fixes to apply {fixes_to_apply} user_specified {user_specified}")
     return (
         jsonify(
             {

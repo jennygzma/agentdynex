@@ -1,4 +1,4 @@
-import { Stack, Typography } from "@mui/material";
+import { Divider, Stack, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { TreeNode, useAppContext } from "../../hooks/app-context";
@@ -171,7 +171,7 @@ const Reflection = () => {
         </Typography>
       </Stack>
       <Stack spacing="20px" direction="row">
-        <Stack width="33%" spacing="20px">
+        <Stack width="50%" spacing="20px">
           <Typography
             variant="h6"
             sx={{
@@ -181,8 +181,7 @@ const Reflection = () => {
             Recommended Fixes
           </Typography>
           <Fixes />
-        </Stack>
-        <Stack spacing={"10px"} width="33%">
+          <Divider />
           <Typography
             variant="h6"
             sx={{
@@ -193,7 +192,7 @@ const Reflection = () => {
           </Typography>
           <UserSpecifiedFixes />
         </Stack>
-        <Stack width="33%" spacing="20px">
+        <Stack width="50%" spacing="20px">
           <Stack direction="row" sx={{ justifyContent: "space-between" }}>
             <Typography
               variant="h6"

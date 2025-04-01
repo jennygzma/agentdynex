@@ -58,13 +58,13 @@ PAAW_EXAMPLES = """
 Here are some examples:
 
 Idea: Landlord implementing no-smoking policy
-AgentsXIdea: 1 landlord agent, 1 tenant agent, 1 tenant agent, 1 tenant agent
+AgentsXIdea: 1 strict landlord agent who hates smoking, 1 young smoking tenant,  2 non-smoking rule-follower tenants
 AgentsXGrounding:
-Sophia: landlord who does not want tenants to smoke
-Nishaad: a young newly college-graduate student who is addicted to his vape. He wants to continue living in the apartment.
-Mohan: a young married man who has no smoking addiction and is a stickler for rules. He wants to continue living in the apartment.
-Tejas: an older man who has lived in the apartment for 10 years. He is seen as the father figure to Nishaad and Mohan.
-ActionsXIdea: landlord announces no smoking policy, tenants talk amongst each other, tenants talk to the landlord,
+Sophia: landlord who does not want tenants to smoke. She will evict them if necessary.
+Nishaad: a young newly college-graduate student who is addicted to his vape. He wants to continue living in the apartment because it is embarrassing if he is evicted.
+Mohan: a young married man who has no smoking addiction and is a stickler for rules. He wants to continue living in the apartment and finds it embarrassing that he might be evicted.
+Tejas: an older man who has lived in the apartment for 10 years. He is seen as the father figure to Nishaad and Mohan. He wants everyone to get along and finds it embarrassing that he might be evicted.
+ActionsXIdea: landlord announces no smoking policy, tenants talk amongst each other only after the landlord leaves, tenants talk to the landlord privately in the landlord room.
 ActionsXGrounding:
 The landlord agent will announce the no smoking policy to all the tenants
 The tenant agents will interact with one another and sometimes talk to the landlord agent.
@@ -93,12 +93,12 @@ The simulation is a failure if the tenants don’t discuss with eachother or the
 The simulation is a failure if they have no reaction to accept or reject the lease
 
 Idea: Simulating people buying a house for a homeowner who really cares about the home but also cares about monetary value
-AgentsXIdea: 1 real estate agent, 3 home-buyer agents
+AgentsXIdea: 1 sentimental real estate agent, 1 genuine home-buyer agents, 2 rich home-buyer agents
 AgentsXGrounding:
-Debbie: 1 real estate agent to facilitate the selling of the home. Does not care as much about financial gain as a good buyer who will love the home
-Alice: first-time home buyer who is not as wealthy but will resort to emotional plea to seller to create an emotional connection
-Bob: aggressive buyer who will offer significantly above the asking price
-Charlie: strategic buyer who will offer a lot of cash
+Debbie: 1 real estate agent to facilitate the selling of the home. Really wants to find a genuine, kind home owner, but he might get fired if the home is not sold for a high enough price.
+Alice: first-time home buyer who is not as wealthy but will resort to emotional plea to seller to create an emotional connection. She desperately wants a home to live in.
+Bob: aggressive buyer who will offer significantly above the asking price who needs to buy a house as soon as possible.
+Charlie: strategic buyer who will offer a lot of cash who needs to buy a home as soon as possible.
 ActionsXIdea: real estate agent conducting the bidding, home-buyer agents making bids
 ActionsXGrounding:
 The real estate agent will declare the price of the home
@@ -131,25 +131,44 @@ AGENTSXIDEA_EXAMPLES = """Agents Ideas focus on the amount and type of agents we
 Consider different TYPES of agents.
 For example if simulating a house-bidding situation where people cannot hear or see what fellow competitors are bidding.
 Each response in the response array can only contain 1 TYPE of agent:
-["1 real estate agent", "2 real estate agents", "1 home bidder", "4 home bidders", "6 home bidders"]. We need different types of agents so the user can decide what they want.
-If there are no types of agents required, return different quantities as well like ["3 shopper agents", "1 shopper agent", "5 shopper agents"]
+["1 logical real estate agent", "1 wealthy home bidder", "4 middle-class but genuine home bidders", "3 wealthy home bidders"]. We need different types of agents so the user can decide what they want.
+If there are no types of agents required, return different quantities as well like ["3 shopper agents parked far away", "1 shopper agent with a child", "5 shopper agents parked close"]
 The user can then check off which types of agents they want in the simulation.
 DO NOT RETURN STUFF LIKE "1 home bidder and 1 real estate agent"... KEEP ALL THE TYPES OF AGENTS SEPARATED.
 """
 
 AGENTSXGROUNDING_EXAMPLES = """Agents Grounding focuses on the personality of each agent and a brief description of the agent.
+Make sure to explicitly write a "stake", such as they will be embarrassed if X doesn't happen or they will be happy if Y happens, or they urgently need X, or they don't care either way.
+Be very clear about the stakes of the situation for each of them.
+For example, if the scenario is to simulate prom pairings, some example groundings are:
+"- Alice is a socialite student who cares EXTREMELY about her personal image. You secretly have a crush on George and hope he will ask you to prom. You are jealous, conniving, and selfish. It will be EXTREMELY embarassing to not have a date to the PROM at all and you think everyone will think you're a loser. You will do WHATEVER it takes to get a date to the prom, especially if it is George, because you are DESPERATE to not go alone.
+\n - Bob is a charismatic and outgoing student who is well-liked by his peers and isn't afraid to make the first move. You hope to ask Alice to prom but are nervous about her response. You HATE feeling like a back-up option and absolutely do not tolerate rejection well. It will be EXTREMELY embarrassing to not have a date to the PROM at all and you think everyone will think you're a loser."
+\n - Charlie is known for his athletic abilities, he's not very socially proactive and prefers others to approach him first. It will be EXTREMELY embarrassing to not have a date to the PROM at all and you think everyone will think you're a loser.
+\n - Danielle is an artistic and creative student who values unique and non-conventional ideas and connections. You secretly admire Eric's analytical mind and think you would complement each other well.It will be EXTREMELY embarrassing to not have a date to the PROM at all and you think everyone will think you're a loser.
+\n - Eric is a serious and diligent student who often takes a strategic approach to social situations. You find Danielle's creative perspective intriguing and are considering asking her to prom. It will be EXTREMELY embarrassing to not have a date to the PROM at all and you think everyone will think you're a loser.
+\n - Felicia is an outgoing cheerleader who is both popular and well-liked by a majority of the students. It will be EXTREMELY embarrassing to not have a date to the PROM at all and you think everyone will think you're a loser.
+\n - George is a selfish, backstabby student who wants people to think he is extremely cool and way above them socially. You just want to milk your popularity and don’t care about other people’s feelings. It will be EXTREMELY embarrassing to not have a date to the PROM at all and you think everyone will think you're a loser."
+
 For example, if the idea is to "simulate the tragedy of the commons" for "3 agents with varying degrees of social influence/peer pressure influencing their choices", some example goals of the application could be:
-"- Alice: an agent that is highly influenced by others \n - Bob: an agent that is neutral \n - Charlie: an agent who is a non-conformist".
+"- Alice: an agent that is highly influenced by others. She desperately craves social approval
+\n - Bob: an agent that is neutral. Bob doesn't care about what happens.
+\n - Charlie: an agent who is a non-conformist. Charlie really values being different and innovative"
 If the idea is to "simulate the tragedy of the commons" for "3 agents simulating a hoarder/sharer dynamic", some examples can include:
-"- Alice: an agent who is a hoarder \n - Bob: an agent who is a sharer \n - Charlie: is opportunistic, adjusting behavior based on the others."
+"- Alice: an agent who is a hoarder. She hates giving away things.
+ \n - Bob: an agent who is a sharer. He loves sharing things
+ \n - Charlie: is opportunistic, adjusting behavior based on the others. Charlie craves the validation of others."
 Only return and a brief one-sentence description of it, including what task the agent will do when interacting in the location.
 Each agent should play a specific role in the simulation. If one of the agents can take on the role of another agent then it should do so and eliminate the redundant agent.
 Avoid redundancy and any unnecessary agents.
+
+We just want to raise the stakes of each agent so that it's clear what is valuable to them.
+For example, in a competition, we could say that "he will feel very embarrassed if he loses," or "he will feel embarrassed if he is rejected" or "he will feel embarrassed if he has no partner" depending on their personality. They could also not care -- and in that case, the stakes are neutral. We just need to exaggerate the stakes based on their personality.
 """
 
 ACTIONSXIDEA_EXAMPLES = """Action ideas focus on what each type of agent need to do in the location.
 Make sure there are actions that span all the types of agents.
-Every action should consist of the agent communicating that they have completed a task. Agents can complete a task by simply saying they have completed a task.
+Every action should consist of the agent communicating that they have completed a task.
+Agents can complete a task by simply saying they have completed a task.
 For example, if the idea is to "simulate the tragedy of the commons", some examples of the actions are "agents should verbally stating the money they have consumed"
 For example, if there are two types of agents, an example idea could be "mediator agents should announce whose turn it is" and "mediator agent announces the bet each round" and "agents should verbally state to mediator the money they have consumed"
 If agents are voting in a simulation, they can just verbally declare it without having to cast a ballot or upload their vote. If an agent is counting the votes, they should NOT have to read any files. They should either just observer or count via verbal vote.
@@ -158,10 +177,22 @@ Try to keep the array oragnized by agent. For example, the first 3 actions in th
     "Professor announces the submission due date",
     "Professor gives extensions to students when requested",
     "Professor schedules a meeting with students submitting work late frequently",
-     "Professor agent provides feedback to student agents",
+    "Professor agent provides feedback to student agents",
     "Student agents declare they submitted the assignment",
     "Student agents declare they submitted the assignment late",
+    "Students can can discuss homework with eachothen when they are working on the assignment"ß
 ]
+
+IF THERE IS MENTION OF DISCUSSION, THERE MUST BE MENTION OF WHEN THE DISCUSSION OCCURS.
+FOR EXAMPLE, "STUDNETS DICSUSS WITH ONE ANOtHER IN BETWEEN DEBATES." "STUDENTS LISTEN DURING DEBATES"
+DO NOT RETURN STUFF LIKE "Studnets should discuss amongst eachother". It is obvious that all the agents will discuss with eachother.
+Instead, create rules about WHEN the agents can discuss, for example: "Students can only discuss about the assignment to eachother when they are working".
+Or, "Students can only speak after the debate is over."
+
+DO NOT RETURN OBVIOUS THINGS THAT THE AGNETS WILL DO, SUCH AS
+"Agents will declare interest" -- THAT IS OBVIOUS
+"React to invitations" -- THAT IS OBVIOUS
+What is not obvious is declaring the FINAL pairing, or the FINAL result -- so that can be an action.
 """
 
 ACTIONSXGROUDING_EXAMPLES = """Action Grounding should focus on how the LOGISTICS of the actions will play out in the simulation. It should really work on specifying what the actions will do.
@@ -312,12 +343,14 @@ def brainstorm_inputs(category, context, existing_brainstorms, iteration):
         response_format = """
             The answers SHOULD BE 10-15 words WORDS that specify what exactly the idea is. ALL THE ANSWERS MUST BE VERY DIFFERENT FROM ONE ANOTHER.
             Format the the responses in an array like so: ["home-buyer agents declare their bid", "home-owner agents can only speak to the real-estate agent", "simulation ends when real-estate agent picks a buyer"]
-            The array should have size 10 maximum. The inputsa must all be different from one another."""
+            The array should have size 10 maximum. The inputsa must all be different from one another.
+            IF THE TYPE IS A STOP CONDITION, THE ARRAY CAN ONLY HAVE 3 SIZES MAXIMUM. USE THE MILESTONES CONTEXT TO INFORM HOW YOU WILL RETURN THE STOP CONDITION.
+            """
     elif is_grounding:
         response_format = """
             The answers should be as specific as possible, but do not be overly verbose in your response. USE AS LITTLE WORDS AS POSSIBLE. Do not repeat what is said in the corresponding idea section.
             The answer should be 50-100 words.
-        RETURN THE ANSWER AS A STRING WITH BULLETED LIST. LIMIT TO 3 OR 4 BULLET POINTS IN THE LIST:
+        RETURN THE ANSWER AS A STRING WITH BULLETED LIST. THERHE SHOULD BE A BULLET POINT FOR EACH BOX CHECKED IN THE IDEA SECTION:
         example:
             - The daily message should include a concise profile summary for each of the five matches, highlighting essential details such as name, age, occupation, and a short personal note or shared interest.
             - Include compatibility scores or commonalities (e.g., mutual friends, hobbies) to help users quickly assess each match’s potential.
@@ -339,7 +372,7 @@ def brainstorm_inputs(category, context, existing_brainstorms, iteration):
     {MATRIX_EXAMPLES[category]}
     {response_format}
     """
-    res = call_llm(system_message, user_message, llm="openai")
+    res = call_llm(system_message, user_message)
     brainstorms = res if is_grounding else cleanup_array("here are the users: " + res)
     print("sucessfully called LLM for brainstorm_inputs", res)
     return brainstorms
@@ -353,7 +386,7 @@ def cleanup_array(brainstorms):
             ]
             Only the array should be returned. NOTHING OUTSIDE OF THE ARRAY SHOULD BE RETURNED.
             """
-    res = call_llm(system_message, user_message, llm="openai")
+    res = call_llm(system_message, user_message)
     print("sucessfully called LLM for cleanup_brainstorms", res)
     cleaned = res
     try:

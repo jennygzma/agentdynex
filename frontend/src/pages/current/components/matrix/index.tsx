@@ -527,7 +527,7 @@ const Matrix = () => {
               updateCurrentCategory(undefined);
             }}
             direction="row"
-            buttonName="Explore Prototype"
+            buttonName="Explore Scenario"
             disabled={!updatedMatrix}
           />
         </>

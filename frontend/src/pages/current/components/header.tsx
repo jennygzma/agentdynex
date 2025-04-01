@@ -91,11 +91,10 @@ const Header = () => {
               color: "white",
               fontWeight: "bold",
               // fontFamily: "Courier New",
-              textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)",
               textAlign: "center",
             }}
           >
-            AGENTDYNEX
+            A G E N T D Y N E X
           </Typography>
         </Stack>
         {prototypes?.length !== 0 ? (

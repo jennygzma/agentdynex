@@ -343,7 +343,7 @@ const SetMatrix = () => {
                     {MATRIX_CATEGORY_DESCRIPTIONS["AgentsXIdea"]}
                   </Typography>
                   <Typography variant="body2" sx={{ whiteSpace: "pre-wrap" }}>
-                  👤 {AgentsXIdea.join("\n 👤")}
+                    👤 {AgentsXIdea.join("\n👤")}
                   </Typography>
                 </TableCell>
                 <TableCell
@@ -361,7 +361,7 @@ const SetMatrix = () => {
                     {MATRIX_CATEGORY_DESCRIPTIONS["ActionsXIdea"]}
                   </Typography>
                   <Typography variant="body2" sx={{ whiteSpace: "pre-wrap" }}>
-                  💥 {ActionsXIdea.join("\n💥 ")}
+                    💥 {ActionsXIdea.join("\n💥 ")}
                   </Typography>
                 </TableCell>
                 <TableCell
@@ -379,7 +379,7 @@ const SetMatrix = () => {
                     {MATRIX_CATEGORY_DESCRIPTIONS["LocationsXIdea"]}
                   </Typography>
                   <Typography variant="body2" sx={{ whiteSpace: "pre-wrap" }}>
-                  📍 {LocationsXIdea.join("\n📍 ")}
+                    📍 {LocationsXIdea.join("\n📍 ")}
                   </Typography>
                 </TableCell>
                 <TableCell
@@ -397,7 +397,7 @@ const SetMatrix = () => {
                     {MATRIX_CATEGORY_DESCRIPTIONS["MilestonesXIdea"]}
                   </Typography>
                   <Typography variant="body2" sx={{ whiteSpace: "pre-wrap" }}>
-                  🎯 {MilestonesXIdea.join("\n🎯 ")}
+                    🎯 {MilestonesXIdea.join("\n🎯 ")}
                   </Typography>
                 </TableCell>
                 <TableCell
@@ -415,7 +415,7 @@ const SetMatrix = () => {
                     {MATRIX_CATEGORY_DESCRIPTIONS["StopConditionXIdea"]}
                   </Typography>
                   <Typography variant="body2" sx={{ whiteSpace: "pre-wrap" }}>
-                  🛑 {StopConditionXIdea.join("\n🛑 ")}
+                    🛑 {StopConditionXIdea.join("\n🛑 ")}
                   </Typography>
                 </TableCell>
                 <TableCell
@@ -433,7 +433,7 @@ const SetMatrix = () => {
                     {MATRIX_CATEGORY_DESCRIPTIONS["FailureConditionXIdea"]}
                   </Typography>
                   <Typography variant="body2" sx={{ whiteSpace: "pre-wrap" }}>
-                  ❌ {FailureConditionXIdea.join("\n❌ ")}
+                    ❌ {FailureConditionXIdea.join("\n❌ ")}
                   </Typography>
                 </TableCell>
               </TableRow>
@@ -470,8 +470,9 @@ const SetMatrix = () => {
                     {MATRIX_CATEGORY_DESCRIPTIONS["AgentsXGrounding"]}
                   </Typography>
                   <Typography variant="body2" sx={{ whiteSpace: "pre-wrap" }}>
-                  {AgentsXGrounding.replace(/- "/g, "👤 ")
-  .replace(/\"/g, "")}
+                    {AgentsXGrounding.split("\n") // Split the string by newlines
+                      .map((line) => `👤 ${line.replace(/^-\s*/, "")}`) // Remove "-" and add "👤 " at the start
+                      .join("\n")}
                   </Typography>
                 </TableCell>
                 <TableCell
@@ -490,8 +491,8 @@ const SetMatrix = () => {
                   </Typography>
                   <Typography variant="body2" sx={{ whiteSpace: "pre-wrap" }}>
                     {ActionsXGrounding.split("\n") // Split the string by newlines
-  .map(line => `💥 ${line.replace(/^-\s*/, '')}`) // Remove "-" and add "👤 " at the start
-  .join("\n")}
+                      .map((line) => `💥 ${line.replace(/^-\s*/, "")}`) // Remove "-" and add "👤 " at the start
+                      .join("\n")}
                   </Typography>
                 </TableCell>
                 <TableCell
@@ -510,8 +511,8 @@ const SetMatrix = () => {
                   </Typography>
                   <Typography variant="body2" sx={{ whiteSpace: "pre-wrap" }}>
                     {LocationsXGrounding.split("\n") // Split the string by newlines
-  .map(line => `📍 ${line.replace(/^-\s*/, '')}`) // Remove "-" and add "👤 " at the start
-  .join("\n")}
+                      .map((line) => `📍 ${line.replace(/^-\s*/, "")}`) // Remove "-" and add "👤 " at the start
+                      .join("\n")}
                   </Typography>
                 </TableCell>
                 <TableCell
@@ -530,8 +531,8 @@ const SetMatrix = () => {
                   </Typography>
                   <Typography variant="body2" sx={{ whiteSpace: "pre-wrap" }}>
                     {MilestonesXGrounding.split("\n") // Split the string by newlines
-  .map(line => `🎯 ${line.replace(/^-\s*/, '')}`) // Remove "-" and add "👤 " at the start
-  .join("\n")}
+                      .map((line) => `🎯 ${line.replace(/^-\s*/, "")}`) // Remove "-" and add "👤 " at the start
+                      .join("\n")}
                   </Typography>
                 </TableCell>
                 <TableCell
@@ -549,9 +550,9 @@ const SetMatrix = () => {
                     {MATRIX_CATEGORY_DESCRIPTIONS["StopConditionXGrounding"]}
                   </Typography>
                   <Typography variant="body2" sx={{ whiteSpace: "pre-wrap" }}>
-                   {StopConditionXGrounding.split("\n") // Split the string by newlines
-  .map(line => `🛑 ${line.replace(/^-\s*/, '')}`) // Remove "-" and add "👤 " at the start
-  .join("\n")}
+                    {StopConditionXGrounding.split("\n") // Split the string by newlines
+                      .map((line) => `🛑 ${line.replace(/^-\s*/, "")}`) // Remove "-" and add "👤 " at the start
+                      .join("\n")}
                   </Typography>
                 </TableCell>
                 <TableCell
@@ -569,9 +570,10 @@ const SetMatrix = () => {
                     {MATRIX_CATEGORY_DESCRIPTIONS["FailureConditionXGrounding"]}
                   </Typography>
                   <Typography variant="body2" sx={{ whiteSpace: "pre-wrap" }}>
-                    {failureConditionXGrounding.split("\n") // Split the string by newlines
-  .map(line => `❌ ${line.replace(/^-\s*/, '')}`) // Remove "-" and add "👤 " at the start
-  .join("\n")}
+                    {failureConditionXGrounding
+                      .split("\n") // Split the string by newlines
+                      .map((line) => `❌ ${line.replace(/^-\s*/, "")}`) // Remove "-" and add "👤 " at the start
+                      .join("\n")}
                   </Typography>
                 </TableCell>
               </TableRow>

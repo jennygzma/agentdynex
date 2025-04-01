@@ -232,12 +232,14 @@ const Run = () => {
                 spacing="10px"
                 sx={{ alignItems: "center" }}
               >
-                <Typography variant="h6">Running Simulation...</Typography>
                 <img
                   src={require("../../../../assets/robin-beginning.gif")}
                   style={{ width: "30px", height: "25px" }}
                   alt="robin running"
                 />
+                <Typography variant="h6" sx={{ fontFamily: "courier" }}>
+                  Running Simulation...
+                </Typography>
                 <Button
                   onClick={() => {
                     updateIsRunningSimulation(false);
@@ -335,7 +337,7 @@ const Run = () => {
                   </Stack>
                   <TextField
                     className={"Logs"}
-                    rows={45}
+                    rows={50}
                     value={logs}
                     readOnly={true}
                     code={true}
