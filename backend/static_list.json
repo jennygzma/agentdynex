@@ -1,5 +1,23 @@
 [
   {
+    "problem": "Agents do not have a mechanism to execute sequences of tasks, causing inconsistent logistics.",
+    "problem_example": "In the school president campaign example, students are interfering with the debate and talking too much, not respecting the directive of not being able to speak when the candidates are speaking. Additionally, there is no way for students to vote in a private booth because no one is counting the votes. ",
+    "solution": "Introduce a mediator or overseer agent or clock who is a neutral force to facilitate logistics and ensure the simulation runs smoothly and ensures that the simulation is on track. ",
+    "solution_example": "In the school president campaign scenario, introduce a mediator agent who facilitates the debates (does not allow candidates to speak more than once, only allows voters to ask ONE question and candidates to respond once), and guides the students to a voting booth after each debate and counts the votes. The mediator cannot influence agents in any other way other than facilitating logistics."
+  },
+  {
+    "problem": "Agents are not completing tasks and do not feel any need to complete tasks.",
+    "problem_example": "In a scenario simulating prom, despite prom being on the corner and some agents having no dates, they show no urgency in trying to find a date.",
+    "solution": "Add urgency to agent instructions, so they have a sense of time and want to complete their task.",
+    "solution_example": "In the scenario simulating finding prom dates, add 'Feel increasing anxiety about not having a date as time passes' and 'Make a decision within a couple rounds of receiving a proposal' to everyone's directives."
+  },
+  {
+    "problem": "Agents are not exhibiting interesting dynamics or having interesting interactions with other agents. ",
+    "problem_example": "In the scenario simulating prom, agents pair up to the first person they see even if they are not a good match.",
+    "solution": "Add stakes to the agent personalities.",
+    "solution_example": "In the scenario simulating finding prom dates, add romantic interests to the agent bios, if someone is shy say that they are EXTREMELY SHY AND DEATHLY SCARED OF SOCIAL INTERACTION, and ACCENTUATE that it will be EXTREMELY EMBARRASSING if agents do no find a date to prom OR go with someone they don’t want to go to. "
+  },
+  {
     "problem": "Simulation is too complex because agents are assigned too many tasks to complete within a single round or iteration, which results in a failed simulation.",
     "problem_example": "If simulating a classroom late policy made by a professor (where a professor assigns work to students and enforces a penalty for late submissions), a simulation that has 10 homework problems in a single assignment might take too long to run (if the simulation has multiple assignments for the students to complete then having each assignment be very lengthy) so students might lose track of the simulation goal or the simulation might crash because it exceed a certain run time.",
     "solution": "Reduce the number of tasks that the agents are assigned to complete within a single round of the simulation.",
