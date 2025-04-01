@@ -902,6 +902,7 @@ def identify_new_list_entry():
     new_fixes = generate_new_specific_problems_and_solutions(
         user_input, globals.static_list, globals.iterative_list, log_words, config
     )
+    print(f"hi jenny new fixes {new_fixes}")
     return (
         jsonify(
             {

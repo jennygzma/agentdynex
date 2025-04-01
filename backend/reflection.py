@@ -440,16 +440,17 @@ def generate_new_specific_problems_and_solutions(
     user_input, static_list, iterative_list, logs, config
 ):
     print("calling LLM for generate_problems_and_solutions")
-    problem_solution_list = static_list + iterative_list
+    static_list + iterative_list
     system_message = f"""
         You are an error analyzer that analyzes what went wrong in a multi-agent simulation based off of logs and write out the problem and the solution.
         The user will provide something they believe went wrong with the simulation, and your job is to look at the logs and configuration and prescribe elements that they can add to a running list of problems and solutions to help with future debugging.
         The multi-agent simulation is run off of GPTeams. {GPTEAMS_DESCRIPTION}
         The user will provide logs and the original configuration file.
 
-        MAKE SURE NOT TO DUPLICATE WHAT IS ON THE EXISTING LIST. INSTEAD, USE THE EXISTING LIST AS EXAMPLES AS TO HOW SPECIFIC EACH FIELD SHOULD BE:
-        HERE IS THE EXISTING LIST
-        {str(problem_solution_list)}
+        DO NOT TO DUPLICATE WHAT IS ON THE EXISTING LIST.
+        {POTENTIAL_SOLUTION_EXAMPLES}
+
+        COME UP WITH NEW PROBLEMS AND SOLUTIONS AND IF YOU CAN'T COME UP WITH ANY JUST RETURN NOTHING AT WORSE. RETURN ONLY 3 IDEAS MAXIMUM.
 
         The response must be a JSON list format, like this:
         [
@@ -467,10 +468,7 @@ def generate_new_specific_problems_and_solutions(
         }},
         ]
         Each field should only have 10-50 words maximum.
-        Return only the JSON list and nothing else.
-
-        {POTENTIAL_SOLUTION_EXAMPLES}
-
+        Return only the JSON list and nothing else. IT CAN BE SIZE 3 AND NOTHING ELSE.
         IF THERE IS NOTHING RELEVANT, RETURN AN EMPTY LIST LIKE THIS: []
     """
 
@@ -502,8 +500,7 @@ def generate_new_specific_problems_and_solutions(
         )  # Handle invalid JSON
 
     print(f"Got valid elements from LLM: {parsed_elements}")
-    new_elements = remove_duplicate_elements(parsed_elements, problem_solution_list)
-    return new_elements  # Return the validated JSON list
+    return parsed_elements  # Return the validated JSON list
 
 
 def remove_duplicate_elements(new_elements, old_elements):
