@@ -171,7 +171,7 @@ const SetMatrix = () => {
           <ExpandMore />
         </Button>
         <Typography variant="h5" sx={{ fontWeight: "bold" }}>
-          DESIGN MATRIX CONTEXT
+          CONFIGURATION MATRIX CONTEXT
         </Typography>
       </Stack>
     );
@@ -194,7 +194,7 @@ const SetMatrix = () => {
           <ExpandLess />
         </Button>
         <Typography variant="h5" sx={{ fontWeight: "bold" }}>
-          DESIGN MATRIX CONTEXT
+          CONFIGURATION MATRIX CONTEXT
         </Typography>
       </Stack>
       <Typography variant="h6">Simulation Goal: {problem}</Typography>

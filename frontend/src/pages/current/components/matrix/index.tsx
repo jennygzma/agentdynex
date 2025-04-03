@@ -178,8 +178,8 @@ const Matrix = () => {
       }}
     >
       <InputWithButton
-        className="problem"
-        label="Problem"
+        className="scenario"
+        label="Scenario"
         input={problem}
         setInput={setProblem}
         onClick={saveProblem}
