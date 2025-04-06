@@ -13,6 +13,7 @@ const ContinuousData = ({ parentExpand }: { parentExpand: boolean }) => {
   const [expand, setExpand] = useState(parentExpand);
 
   const [status, setStatus] = useState("");
+  const [dynamicReflection, setDynamicReflection] = useState("");
 
   const { isRunningSimulation, currentPrototype, currentRunId } =
     useAppContext();
@@ -34,15 +35,42 @@ const ContinuousData = ({ parentExpand }: { parentExpand: boolean }) => {
       });
   };
 
+  const getDynamicReflection = () => {
+    // updateIsLoading(true);
+    axios({
+      method: "GET",
+      url: `${SERVER_URL}/get_dynamic_reflection`,
+    })
+      .then((response) => {
+        console.log(
+          "/get_dynamic_reflection request successful:",
+          response.data,
+        );
+        setDynamicReflection(response.data.dynamic_reflection);
+      })
+      .catch((error) => {
+        console.error("Error calling /get_dynamic_reflection request:", error);
+      })
+      .finally(() => {
+        // updateIsLoading(false);
+      });
+  };
+
   useEffect(() => {
     if (isRunningSimulation && expand) {
-      const intervalId = setInterval(getStatus, 30000);
-      return () => clearInterval(intervalId);
+      const statusIntervalId = setInterval(getStatus, 30000);
+      const reflectionIntervalId = setInterval(getDynamicReflection, 60005);
+
+      return () => {
+        clearInterval(statusIntervalId);
+        clearInterval(reflectionIntervalId);
+      };
     }
-  }, [isRunningSimulation]);
+  }, [isRunningSimulation, expand]);
 
   useEffect(() => {
     setStatus("");
+    setDynamicReflection("");
   }, [currentPrototype, currentRunId]);
 
   if (!expand) {
@@ -72,23 +100,46 @@ const ContinuousData = ({ parentExpand }: { parentExpand: boolean }) => {
           SIMULATION DATA
         </Typography>
       </Stack>
-      <Stack direction="row" sx={{ justifyContent: "space-between" }}>
-        <Typography
-          variant="h6"
-          sx={{
-            fontWeight: "bold",
-          }}
-        >
-          Status
-        </Typography>
+      <Stack
+        direction="row"
+        spacing="20px"
+        sx={{ justifyContent: "space-between" }}
+      >
+        <Stack width="40%">
+          <Typography
+            variant="h6"
+            sx={{
+              fontWeight: "bold",
+            }}
+          >
+            Status
+          </Typography>
+          <TextField
+            className={"Status"}
+            rows={5}
+            value={status}
+            readOnly={true}
+            code={true}
+          />
+        </Stack>
+        <Stack width="60%">
+          <Typography
+            variant="h6"
+            sx={{
+              fontWeight: "bold",
+            }}
+          >
+            Dynamic Reflection
+          </Typography>
+          <TextField
+            className={"Dynamic Reflection"}
+            rows={10}
+            value={dynamicReflection}
+            readOnly={true}
+            code={true}
+          />
+        </Stack>
       </Stack>
-      <TextField
-        className={"Status"}
-        rows={3}
-        value={status}
-        readOnly={true}
-        code={true}
-      />
       <Divider />
       <Stack direction="row" spacing="10px">
         <Stack width="66%">

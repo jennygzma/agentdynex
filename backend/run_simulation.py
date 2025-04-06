@@ -59,8 +59,8 @@ from utils import create_and_write_file
 # }
 
 # user needs to fill this out themselves
-GPTEAM_PATH = "/Users/jennyma/Projects/GPTeam"
-PROJECT_PATH = "/Users/jennyma/Projects/agents-design-prototype/backend"
+gpteam_path_from_env = os.getenv("GPTEAM_PATH")
+project_path_from_env = os.getenv("PROJECT_PATH")
 CONFIG_FILE_NAME = "config.json"
 
 
@@ -132,10 +132,10 @@ current_process = None
 def run_simulation(current_run_path, config):
     print("calling run_simulation...")
     global current_process
-    gpteam_config_path = f"{GPTEAM_PATH}/{CONFIG_FILE_NAME}"
+    gpteam_config_path = f"{gpteam_path_from_env}/{CONFIG_FILE_NAME}"
     create_and_write_file(gpteam_config_path, config)
 
-    log_file = f"{PROJECT_PATH}/{current_run_path}/{globals.LOGS_FILE}"
+    log_file = f"{project_path_from_env}/{current_run_path}/{globals.LOGS_FILE}"
     print(f"log_file is {log_file}")
     if os.name == "nt":  # Windows
         cmd = [
@@ -147,7 +147,7 @@ def run_simulation(current_run_path, config):
             f'poetry run world > "{log_file}" 2>&1',
         ]
     else:  # macOS / Linux (More portable approach)
-        shell_cmd = f'cd /Users/jennyma/Projects/GPTeam && poetry run db-reset && poetry run db-reset && poetry run world> "{log_file}" 2>&1'
+        shell_cmd = f'cd {gpteam_path_from_env} && poetry run db-reset && poetry run db-reset && poetry run world> "{log_file}" 2>&1'
         shell_cmd_escaped = shell_cmd.replace('"', '\\"')
         # macOS Terminal command
         cmd = [

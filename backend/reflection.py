@@ -1,8 +1,8 @@
 import json
 
+import globals
 from config_generation import cleanup_json
 from globals import call_llm
-import globals
 
 GPTEAMS_DESCRIPTION = """
 We are running a multi-agent simulation on GPTeam. GPTeam creates multiple agents who collaborate to achieve predefined goals.
@@ -82,38 +82,28 @@ GPTEAM_EXAMPLE = """
 POTENTIAL_SOLUTION_EXAMPLES = """Here are some examples of potential solutions:
         1. Raise the STAKES of the simulation. This is in the agent's personal biographies, such as: "it is EXTREMELY EMBARRASSING if you do not find a date for prom", or "it is EXTREMELY EMBARASSING if you get rejected".
         2. ADD A NEW DIRECTIVE AS ONE OF THE FIRST DIRECTIVES, NOT LAST.
-        3. REPLACE LONGWINDED, UNHELPFUL DIRECTIVES. INCREASE URGENCY BY TELLING AGENTS TO RESPOND QUICKER.
-        3. ADD SOMETHING TO THE OVERSEER'S DIRECTIVE SO THAT THEY CAN HELP FIX THE SIMULATION FROM WITHIN.
-        2. REMOVE CONFLICTING DIRECTIVES. If an agent has a directive that they need to ask someone to prom, and another one that says they will reject EVERYONE, that is messing with the dynamics of the simulation, remove it.
-        2. Add a room or agent if necessary IF YOU THINK IT IS NECESSARY BECAUSE THE LOGISTICS OF THE SIMULATION ARE NOT WORKING. For example, if the user thinks that the dynamics of the simulation are being corrupted because there is no private room to ask people to prom, then potentailly adding an extra room is a good fix.
+        3. IF THE AGENTS ARE NOT FOLLOWING RULES, ADD SOMETHING TO ALL THEIR DIRECTIVES!!!!!!!!
+        4. REPLACE LONGWINDED, UNHELPFUL DIRECTIVES. INCREASE URGENCY BY TELLING AGENTS TO RESPOND QUICKER.
+        5. ADD SOMETHING TO THE Moderator, Overseer, Teacher, Coach, or figure like this DIRECTIVE SO THAT THEY CAN HELP FIX THE SIMULATION FROM WITHIN.
+        6. REMOVE CONFLICTING DIRECTIVES. If an agent has a directive that they need to ask someone to prom, and another one that says they will reject EVERYONE, that is messing with the dynamics of the simulation, remove it.
+        7. Add a room or agent if necessary IF YOU THINK IT IS NECESSARY BECAUSE THE LOGISTICS OF THE SIMULATION ARE NOT WORKING. For example, if the user thinks that the dynamics of the simulation are being corrupted because there is no private room to ask people to prom, then potentailly adding an extra room is a good fix.
             If the logistics are going wrong because we need a new moderator agent or something to facillitate logistics smoother, a new agnet can also be added.
-        3. Modify the OVERSEER'S DIRECTIVES to ensure that the LOGICAL ERRORS of the simulation work clearly, or introduce a TIME ELEMENT to the overseer's directive.
-            The overseer can help prod agents in the right direction to find a partner, or encourage them to make logical decisions.
-        4. DEFINE RULES BETTER in the DIRECTIVES to ensure that they are vague enough for intersting DYNAMICS to emerge. For example, no need to say: "Agent will ask declare interest in going to prom by stating "Will you go to prom with me?"" because this is too specific.
+        8. Modify the overseer figure (whether that be a professor, coach, moderator)'S DIRECTIVES to ensure that the LOGICAL ERRORS of the simulation work clearly, or introduce a TIME ELEMENT to the overseer's directive.
+            This agent can help prod agents in the right direction to find a partner, or encourage them to make logical decisions.
+        9. DEFINE RULES BETTER in the DIRECTIVES to ensure that they are vague enough for intersting DYNAMICS to emerge. For example, no need to say: "Agent will ask declare interest in going to prom by stating "Will you go to prom with me?"" because this is too specific.
 """
 
 OVERSEER_INSTRUCTIONS = f"""
-When creating an overseer, create an agent called "Moderator" or "Overseer". The overseer will be a neutral force in the simulation that PLAYS NO ROLE IN THE SIMULATION except to keep the simulation on track. Specifically, the overseer will ensure that:
-    - The primary job of the overseer is to make sure the simulation runs smoothly and properly defines the simulation. It can act as a mediator, it can act as a clock, or an enforcer. It is essentially an invisible presence that forces the simulation to move foward and that the agents are acting in logicaly sound ways.
+If creating something in the simulation to FACILLIATE interactions, such as a moderator, professor, coach -- someone that acts as an overseer figure would make the simulation smoother, then you can create that. The overseer will keep the simulation running smoothly:
+    - The primary job of the overseer figure is to make sure the simulation runs smoothly and properly defines the simulation. It can act as a mediator, it can act as a clock, or an enforcer. It is essentially an invisible presence that forces the simulation to move foward and that the agents are acting in logicaly sound ways.
         - THE MILESTONES THAT THE OVERSEER IS PUSHING FOR IS THIS: {globals.matrix["MilestonesXGrounding"]}
-        - THE OVERSEER NEEDS TO UNDERSTAND THE PROGRESS OF THE SIMULATION ACCURATELY.
-    - IN ALMOST ALL CASES, THE OVERSEER CANNOT TALK TO ANY AGENT UNLESS THE AGENT IS DOING SOMETHING ALONG THE LINES OF A FAILURE CONDITION OR A LOGISTICAL FAILURE.
-        - THE OVERSEER CANNOT "ENCOURAGE" ANYONE, THEY CANNOT "GIVE PEP TALKS", THEY CANNOT RANDOMLY HOP INTO A CONVERSATION IF THE SIMULATION IS GOIGN WELL.
-        - THE OVERSEER CAN ONLY SAY VERY NEUTRAL PHRASES TO PUSH SIMULATION FORWARD.
-    - The overseer will also fill in-place any sort of logistic that wasn't covered. It essentially fills in the logical gaps of the simulation
+        - THE OVERSEER FIGURE NEEDS TO UNDERSTAND THE PROGRESS OF THE SIMULATION ACCURATELY.
+    - The overseer figure will also fill in-place any sort of logistic that wasn't covered. It essentially fills in the logical gaps of the simulation
         - For example, if votes need to be counted but there is no agent available for vote coutning, the overseer can take that role.
-    - The overseer wil enforce the rules of the simulation. For example, if only a certain amount of agents can be in a location, they can enforce this.
-    - THE OVERSEER CANNOT INFLUENCE THE BEHAVIOR OF THE AGENTS. THEY CANNOT TALK TO THE AGENTS UNLESS IT IS ABOUT SOMETHING LOGISTICAL THAT IS GOING WRONG TO GUIDE THE AGENTS IN THE RIGHT DIRECTION AGAIN.
-        - For example, when conducting a simulation regarding agents going to swim practice, the overseer cannot tell the swimmers they should go to practice and they need to calm down. They can only talk to the swimmer if the swimmer themselves has declared they will go to practice but are still stuck in the team room, because that is a logical problem with the simulation.
-        - For example, when conducting a simulation where people need to go to prom, the overseer cannot influence how the agents ask eachother or who they want to ask. Hoewver, they can interfere if Bob agrees to go with Alice but Bob has already agreed to go with Jenny, to tell Bob he has already committed to a date and needs to reject one of them because that is a logical error of the simulation.
-    - THE AGENTS CANNOT TALK TO THE OVERSEER. BUT THEY MUST LISTEN TO THE OVERSEER TO ACKNOWLEDGE IT. THEY CANNOT GO INTO DISCUSSION WITH THE OVERSEER. If the overseer speaks to an agent that means they have done something logically insensible.
-        - f agents try to do something within the failure-conditions list, then the overseer will redirect the agent.
-    - ensure that agents cannot speak to the OVERSEER, unlses the OVERSEER talks to them first. And if they do speak to the overseer, it is just to respond to the overseer to get the simulation moving. THIS MUST BE DEFINED IN EACH AGENT'S DIRECTIVE.
-    - If there is a really long stall in the simulation where milestones are not being completed, the overseer must intervene to keep the simulation on track and finish at a reasonable time. If the agents are stuck in a waiting loop, the overseer can intervene
-        - For example, when conducting a simulation where people need to find partners for prom, if after 5 rounds of discussion Felicia is still "waiting" or not making a decision, the Overseer can remind everyone that prom is coming soon and they have to make a decision soon.
+    - The overseer figure will enforce the rules of the simulation. For example, if only a certain amount of agents can be in a location, they can enforce this.
     - Agents stay on track in completing each milestone, so the milestones must be FULLY EMBEDDED INTO THE OVERSEER AGENT'S DIRECTIVES.
-    - Agents in the simulation defined by the user CANNOT TALK TO THE OVERSEER, but must LISTEN TO THE OVERSEER if the overseer speaks to them because there is something logically wrong with what the agent is doing.
 """
+
 SIMULATION_SUMNMARY_EXAMPLE = """
 Progress of the Ultimatum Game:
     A round of the Ultimatum Game was initiated and reached the proposal phase.
@@ -337,7 +327,7 @@ def get_status(logs, problem, failures):
         - 🛑 Agents are trying to go into a room that doesn't exist
         - 🛑 No agents are interacting with eachother because the room has rules that no agents can speak to one another, but they should be speaking to one another.
         If there are errors in the logs like this:
-        "  File "/Users/jennyma/Projects/GPTeam/src/utils/embeddings.py", line 30, in get_embedding
+        "  File "/Users/jennyma/Projects/GPTeam-hijacking/src/utils/embeddings.py", line 30, in get_embedding
             await asyncio.sleep(1)  # Wait for 1 second before retrying
             ^^^^^^^^^^^^^^^^^^^^^^
         File "/Users/jennyma/anaconda3/lib/python3.11/asyncio/tasks.py", line 633, in sleep
@@ -351,13 +341,67 @@ def get_status(logs, problem, failures):
 
         If the simulation just started running, then give it some time to pick up -- do not return a STOP status immediately. That is dumb. If you return a STOP status, then you are expecting the simulation to fail.
         Return a reason why as well. Keep the response between 20 words long.
-        Return the 🛑 or ⚠️ or 🟢 emoji, and then the 20 word description as to why.
+        Return the 🛑 or ⚠️ or 🟢 emoji, and then the 20 word description as to why. THE DESCRIPTION CAN ONLY BE 20 WORDS
         Here is some extra context: the user wants to simulate this {problem}. Ensure that the simulation has not fallen into failure loops -- specifically, here are some errors to look out for: {failures}.
     """
     user_message = f"Here are the logs: {truncated_logs}"
-    status = call_llm(system_message, user_message, llm="openai")
+    status = call_llm(system_message, user_message)
     print("sucessfully called LLM for get_status", status)
     return status
+
+
+def get_hijack_recommendation(
+    logs, problem, failures, milestones, locations, agents, recent_change_logs
+):
+    print("calling LLM for get_hijack_recommendation...")
+    log_words = logs.split()
+    log_words = log_words[-2000:]  # Keep the last 4,000 words
+    truncated_logs = " ".join(log_words)
+    system_message = f"""
+        You are an evaluator that helps keep a simulatoin on track. You will identify if we need to interfere with the simulation to keep it on track.
+        For context, we are running a multi-agent simulation on GPTeams.
+        {GPTEAMS_DESCRIPTION}
+
+        You have these actions we can do to interfere with the simulation:
+        1) Move 1 agent from one location to another location
+        2) Tell one agent to say something, and  everyone in that location will hear you.
+
+        Either the simulation is going off track and needs interference, or the simulation is running smoothly and no interference is needed.
+        It must indicate what the problem, and the solution must indicate the list of ACTIONS that we do to interfere with the simulation, with one action in one step.
+        Return the string and ONLY the string.
+        Format the response like this if the simulatoin is running smoothly:
+        "Simulation is running smoothly."
+
+        Format the response like this if the simulation is running into issue:
+        "Problem: Students are spending too long discussing their homework and the simulation is not progressing.
+        Solution: 1. Move Professor to the cl1assroom
+                  2. Have Professor say "Assignment 1 is due now. Please submit your assignments"
+        "
+        "Problem: Professor is not grading assignments.
+        Solution: 1. Have Bob ask the Professor say "Can I get my assignment back?"
+        "Problem: Bob is not deciding who to go to prom with.
+        Solution: 1. Have Bob say "I need to decide who to go to prom with."
+        
+        MAKE SURE THE STUFF THE AGENTS ARE SAYING ARE NOT INFLUENCIG THE OUTCOME OF THE SIMULATION AND INSTEAD JUST PUSH THINGS ALONG IN THE SIMULATION. THEY MUST BE OBJECTIVE THINGS BEING SAID TO KICK THIGNS INTO ACTION.
+        For example, if doing a work promotion, the manager cannot say: "Alex has won", and instead must say "I will declare the winner now."
+        Or, for a prom date example, a teacher cannot say "Alex and Barbie will go to gether", and instead must ask "Who is dating who?"
+        Essentially, you cannot influence the outcome of the simulation, you can only provoke action by declaring things to force the agents themselves to make decisions.
+        THE THIGNS THE AGENT SAYS CANNOT INFLUENCE THE OUTCOME OF TEH SIMULATION. YOU CANNOT DECLARE WINNERS, OR MAKE DECISIONS FOR AGENTS. YOU CAN JUST TELL THEM TO SAY SOMETHIGN SO OTHER AGENTS HEAR AND LISTEN TO THEM TO MOVE A STALLED SIMULATION ALONG.
+
+        The user will provide some logs and recent change logs indicating where each agent is and what they are doing.
+        Based on the logs and change logs, figure out if interference is needed based on the criteria above.
+        If the simulation has been on the same milestone for a while based on the change logs or the change logs "change" field is empty, interference is probably needed to speed the simulation along.
+
+        Here is some context to identify if something is going wrong in the simulation. We will provide you with:
+        - Goal of the simulation is "{problem}" this what the user ultimately wants to simulate. If the simulation is stalling or going off track, likely it is failing to achieve this goal and we may have to interfere.
+        - Milestones are "{milestones}": these are chronological milestones the simulation needs to accomplish. If the simluatoin is failing to accomplish some of these milestones, likely interference is needed
+        - Failure Conditions are "{failures}": these are some conditions where if the agents are behaving like this the simulation is heading in a wrong direction, and likely interference is needed.
+        - Locations and Agents are "{locations}" and "{agents}": these are the agents in the world and the locatoins they can potentially move to.
+    """
+    user_message = f"Here are the change logs: {recent_change_logs}. Here are the logs: {truncated_logs}"
+    hijack_recommendation = call_llm(system_message, user_message)
+    print("sucessfully called LLM for get_hijack_recommendation", hijack_recommendation)
+    return hijack_recommendation
 
 
 def generate_problems_and_solutions(static_list, iterative_list, logs, config):

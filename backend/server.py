@@ -17,6 +17,9 @@ from reflection import (
 )
 from reflection import generate_summary as generate_LLM_summary
 from reflection import generate_updated_config as generate_updated_config_from_fixes
+from reflection import (
+    get_hijack_recommendation,
+)
 from reflection import get_status as generate_status
 from reflection import (
     log_changes,
@@ -597,6 +600,54 @@ def get_status():
             {
                 "message": "generated summary",
                 "status": status,
+            }
+        ),
+        200,
+    )
+
+
+@app.route("/get_dynamic_reflection", methods=["GET"])
+def get_dynamic_reflection():
+    print("calling get_dynamic_reflection...")
+    current_prototype_folder_path = f"{globals.folder_path}/{globals.current_prototype}"
+    current_run_id_folder_path = find_folder_path(
+        globals.run_id, current_prototype_folder_path
+    )
+    logs = read_file(f"{current_run_id_folder_path}/{globals.LOGS_FILE}")
+    problem = read_file(f"{globals.folder_path}/{globals.PROBLEM_FILE_NAME}")
+    failures = f"""Failure Ideas: {globals.matrix["FailureConditionXIdea"]}.
+    Failure Specifics: {globals.matrix["FailureConditionXGrounding"]}
+    """
+    milestones = f"""Failure Ideas: {globals.matrix["MilestonesXIdea"]}.
+    Failure Specifics: {globals.matrix["MilestonesXGrounding"]}
+    """
+    locations = f"""Failure Ideas: {globals.matrix["LocationsXIdea"]}.
+    Failure Specifics: {globals.matrix["LocationsXGrounding"]}
+    """
+    agents = f"""Failure Ideas: {globals.matrix["AgentsXIdea"]}.
+    Failure Specifics: {globals.matrix["AgentsXGrounding"]}
+    """
+    if file_exists(f"{current_run_id_folder_path}/{globals.CHANGES_FILE_NAME}"):
+        changes_text = read_file(
+            f"{current_run_id_folder_path}/{globals.CHANGES_FILE_NAME}"
+        )
+        changes_data = json.loads(changes_text)
+    else:
+        changes_data = []
+    recent_change_logs = changes_data[-3:] if changes_data else []
+    recent_change_logs_str = "\n\n".join(
+        json.dumps(log, indent=2) for log in recent_change_logs
+    )
+
+    dynamic_reflection = get_hijack_recommendation(
+        logs, problem, failures, milestones, locations, agents, recent_change_logs_str
+    )
+    # def get_hijack_recommendation(logs, problem, failures, milestones, locations, agents, recent_change_logs):
+    return (
+        jsonify(
+            {
+                "message": "generated dynamic reflection",
+                "dynamic_reflection": dynamic_reflection,
             }
         ),
         200,
