@@ -49,14 +49,7 @@ const UserSpecifiedFixes = () => {
   const [hasSubmitted, setHasSubmitted] = useState(true);
   const [openEdit, setOpenEdit] = useState(false);
   const [editData, setEditData] = useState<EditableFixData | null>(null);
-  const {
-    isRunningSimulation,
-    currentPrototype,
-    currentRunId,
-    updateIsLoading,
-  } = useAppContext();
-
-  console.log("hi jenny fixesData " + fixesData);
+  const { currentPrototype, currentRunId, updateIsLoading } = useAppContext();
 
   const identifyNewListEntries = () => {
     updateIsLoading(true);
@@ -153,7 +146,6 @@ const UserSpecifiedFixes = () => {
     getFixesToApply();
     setUserInput("");
   }, [currentRunId, currentPrototype]);
-  console.log("hi jenny currentRunId " + currentRunId);
 
   // Toggle selected fixes
   const handleCheckboxChange = (fix: FixData) => {

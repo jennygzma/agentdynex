@@ -81,7 +81,6 @@ const Dynamics = ({ expand }: { expand: boolean }) => {
   useEffect(() => {
     getDynamics();
   }, [currentRunId, currentPrototype]);
-  console.log("hi jenny currentRunId " + currentRunId);
 
   useEffect(() => {
     getDynamics();

@@ -26,9 +26,7 @@ interface ListProps {
 const List = ({ type }: ListProps) => {
   const [listData, setListData] = useState<ListItem[]>([]);
   const { updateIsLoading } = useAppContext();
-  console.log(listData);
   useEffect(() => {
-    console.log("hi jenny");
     if (type === "iterative") {
       getIterativeList();
     } else {

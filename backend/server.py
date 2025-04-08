@@ -136,7 +136,6 @@ def explore_prototype():
         json.dumps(globals.prototypes),
     )
     folder_path = f"{globals.folder_path}/{prototype}"
-    print("hi jenny " + folder_path)
     create_folder(f"{folder_path}")
     create_and_write_file(
         f"{folder_path}/{globals.MATRIX_FILE_NAME}", json.dumps(globals.matrix)
@@ -918,14 +917,6 @@ def generate_fixes():
     fixes = generate_problems_and_solutions(
         globals.static_list, globals.iterative_list, log_words, config
     )
-    print(f"hi jenny all_fixes {fixes}")
-    # create_and_write_file(
-    #     f"{current_run_id_folder_path}/{globals.ANALYSIS_FILE}", analysis
-    # )
-    # create_and_write_file(
-    #     f"{current_run_id_folder_path}/{globals.UPDATED_CONFIG}",
-    #     updated_config,
-    # )
     return (
         jsonify(
             {
@@ -953,7 +944,6 @@ def identify_new_list_entry():
     new_fixes = generate_new_specific_problems_and_solutions(
         user_input, globals.static_list, globals.iterative_list, log_words, config
     )
-    print(f"hi jenny new fixes {new_fixes}")
     return (
         jsonify(
             {
@@ -1053,7 +1043,7 @@ def get_fixes_to_apply():
         if user_specified is True
         else globals.existing_fixes_to_apply
     )
-    print(f"hi jenny fixes to apply {fixes_to_apply} user_specified {user_specified}")
+    print(f"fixes to apply {fixes_to_apply} user_specified {user_specified}")
     return (
         jsonify(
             {
@@ -1069,8 +1059,8 @@ def get_fixes_to_apply():
 def add_to_iterative_list():
     print("calling add_to_iterative_list...")
     new_elements = json.loads(json.dumps(request.json["elements"]))
-    print(f"hi jenny current iterative list {globals.iterative_list}")
-    print(f"hi jenny current new_elements list {new_elements}")
+    print(f"current iterative list {globals.iterative_list}")
+    print(f"current new_elements list {new_elements}")
     globals.iterative_list = globals.iterative_list + new_elements
     create_and_write_file(
         f"{globals.folder_path}/{globals.ITERATIVE_LIST_FILE_NAME}",

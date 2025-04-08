@@ -84,7 +84,6 @@ const ChangeLog = ({ expand }: { expand: boolean }) => {
   useEffect(() => {
     getChanges();
   }, [expand, currentRunId, currentPrototype]);
-  console.log("hi jenny currentRunId " + currentRunId);
 
   useEffect(() => {
     getChanges();

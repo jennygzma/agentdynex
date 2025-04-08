@@ -149,8 +149,8 @@ const Reflection = () => {
         <Button onClick={() => setExpand(true)}>
           <ExpandMore />
         </Button>
-        <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-          REFLECTION
+        <Typography variant="h5" sx={{ fontWeight: "bold" }}>
+          HOLISTIC REFLECTION
         </Typography>
       </Stack>
     );
@@ -162,12 +162,12 @@ const Reflection = () => {
           <ExpandLess />
         </Button>
         <Typography
-          variant="h6"
+          variant="h5"
           sx={{
             fontWeight: "bold",
           }}
         >
-          REFLECTION
+          HOLISTIC REFLECTION
         </Typography>
       </Stack>
       <Stack spacing="20px" direction="row">
@@ -222,7 +222,7 @@ const Reflection = () => {
             </Button>
             <TextField
               className={"updated_config"}
-              rows={50}
+              rows={75}
               value={config}
               onChange={(e) => {
                 setConfig(e.target.value);

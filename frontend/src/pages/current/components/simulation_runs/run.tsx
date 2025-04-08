@@ -24,6 +24,26 @@ const Run = () => {
   const [updatedConfig, setUpdatedConfig] = useState(false);
   const [hasReflection, setHasReflection] = useState(false);
   const [expand, setExpand] = useState(true);
+  const [simulationDataExpand, setSimulationDataExpand] = useState(true);
+  const [status, setStatus] = useState("");
+
+  const getStatus = () => {
+    // updateIsLoading(true);
+    axios({
+      method: "GET",
+      url: `${SERVER_URL}/get_status`,
+    })
+      .then((response) => {
+        console.log("/get_status request successful:", response.data);
+        setStatus(response.data.status);
+      })
+      .catch((error) => {
+        console.error("Error calling /get_status request:", error);
+      })
+      .finally(() => {
+        // updateIsLoading(false);
+      });
+  };
 
   const getRunTree = () => {
     updateIsLoading(true);
@@ -190,13 +210,22 @@ const Run = () => {
   };
 
   useEffect(() => {
+    if (isRunningSimulation && expand) {
+      const statusIntervalId = setInterval(getStatus, 30000);
+      return () => {
+        clearInterval(statusIntervalId);
+      };
+    }
+  }, [isRunningSimulation, expand]);
+
+  useEffect(() => {
     if (!currentPrototype) return;
     getConfig();
     getLogs();
     getSummary();
     setExpand(true);
+    setStatus("");
   }, [currentPrototype, currentRunId]);
-
   if (!currentPrototype) return <></>;
 
   return (
@@ -206,7 +235,7 @@ const Run = () => {
           <Button onClick={() => setExpand(true)}>
             <ExpandMore />
           </Button>
-          <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+          <Typography variant="h5" sx={{ fontWeight: "bold" }}>
             SIMULATION RUN
           </Typography>
         </Stack>
@@ -217,7 +246,7 @@ const Run = () => {
               <ExpandLess />
             </Button>
             <Typography
-              variant="h6"
+              variant="h5"
               sx={{
                 fontWeight: "bold",
               }}
@@ -229,8 +258,9 @@ const Run = () => {
             {isRunningSimulation ? (
               <Stack
                 direction="row"
-                spacing="10px"
+                spacing="20px"
                 sx={{ alignItems: "center" }}
+                width="100%"
               >
                 <img
                   src={require("../../../../assets/robin-beginning.gif")}
@@ -246,13 +276,35 @@ const Run = () => {
                     stopSimulation();
                   }}
                 >
-                  Stop Running Simulation&nbsp;&nbsp;
+                  Stop Running Simulation
                   <img
                     src={require("../../../../assets/robin-kid.gif")}
-                    style={{ width: "35px", height: "25px" }}
+                    style={{ width: "35px", height: "25px", marginLeft: "5px" }}
                     alt="stop"
                   />
-                </Button>{" "}
+                </Button>
+                <Stack
+                  width="75%"
+                  spacing="10px"
+                  direction="row"
+                  sx={{ alignItems: "center" }}
+                >
+                  <Typography
+                    variant="body1"
+                    sx={{
+                      fontWeight: "bold",
+                    }}
+                  >
+                    Status
+                  </Typography>
+                  <TextField
+                    className={"Status"}
+                    rows={1}
+                    value={status}
+                    readOnly={true}
+                    code={true}
+                  />
+                </Stack>
               </Stack>
             ) : (
               <Button
@@ -269,12 +321,11 @@ const Run = () => {
                 />
               </Button>
             )}
-            {!isRunningSimulation && logs && (
+            {!isRunningSimulation && (
               <Button
                 onClick={() => {
                   setHasReflection(true);
                   setExpand(false);
-                  // generateReflection();
                 }}
               >
                 REFLECT
@@ -283,101 +334,122 @@ const Run = () => {
           </Stack>
           <Stack spacing="20px">
             <ContinuousData parentExpand={expand} />
-            <Stack spacing="20px" width="100%" direction="row">
-              {config && (
-                <Stack spacing="25px" width="100%">
-                  <Typography
-                    variant="h6"
-                    sx={{
-                      fontWeight: "bold",
-                    }}
-                  >
-                    Original Configuration
-                  </Typography>
-                  <TextField
-                    className={"code"}
-                    rows={50}
-                    value={config}
-                    onChange={(e) => {
-                      setConfig(e.target.value);
-                      setUpdatedConfig(true);
-                    }}
-                    code={true}
-                  />
-                  <Button
-                    disabled={!updatedConfig}
-                    onClick={saveConfig}
-                    sx={{ width: "100%" }}
-                  >
-                    Update Config
+            {!simulationDataExpand ? (
+              <Stack direction="row" spacing="10px">
+                <Button onClick={() => setSimulationDataExpand(true)}>
+                  <ExpandMore />
+                </Button>
+                <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+                  SIMULATION DATA
+                </Typography>
+              </Stack>
+            ) : (
+              <Stack spacing="20px">
+                <Stack direction="row" spacing="10px">
+                  <Button onClick={() => setSimulationDataExpand(false)}>
+                    <ExpandMore />
                   </Button>
+                  <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+                    SIMULATION DATA
+                  </Typography>
                 </Stack>
-              )}
-              {(isRunningSimulation || logs) && (
-                <Stack width="100%" spacing="20px">
-                  <Stack
-                    direction="row"
-                    sx={{ justifyContent: "space-between" }}
-                  >
-                    <Typography
-                      variant="h6"
-                      sx={{
-                        fontWeight: "bold",
-                      }}
-                    >
-                      Logs
-                    </Typography>
-                    <Button
-                      onClick={() => {
-                        getLogs();
-                      }}
-                    >
-                      Get Logs 📝
-                    </Button>
-                  </Stack>
-                  <TextField
-                    className={"Logs"}
-                    rows={50}
-                    value={logs}
-                    readOnly={true}
-                    code={true}
-                  />
-                </Stack>
-              )}
-              {(isRunningSimulation || logs) && (
-                <Stack width="100%" spacing="20px">
-                  <Stack
-                    direction="row"
-                    sx={{ justifyContent: "space-between" }}
-                  >
-                    <Typography
-                      variant="h6"
-                      sx={{
-                        fontWeight: "bold",
-                      }}
-                    >
-                      Summary
-                    </Typography>
-                    {!isRunningSimulation && logs && (
-                      <Button
-                        onClick={() => {
-                          generateSummary();
+                <Stack spacing="20px" width="100%" direction="row">
+                  {
+                    <Stack spacing="25px" width="100%">
+                      <Typography
+                        variant="h6"
+                        sx={{
+                          fontWeight: "bold",
                         }}
                       >
-                        Get Summary ℹ️
+                        Original Configuration
+                      </Typography>
+                      <TextField
+                        className={"code"}
+                        rows={50}
+                        value={config}
+                        onChange={(e) => {
+                          setConfig(e.target.value);
+                          setUpdatedConfig(true);
+                        }}
+                        code={true}
+                      />
+                      <Button
+                        disabled={!updatedConfig}
+                        onClick={saveConfig}
+                        sx={{ width: "100%" }}
+                      >
+                        Update Config
                       </Button>
-                    )}
-                  </Stack>
-                  <TextField
-                    className={"Summary"}
-                    rows={50}
-                    value={summary}
-                    readOnly={true}
-                    code={true}
-                  />
+                    </Stack>
+                  }
+                  {(isRunningSimulation || logs) && (
+                    <Stack width="100%" spacing="20px">
+                      <Stack
+                        direction="row"
+                        sx={{ justifyContent: "space-between" }}
+                      >
+                        <Typography
+                          variant="h6"
+                          sx={{
+                            fontWeight: "bold",
+                          }}
+                        >
+                          Logs
+                        </Typography>
+                        <Button
+                          onClick={() => {
+                            getLogs();
+                          }}
+                        >
+                          Get Logs 📝
+                        </Button>
+                      </Stack>
+                      <TextField
+                        className={"Logs"}
+                        rows={50}
+                        value={logs}
+                        readOnly={true}
+                        code={true}
+                      />
+                    </Stack>
+                  )}
+                  {
+                    <Stack width="100%" spacing="20px">
+                      <Stack
+                        direction="row"
+                        sx={{ justifyContent: "space-between" }}
+                      >
+                        <Typography
+                          variant="h6"
+                          sx={{
+                            fontWeight: "bold",
+                          }}
+                        >
+                          Summary
+                        </Typography>
+                        {logs && (
+                          <Button
+                            onClick={() => {
+                              generateSummary();
+                            }}
+                          >
+                            Get Summary ℹ️
+                          </Button>
+                        )}
+                      </Stack>
+                      <TextField
+                        className={"Summary"}
+                        rows={50}
+                        value={summary}
+                        readOnly={true}
+                        code={true}
+                      />
+                    </Stack>
+                  }
                 </Stack>
-              )}
-            </Stack>
+              </Stack>
+            )}
           </Stack>
         </Stack>
       )}
