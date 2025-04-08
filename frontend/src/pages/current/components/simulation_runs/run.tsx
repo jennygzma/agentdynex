@@ -1,5 +1,11 @@
-import { Divider, Stack, Typography } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import {
+  Divider,
+  Stack,
+  Typography,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
+import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import { TreeNode, useAppContext } from "../../hooks/app-context";
 import { SERVER_URL } from "../..";
@@ -10,6 +16,9 @@ import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import ContinuousData from "./continuous-data";
 
 const Run = () => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+
   const {
     updateIsLoading,
     currentPrototype,
@@ -18,6 +27,7 @@ const Run = () => {
     updateIsRunningSimulation,
     updateCurrentRunTree,
   } = useAppContext();
+
   const [config, setConfig] = useState("");
   const [logs, setLogs] = useState("");
   const [summary, setSummary] = useState("");
@@ -26,9 +36,28 @@ const Run = () => {
   const [expand, setExpand] = useState(true);
   const [simulationDataExpand, setSimulationDataExpand] = useState(true);
   const [status, setStatus] = useState("");
+  const [contentHeight, setContentHeight] = useState(50);
 
-  const getStatus = () => {
-    // updateIsLoading(true);
+  // Responsive rows calculation for text fields
+  useEffect(() => {
+    const calculateRows = () => {
+      const windowHeight = window.innerHeight;
+      // Adjust rows based on window height
+      const newRows = Math.max(20, Math.floor(windowHeight / 30));
+      setContentHeight(newRows);
+    };
+
+    // Calculate on mount
+    calculateRows();
+
+    // Add resize listener
+    window.addEventListener("resize", calculateRows);
+
+    // Cleanup listener on unmount
+    return () => window.removeEventListener("resize", calculateRows);
+  }, []);
+
+  const getStatus = useCallback(() => {
     axios({
       method: "GET",
       url: `${SERVER_URL}/get_status`,
@@ -39,13 +68,10 @@ const Run = () => {
       })
       .catch((error) => {
         console.error("Error calling /get_status request:", error);
-      })
-      .finally(() => {
-        // updateIsLoading(false);
       });
-  };
+  }, []);
 
-  const getRunTree = () => {
+  const getRunTree = useCallback(() => {
     updateIsLoading(true);
     axios({
       method: "GET",
@@ -74,9 +100,9 @@ const Run = () => {
       .finally(() => {
         updateIsLoading(false);
       });
-  };
+  }, [updateIsLoading, updateCurrentRunTree]);
 
-  const runSimulation = () => {
+  const runSimulation = useCallback(() => {
     updateIsLoading(true);
     axios({
       method: "POST",
@@ -92,9 +118,9 @@ const Run = () => {
         updateIsLoading(false);
         getRunTree();
       });
-  };
+  }, [updateIsLoading, getRunTree]);
 
-  const stopSimulation = () => {
+  const stopSimulation = useCallback(() => {
     updateIsLoading(true);
     axios({
       method: "POST",
@@ -109,9 +135,9 @@ const Run = () => {
       .finally(() => {
         updateIsLoading(false);
       });
-  };
+  }, [updateIsLoading]);
 
-  const saveConfig = () => {
+  const saveConfig = useCallback(() => {
     updateIsLoading(true);
     axios({
       method: "POST",
@@ -132,9 +158,9 @@ const Run = () => {
       .finally(() => {
         updateIsLoading(false);
       });
-  };
+  }, [config, updateIsLoading]);
 
-  const getConfig = () => {
+  const getConfig = useCallback(() => {
     updateIsLoading(true);
     axios({
       method: "GET",
@@ -153,9 +179,9 @@ const Run = () => {
       .finally(() => {
         updateIsLoading(false);
       });
-  };
+  }, [updateIsLoading]);
 
-  const generateSummary = () => {
+  const generateSummary = useCallback(() => {
     updateIsLoading(true);
     axios({
       method: "POST",
@@ -171,9 +197,9 @@ const Run = () => {
         updateIsLoading(false);
         getSummary();
       });
-  };
+  }, [updateIsLoading]);
 
-  const getLogs = () => {
+  const getLogs = useCallback(() => {
     updateIsLoading(true);
     axios({
       method: "GET",
@@ -189,9 +215,9 @@ const Run = () => {
       .finally(() => {
         updateIsLoading(false);
       });
-  };
+  }, [updateIsLoading]);
 
-  const getSummary = () => {
+  const getSummary = useCallback(() => {
     updateIsLoading(true);
     axios({
       method: "GET",
@@ -207,16 +233,16 @@ const Run = () => {
       .finally(() => {
         updateIsLoading(false);
       });
-  };
+  }, [updateIsLoading]);
 
   useEffect(() => {
-    if (isRunningSimulation && expand) {
+    if (isRunningSimulation) {
       const statusIntervalId = setInterval(getStatus, 30000);
       return () => {
         clearInterval(statusIntervalId);
       };
     }
-  }, [isRunningSimulation, expand]);
+  }, [isRunningSimulation, getStatus]);
 
   useEffect(() => {
     if (!currentPrototype) return;
@@ -225,11 +251,11 @@ const Run = () => {
     getSummary();
     setExpand(true);
     setStatus("");
-  }, [currentPrototype, currentRunId]);
-  if (!currentPrototype) return <></>;
+  }, [currentPrototype, currentRunId, getConfig, getLogs, getSummary]);
+  if (!currentPrototype) return null;
 
   return (
-    <Stack spacing="20px" width="85%">
+    <Stack spacing="20px" width="100%" maxWidth="100%" overflow="hidden">
       {!expand ? (
         <Stack direction="row" spacing="10px">
           <Button onClick={() => setExpand(true)}>
@@ -254,12 +280,12 @@ const Run = () => {
               SIMULATION RUN
             </Typography>
           </Stack>
-          <Stack spacing="20px" direction="row">
+          <Stack spacing="20px" direction={isMobile ? "column" : "row"}>
             {isRunningSimulation ? (
               <Stack
-                direction="row"
+                direction={isMobile ? "column" : "row"}
                 spacing="20px"
-                sx={{ alignItems: "center" }}
+                sx={{ alignItems: isMobile ? "flex-start" : "center" }}
                 width="100%"
               >
                 <img
@@ -284,7 +310,7 @@ const Run = () => {
                   />
                 </Button>
                 <Stack
-                  width="75%"
+                  width={isMobile ? "100%" : "75%"}
                   spacing="10px"
                   direction="row"
                   sx={{ alignItems: "center" }}
@@ -347,15 +373,20 @@ const Run = () => {
               <Stack spacing="20px">
                 <Stack direction="row" spacing="10px">
                   <Button onClick={() => setSimulationDataExpand(false)}>
-                    <ExpandMore />
+                    <ExpandLess />
                   </Button>
                   <Typography variant="h6" sx={{ fontWeight: "bold" }}>
                     SIMULATION DATA
                   </Typography>
                 </Stack>
-                <Stack spacing="20px" width="100%" direction="row">
+                <Stack
+                  spacing="20px"
+                  width="100%"
+                  direction={isMobile ? "column" : "row"}
+                  sx={{ overflow: "hidden" }}
+                >
                   {
-                    <Stack spacing="25px" width="100%">
+                    <Stack spacing="25px" width="100%" sx={{ minWidth: 0 }}>
                       <Typography
                         variant="h6"
                         sx={{
@@ -366,13 +397,14 @@ const Run = () => {
                       </Typography>
                       <TextField
                         className={"code"}
-                        rows={50}
+                        rows={contentHeight}
                         value={config}
                         onChange={(e) => {
                           setConfig(e.target.value);
                           setUpdatedConfig(true);
                         }}
                         code={true}
+                        sx={{ maxWidth: "100%" }}
                       />
                       <Button
                         disabled={!updatedConfig}
@@ -384,7 +416,7 @@ const Run = () => {
                     </Stack>
                   }
                   {(isRunningSimulation || logs) && (
-                    <Stack width="100%" spacing="20px">
+                    <Stack width="100%" spacing="20px" sx={{ minWidth: 0 }}>
                       <Stack
                         direction="row"
                         sx={{ justifyContent: "space-between" }}
@@ -407,15 +439,16 @@ const Run = () => {
                       </Stack>
                       <TextField
                         className={"Logs"}
-                        rows={50}
+                        rows={contentHeight}
                         value={logs}
                         readOnly={true}
                         code={true}
+                        sx={{ maxWidth: "100%" }}
                       />
                     </Stack>
                   )}
                   {
-                    <Stack width="100%" spacing="20px">
+                    <Stack width="100%" spacing="20px" sx={{ minWidth: 0 }}>
                       <Stack
                         direction="row"
                         sx={{ justifyContent: "space-between" }}
@@ -440,10 +473,11 @@ const Run = () => {
                       </Stack>
                       <TextField
                         className={"Summary"}
-                        rows={50}
+                        rows={contentHeight}
                         value={summary}
                         readOnly={true}
                         code={true}
+                        sx={{ maxWidth: "100%" }}
                       />
                     </Stack>
                   }
